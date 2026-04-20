@@ -2,10 +2,11 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-  // site: 'https://<github-username>.github.io',
-  // base: '/<repo-name>',   // nur n\u00f6tig falls die Seite NICHT unter einer eigenen Domain l\u00e4uft
-  //                         // bei eigener Domain (z. B. flynnbertsch.com) bleibt beides kommentiert
-  //                         // bzw. nur `site` auf die Domain setzen.
+  site: 'https://flynn-com.github.io',
+  base: '/Webseite2.0',
+  // Bei eigener Domain (z. B. flynnbertsch.com) sp\u00e4ter stattdessen:
+  //   site: 'https://flynnbertsch.com',
+  //   base: '/',  (oder Zeile entfernen)
   i18n: {
     defaultLocale: 'de',
     locales: ['de', 'en'],
