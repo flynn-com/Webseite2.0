@@ -1,0 +1,53 @@
+---
+import { t, pathForLang, type Lang } from '../i18n/ui';
+import LanguageSwitch from './LanguageSwitch.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const current = Astro.url.pathname.replace(/\/$/, '') + '/';
+
+const links = [
+  { key: 'home' as const, label: t(lang, 'nav.home') },
+  { key: 'projects' as const, label: t(lang, 'nav.projects') },
+  { key: 'about' as const, label: t(lang, 'nav.about') },
+];
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-header__logo" href={pathForLang(lang, 'home')}>Flynn Bertsch</a>
+
+    <button class="site-header__toggle" aria-controls="site-nav" aria-expanded="false" type="button">
+      <span class="visually-hidden">{t(lang, 'nav.menu')}</span>
+      <span aria-hidden="true">&#9776;</span>
+    </button>
+
+    <nav id="site-nav" class="site-header__nav" aria-label="Primary">
+      <ul>
+        {links.map((item) => {
+          const href = pathForLang(lang, item.key);
+          const isActive = href === current;
+          return (
+            <li>
+              <a href={href} aria-current={isActive ? 'page' : undefined}>{item.label}</a>
+            </li>
+          );
+        })}
+      </ul>
+      <LanguageSwitch lang={lang} />
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.site-header__toggle');
+  const nav = document.getElementById('site-nav');
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    nav?.classList.toggle('is-open', !open);
+  });
+</script>

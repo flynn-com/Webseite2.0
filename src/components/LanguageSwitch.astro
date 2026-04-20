@@ -1,0 +1,52 @@
+---
+import { languages, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+function buildAltPath(path: string, target: Lang): string {
+  // DE ist Default (kein Pr\u00e4fix). Umschaltung:
+  //   DE -> EN : /projekte/foo/   ->  /en/projekte/foo/   (grober Fallback; Projekt-Routen haben unterschiedliche Segmente)
+  //   EN -> DE : /en/projects/foo/ ->  /projekte/foo/     (s.o.)
+  // F\u00fcr statische Seiten mappen wir bekannte Pfade explizit; f\u00fcr alles andere fallback auf die Home-URL der Zielsprache.
+  const staticMap: Record<string, { de: string; en: string }> = {
+    home: { de: '/', en: '/en/' },
+    projects: { de: '/projekte/', en: '/en/projects/' },
+    about: { de: '/ueber-mich/', en: '/en/about/' },
+    imprint: { de: '/impressum/', en: '/en/imprint/' },
+    privacy: { de: '/datenschutz/', en: '/en/privacy/' },
+  };
+
+  const normalized = path.endsWith('/') ? path : path + '/';
+
+  for (const entry of Object.values(staticMap)) {
+    if (entry.de === normalized || entry.en === normalized) return entry[target];
+  }
+
+  // Projekt-Detailseiten: slugs k\u00f6nnen pro Sprache unterschiedlich sein \u2013 Fallback zur Projekt\u00fcbersicht.
+  if (normalized.startsWith('/projekte/') || normalized.startsWith('/en/projects/')) {
+    return staticMap.projects[target];
+  }
+
+  return staticMap.home[target];
+}
+---
+
+<ul class="lang-switch" aria-label="Language">
+  {(Object.keys(languages) as Lang[]).map((code) => {
+    const isActive = code === lang;
+    return (
+      <li>
+        <a
+          href={buildAltPath(currentPath, code)}
+          hreflang={code}
+          aria-current={isActive ? 'true' : undefined}
+        >{code.toUpperCase()}</a>
+      </li>
+    );
+  })}
+</ul>

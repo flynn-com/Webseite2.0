@@ -1,0 +1,32 @@
+---
+import { projectDetailPath, type Lang, t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  title: string;
+  category: string;
+  cover: string;
+  description?: string;
+  date: Date;
+}
+
+const { lang, slug, title, category, cover, description, date } = Astro.props;
+const categoryLabel = t(lang, `projects.filter.${category}` as any);
+const formatter = new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-GB', { year: 'numeric', month: 'long' });
+---
+
+<a class="project-card" href={projectDetailPath(lang, slug)}>
+  <div class="project-card__media">
+    {cover ? <img src={cover} alt="" loading="lazy" /> : null}
+  </div>
+  <div class="project-card__body">
+    <p class="project-card__meta">
+      <span>{categoryLabel}</span>
+      <span aria-hidden="true">&middot;</span>
+      <span>{formatter.format(date)}</span>
+    </p>
+    <h3 class="project-card__title">{title}</h3>
+    {description && <p class="project-card__desc">{description}</p>}
+  </div>
+</a>

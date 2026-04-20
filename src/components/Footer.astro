@@ -1,0 +1,22 @@
+---
+import { t, pathForLang, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <p class="site-footer__copy">&copy; {year} Flynn Bertsch. {t(lang, 'footer.copyright')}</p>
+    <nav aria-label="Legal">
+      <ul class="site-footer__legal">
+        <li><a href={pathForLang(lang, 'imprint')}>{t(lang, 'nav.imprint')}</a></li>
+        <li><a href={pathForLang(lang, 'privacy')}>{t(lang, 'nav.privacy')}</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>

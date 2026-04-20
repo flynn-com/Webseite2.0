@@ -1,0 +1,53 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { t, pathForLang } from '../../i18n/ui';
+
+const lang = 'en' as const;
+const allProjects = await getCollection('projects-en', ({ data }) => !data.draft);
+const featured = allProjects
+  .filter((p) => p.data.featured)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 6);
+const projectsToShow = featured.length > 0
+  ? featured
+  : allProjects.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 6);
+---
+
+<BaseLayout
+  lang={lang}
+  title="Flynn Bertsch \u2013 Photography, Video, Web design, Design"
+  description="Portfolio of Flynn Bertsch \u2013 photography, videography, web design and design."
+>
+  <section class="hero container">
+    <h1>{t(lang, 'home.intro.headline')}</h1>
+    <p class="hero__subline">{t(lang, 'home.intro.subline')}</p>
+  </section>
+
+  <section class="section container">
+    <h2 class="section-title">{t(lang, 'home.featured.title')}</h2>
+
+    {projectsToShow.length === 0 ? (
+      <p>{t(lang, 'projects.empty')}</p>
+    ) : (
+      <div class="project-grid">
+        {projectsToShow.map((p) => (
+          <ProjectCard
+            lang={lang}
+            slug={p.id}
+            title={p.data.title}
+            category={p.data.category}
+            cover={p.data.cover}
+            description={p.data.description}
+            date={p.data.date}
+          />
+        ))}
+      </div>
+    )}
+
+    <p style="margin-top: 2rem;">
+      <a href={pathForLang(lang, 'projects')}>{t(lang, 'home.cta.allProjects')} &rarr;</a>
+    </p>
+  </section>
+</BaseLayout>

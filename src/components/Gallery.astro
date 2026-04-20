@@ -1,0 +1,23 @@
+---
+interface Props {
+  images: string[];
+  title?: string;
+}
+
+const { images, title } = Astro.props;
+---
+
+{images.length > 0 && (
+  <section class="gallery">
+    {title && <h2 class="section-title">{title}</h2>}
+    <ul class="gallery__grid">
+      {images.map((src) => (
+        <li class="gallery__item">
+          <a href={src} target="_blank" rel="noopener noreferrer">
+            <img src={src} alt="" loading="lazy" />
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}

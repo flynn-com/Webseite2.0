@@ -1,0 +1,72 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Gallery from '../../components/Gallery.astro';
+import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
+import LocalVideo from '../../components/LocalVideo.astro';
+import { t, pathForLang } from '../../i18n/ui';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('projects-de', ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+interface Props { entry: CollectionEntry<'projects-de'>; }
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const lang = 'de' as const;
+const fmt = new Intl.DateTimeFormat('de-DE', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<BaseLayout lang={lang} title={`${entry.data.title} \u2013 Flynn Bertsch`} description={entry.data.description}>
+  <article class="project-detail container">
+    <a class="project-detail__back" href={pathForLang(lang, 'projects')}>{t(lang, 'project.back')}</a>
+
+    <h1>{entry.data.title}</h1>
+    <p class="project-detail__meta">
+      <span>{t(lang, `projects.filter.${entry.data.category}` as any)}</span>
+      <span aria-hidden="true">&middot;</span>
+      <time datetime={entry.data.date.toISOString()}>{fmt.format(entry.data.date)}</time>
+    </p>
+
+    {entry.data.cover && (
+      <div class="project-detail__cover">
+        <img src={entry.data.cover} alt="" />
+      </div>
+    )}
+
+    <div class="project-detail__body prose">
+      <Content />
+    </div>
+
+    {entry.data.gallery.length > 0 && (
+      <Gallery images={entry.data.gallery} title={t(lang, 'project.gallery')} />
+    )}
+
+    {entry.data.videos.length > 0 && (
+      <section class="section">
+        <h2 class="section-title">{t(lang, 'project.videos')}</h2>
+        {entry.data.videos.map((src) => <LocalVideo src={src} />)}
+      </section>
+    )}
+
+    {entry.data.youtube.length > 0 && (
+      <section class="section">
+        <h2 class="section-title">{t(lang, 'project.youtube')}</h2>
+        {entry.data.youtube.map((url) => <YouTubeEmbed url={url} lang={lang} />)}
+      </section>
+    )}
+
+    {entry.data.tags.length > 0 && (
+      <div>
+        <h2 class="section-title">{t(lang, 'project.tags')}</h2>
+        <ul class="project-detail__tags">
+          {entry.data.tags.map((tag) => <li>{tag}</li>)}
+        </ul>
+      </div>
+    )}
+  </article>
+</BaseLayout>

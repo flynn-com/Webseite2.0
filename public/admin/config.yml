@@ -1,0 +1,126 @@
+# ----------------------------------------------------------------------------------
+# Decap CMS Konfiguration
+#
+# Nach dem Anlegen der GitHub OAuth App und dem Deployen des Cloudflare Workers:
+#   1. Ersetze <dein-github-username>/<dein-repo> durch deine echten Werte
+#   2. Ersetze https://<dein-oauth-worker>.workers.dev durch die URL deines OAuth-Proxies
+#   3. Passe branch ggf. an, falls du nicht "main" nutzt
+# ----------------------------------------------------------------------------------
+
+backend:
+  name: github
+  repo: <dein-github-username>/<dein-repo>     # z.B. flynnbertsch/portfolio
+  branch: main
+  base_url: https://<dein-oauth-worker>.workers.dev
+  auth_endpoint: /auth
+
+# Lokales Testen des CMS ohne Auth/Repo: `npx decap-server` starten und
+# diese Zeile einkommentieren (nur f\u00fcr Entwicklung):
+# local_backend: true
+
+publish_mode: simple
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+# Anzeige im CMS
+site_url: "https://<deine-domain>"
+display_url: "https://<deine-domain>"
+locale: "de"
+
+collections:
+  # ---------------- DEUTSCH ----------------
+  - name: "projects_de"
+    label: "Projekte (Deutsch)"
+    folder: "src/content/projects/de"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "projekte/{{slug}}"
+    editor:
+      preview: false
+    fields:
+      - { name: "title", label: "Titel", widget: "string" }
+      - { name: "slug", label: "URL-Slug (ohne Leerzeichen)", widget: "string", hint: "Erscheint in der URL, z.B. 'portrait-studio'" }
+      - name: "category"
+        label: "Kategorie"
+        widget: "select"
+        options:
+          - { label: "Fotografie", value: "fotografie" }
+          - { label: "Video", value: "video" }
+          - { label: "Webdesign", value: "webdesign" }
+          - { label: "Design", value: "design" }
+      - { name: "date", label: "Datum", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { name: "cover", label: "Titelbild", widget: "image", media_library: { config: { multiple: false } } }
+      - { name: "description", label: "Kurzbeschreibung (1-2 S\u00e4tze)", widget: "text", required: false }
+      - name: "gallery"
+        label: "Galerie (Bilder)"
+        widget: "list"
+        required: false
+        field: { name: "image", label: "Bild", widget: "image" }
+      - name: "youtube"
+        label: "YouTube-Links"
+        widget: "list"
+        required: false
+        summary: "{{fields.url}}"
+        field: { name: "url", label: "YouTube-URL", widget: "string", pattern: ['^https?://(www\.)?(youtube\.com|youtu\.be)/.+', 'Bitte eine g\u00fcltige YouTube-URL eingeben'] }
+      - name: "videos"
+        label: "Eigene Videos (max. 20 MB, MP4)"
+        hint: "Gr\u00f6\u00dfere Videos bitte als YouTube-Link einbinden"
+        widget: "list"
+        required: false
+        field: { name: "file", label: "Videodatei", widget: "file" }
+      - name: "tags"
+        label: "Tags"
+        widget: "list"
+        required: false
+        field: { name: "tag", label: "Tag", widget: "string" }
+      - { name: "featured", label: "Auf Startseite hervorheben", widget: "boolean", default: false }
+      - { name: "draft", label: "Entwurf (nicht ver\u00f6ffentlichen)", widget: "boolean", default: false }
+      - { name: "body", label: "Fließtext (Markdown)", widget: "markdown" }
+
+  # ---------------- ENGLISCH ----------------
+  - name: "projects_en"
+    label: "Projects (English)"
+    folder: "src/content/projects/en"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "en/projects/{{slug}}"
+    editor:
+      preview: false
+    fields:
+      - { name: "title", label: "Title", widget: "string" }
+      - { name: "slug", label: "URL slug", widget: "string" }
+      - name: "category"
+        label: "Category"
+        widget: "select"
+        options:
+          - { label: "Photography", value: "fotografie" }
+          - { label: "Video", value: "video" }
+          - { label: "Web design", value: "webdesign" }
+          - { label: "Design", value: "design" }
+      - { name: "date", label: "Date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { name: "cover", label: "Cover image", widget: "image" }
+      - { name: "description", label: "Short description", widget: "text", required: false }
+      - name: "gallery"
+        label: "Gallery"
+        widget: "list"
+        required: false
+        field: { name: "image", label: "Image", widget: "image" }
+      - name: "youtube"
+        label: "YouTube links"
+        widget: "list"
+        required: false
+        field: { name: "url", label: "YouTube URL", widget: "string" }
+      - name: "videos"
+        label: "Local videos (max 20 MB, MP4)"
+        widget: "list"
+        required: false
+        field: { name: "file", label: "Video file", widget: "file" }
+      - name: "tags"
+        label: "Tags"
+        widget: "list"
+        required: false
+        field: { name: "tag", label: "Tag", widget: "string" }
+      - { name: "featured", label: "Feature on homepage", widget: "boolean", default: false }
+      - { name: "draft", label: "Draft (do not publish)", widget: "boolean", default: false }
+      - { name: "body", label: "Body (Markdown)", widget: "markdown" }

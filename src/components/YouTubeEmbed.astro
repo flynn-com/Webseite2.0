@@ -1,0 +1,63 @@
+---
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  url: string;
+  lang?: Lang;
+  title?: string;
+}
+
+const { url, lang = 'de', title } = Astro.props;
+
+function extractId(input: string): string | null {
+  try {
+    const u = new URL(input);
+    if (u.hostname.includes('youtu.be')) {
+      return u.pathname.replace(/^\//, '') || null;
+    }
+    if (u.hostname.includes('youtube.com')) {
+      if (u.searchParams.get('v')) return u.searchParams.get('v');
+      const parts = u.pathname.split('/').filter(Boolean);
+      // Paths like /embed/ID, /shorts/ID, /live/ID
+      if (parts.length >= 2 && ['embed', 'shorts', 'live'].includes(parts[0])) return parts[1];
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+const id = extractId(url);
+const thumb = id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null;
+const embedUrl = id ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0` : url;
+const videoTitle = title ?? 'YouTube video';
+---
+
+{id ? (
+  <figure class="yt-embed" data-embed={embedUrl}>
+    <button type="button" class="yt-embed__button" aria-label={t(lang, 'youtube.play')}>
+      <img class="yt-embed__thumb" src={thumb!} alt="" loading="lazy" />
+      <span class="yt-embed__play" aria-hidden="true">&#9654;</span>
+    </button>
+    <figcaption class="yt-embed__hint">{t(lang, 'youtube.loadHint')}</figcaption>
+  </figure>
+) : (
+  <p><a href={url} target="_blank" rel="noopener noreferrer">{url}</a></p>
+)}
+
+<script>
+  document.querySelectorAll<HTMLElement>('.yt-embed').forEach((fig) => {
+    const btn = fig.querySelector<HTMLButtonElement>('.yt-embed__button');
+    const embedUrl = fig.dataset.embed;
+    if (!btn || !embedUrl) return;
+    btn.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = embedUrl;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.loading = 'lazy';
+      iframe.title = 'YouTube video';
+      fig.replaceChildren(iframe);
+    }, { once: true });
+  });
+</script>
