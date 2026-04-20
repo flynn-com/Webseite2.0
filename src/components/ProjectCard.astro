@@ -1,5 +1,5 @@
 ---
-import { projectDetailPath, type Lang, t } from '../i18n/ui';
+import { projectDetailPath, withBase, type Lang, t } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -18,7 +18,7 @@ const formatter = new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-GB', { y
 
 <a class="project-card" href={projectDetailPath(lang, slug)}>
   <div class="project-card__media">
-    {cover ? <img src={cover} alt="" loading="lazy" /> : null}
+    {cover ? <img src={withBase(cover)} alt="" loading="lazy" /> : null}
   </div>
   <div class="project-card__body">
     <p class="project-card__meta">

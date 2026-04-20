@@ -70,14 +70,32 @@ export function t(lang: Lang, key: keyof (typeof ui)['de']): string {
   return ui[lang][key] ?? ui[defaultLang][key];
 }
 
+// H\u00e4ngt das Astro-`base` (z.B. "/Webseite2.0") vor einen absoluten Pfad,
+// damit Links und Bildquellen auch unter GitHub Pages funktionieren.
+export function withBase(path: string): string {
+  const base = import.meta.env.BASE_URL ?? '/';
+  const baseTrim = base.endsWith('/') ? base.slice(0, -1) : base;
+  const norm = path.startsWith('/') ? path : '/' + path;
+  return (baseTrim + norm) || '/';
+}
+
+// Entfernt ein evtl. vorhandenes base-Pr\u00e4fix (n\u00fctzlich f\u00fcr Pfadvergleiche).
+export function stripBase(path: string): string {
+  const base = import.meta.env.BASE_URL ?? '/';
+  const baseTrim = base.endsWith('/') ? base.slice(0, -1) : base;
+  if (baseTrim && path.startsWith(baseTrim)) return path.slice(baseTrim.length) || '/';
+  return path;
+}
+
 export function getLangFromUrl(url: URL): Lang {
-  const [, segment] = url.pathname.split('/');
+  const path = stripBase(url.pathname);
+  const [, segment] = path.split('/');
   if (segment in languages) return segment as Lang;
   return defaultLang;
 }
 
 export function pathForLang(lang: Lang, pageKey: PageKey): string {
-  return routes[lang][pageKey];
+  return withBase(routes[lang][pageKey]);
 }
 
 export type PageKey =
@@ -105,5 +123,5 @@ export const routes: Record<Lang, Record<PageKey, string>> = {
 };
 
 export function projectDetailPath(lang: Lang, slug: string): string {
-  return lang === 'de' ? `/projekte/${slug}/` : `/en/projects/${slug}/`;
+  return withBase(lang === 'de' ? `/projekte/${slug}/` : `/en/projects/${slug}/`);
 }

@@ -1,4 +1,6 @@
 ---
+import { withBase } from '../i18n/ui';
+
 interface Props {
   images: string[];
   title?: string;
@@ -11,13 +13,16 @@ const { images, title } = Astro.props;
   <section class="gallery">
     {title && <h2 class="section-title">{title}</h2>}
     <ul class="gallery__grid">
-      {images.map((src) => (
-        <li class="gallery__item">
-          <a href={src} target="_blank" rel="noopener noreferrer">
-            <img src={src} alt="" loading="lazy" />
-          </a>
-        </li>
-      ))}
+      {images.map((src) => {
+        const href = withBase(src);
+        return (
+          <li class="gallery__item">
+            <a href={href} target="_blank" rel="noopener noreferrer">
+              <img src={href} alt="" loading="lazy" />
+            </a>
+          </li>
+        );
+      })}
     </ul>
   </section>
 )}

@@ -4,7 +4,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Gallery from '../../../components/Gallery.astro';
 import YouTubeEmbed from '../../../components/YouTubeEmbed.astro';
 import LocalVideo from '../../../components/LocalVideo.astro';
-import { t, pathForLang } from '../../../i18n/ui';
+import { t, pathForLang, withBase } from '../../../i18n/ui';
 
 export async function getStaticPaths() {
   const entries = await getCollection('projects-en', ({ data }) => !data.draft);
@@ -34,7 +34,7 @@ const fmt = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', d
 
     {entry.data.cover && (
       <div class="project-detail__cover">
-        <img src={entry.data.cover} alt="" />
+        <img src={withBase(entry.data.cover)} alt="" />
       </div>
     )}
 

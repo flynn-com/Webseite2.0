@@ -1,4 +1,6 @@
 ---
+import { withBase } from '../i18n/ui';
+
 interface Props {
   src: string;
   poster?: string;
@@ -7,6 +9,6 @@ interface Props {
 const { src, poster } = Astro.props;
 ---
 
-<video class="local-video" controls preload="metadata" playsinline poster={poster}>
-  <source src={src} />
+<video class="local-video" controls preload="metadata" playsinline poster={poster ? withBase(poster) : undefined}>
+  <source src={withBase(src)} />
 </video>
