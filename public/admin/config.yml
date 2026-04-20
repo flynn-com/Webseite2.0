@@ -9,9 +9,9 @@
 
 backend:
   name: github
-  repo: <dein-github-username>/<dein-repo>     # z.B. flynnbertsch/portfolio
+  repo: flynn-com/Webseite2.0
   branch: main
-  base_url: https://<dein-oauth-worker>.workers.dev
+  base_url: https://portfolio-oauth.flynn-fdc.workers.dev
   auth_endpoint: /auth
 
 # Lokales Testen des CMS ohne Auth/Repo: `npx decap-server` starten und
@@ -24,8 +24,8 @@ media_folder: "public/uploads"
 public_folder: "/uploads"
 
 # Anzeige im CMS
-site_url: "https://<deine-domain>"
-display_url: "https://<deine-domain>"
+site_url: "https://flynn-com.github.io/Webseite2.0"
+display_url: "https://flynn-com.github.io/Webseite2.0"
 locale: "de"
 
 collections:
