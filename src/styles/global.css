@@ -59,6 +59,9 @@ img { background: #f5f5f5; }
 .skip-link { position: absolute; left: -9999px; top: 0; background: #000; color: #fff; padding: 0.5rem 1rem; z-index: 100; }
 .skip-link:focus { left: 0; }
 
+/* Navigationsleiste vor\u00fcbergehend ausgeblendet \u2013 zur\u00fcckholen durch L\u00f6schen dieser Regel */
+.site-header { display: none !important; }
+
 /* ---------- Header ---------- */
 .site-header { border-bottom: 1px solid var(--color-border); position: sticky; top: 0; background: var(--color-bg); z-index: 10; }
 .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); width: min(100% - 2rem, var(--container)); margin-inline: auto; padding-block: var(--space-3); }
