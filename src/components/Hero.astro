@@ -27,12 +27,5 @@ const buttonLabel = lang === 'de' ? '\u00fcber mich' : 'about me';
     />
   </picture>
 
-  <!-- Unsichtbare Klickfl\u00e4che \u00fcber dem \u201e\u00fcber mich\u201c-Button im Bild -->
-  <a
-    class="hero-flynn__btn-overlay"
-    href={pathForLang(lang, 'about')}
-    aria-label={buttonLabel}
-  >
-    <span class="visually-hidden">{buttonLabel}</span>
-  </a>
+  <a class="hero-flynn__btn" href={pathForLang(lang, 'about')}>{buttonLabel}</a>
 </section>
