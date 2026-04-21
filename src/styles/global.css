@@ -164,9 +164,10 @@ a:hover { text-decoration-thickness: 2px; }
 .filter-bar__button { border: 1px solid var(--color-border); padding: var(--space-2) var(--space-4); border-radius: 999px; background: transparent; }
 .filter-bar__button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
 
-/* ---------- Hero: statische 1:1-Umsetzung des Figma-Layouts (ohne Animation) ---------- */
+/* ---------- Hero mit Entrance- & Scroll-Animation ---------- */
 
 .hero-flynn {
+  --hero-scroll: 0;           /* 0\u20131, vom JS beim Scrollen gesetzt */
   position: relative;
   width: 100%;
   height: 100vh;
@@ -259,6 +260,78 @@ a:hover { text-decoration-thickness: 2px; }
   .hero-flynn__logo {
     z-index: 3;
     width: 80vw;
+  }
+}
+
+/* ========== ENTRANCE-ANIMATIONEN ==========
+   Auf Tablet (centered) & Desktop (right-anchored): Frau gleitet von unten ein.
+   Auf Mobile: Logo gleitet von unten ein.                                   */
+
+/* Tablet: Frau ist zentriert */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-flynn__woman {
+    animation: womanEnterCentered 1.4s cubic-bezier(.2,.7,.2,1) 0.45s both;
+  }
+  .hero-flynn.is-ready .hero-flynn__woman {
+    animation: none;
+    transform: translate(-50%, calc(-50% - var(--hero-scroll) * 110vh));
+    opacity: calc(1 - var(--hero-scroll) * 0.9);
+    will-change: transform, opacity;
+  }
+}
+
+/* Desktop: Frau ist rechts-verankert */
+@media (min-width: 1024px) {
+  .hero-flynn__woman {
+    animation: womanEnterRight 1.4s cubic-bezier(.2,.7,.2,1) 0.45s both;
+  }
+  .hero-flynn.is-ready .hero-flynn__woman {
+    animation: none;
+    transform: translateY(calc(-50% - var(--hero-scroll) * 110vh));
+    opacity: calc(1 - var(--hero-scroll) * 0.9);
+    will-change: transform, opacity;
+  }
+}
+
+/* Mobile: Logo gleitet ein & scrollt weg, Frau bleibt statisch */
+@media (max-width: 767px) {
+  .hero-flynn__logo {
+    animation: logoEnterMobile 1.4s cubic-bezier(.2,.7,.2,1) 0.45s both;
+  }
+  .hero-flynn.is-ready .hero-flynn__logo {
+    animation: none;
+    transform: translate(-50%, calc(-50% - var(--hero-scroll) * 110vh));
+    opacity: calc(1 - var(--hero-scroll) * 0.9);
+    will-change: transform, opacity;
+  }
+}
+
+@keyframes womanEnterCentered {
+  0%   { transform: translate(-50%, calc(-50% + 120vh)); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: translate(-50%, -50%); opacity: 1; }
+}
+
+@keyframes womanEnterRight {
+  0%   { transform: translateY(calc(-50% + 120vh)); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: translateY(-50%); opacity: 1; }
+}
+
+@keyframes logoEnterMobile {
+  0%   { transform: translate(-50%, calc(-50% + 100vh)); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: translate(-50%, -50%); opacity: 1; }
+}
+
+/* Reduced motion: alles sofort am Ziel */
+@media (prefers-reduced-motion: reduce) {
+  .hero-flynn__woman,
+  .hero-flynn__logo,
+  .hero-flynn__nav,
+  .hero-flynn__scroll {
+    animation: none !important;
+    opacity: 1 !important;
   }
 }
 
@@ -419,6 +492,8 @@ a:hover { text-decoration-thickness: 2px; }
   display: flex;
   gap: 1.25rem;
   z-index: 4;
+  opacity: 0;
+  animation: heroFadeIn 0.8s ease-out 1.3s forwards;
 }
 
 /* ---------- Scroll-Pfeil unten ---------- */
@@ -428,6 +503,13 @@ a:hover { text-decoration-thickness: 2px; }
   bottom: 2.25rem;
   transform: translateX(-50%);
   z-index: 4;
+  opacity: 0;
+  animation: heroFadeIn 0.8s ease-out 1.55s forwards;
+}
+
+@keyframes heroFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* Mobile-Anpassungen */

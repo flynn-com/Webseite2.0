@@ -50,8 +50,54 @@ const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
 </section>
 
 <script>
-  const scrollBtn = document.querySelector<HTMLButtonElement>('.hero-flynn__scroll');
+  const hero = document.querySelector<HTMLElement>('.hero-flynn');
+  const woman = hero?.querySelector<HTMLElement>('.hero-flynn__woman');
+  const logo = hero?.querySelector<HTMLElement>('.hero-flynn__logo');
+  const scrollBtn = hero?.querySelector<HTMLButtonElement>('.hero-flynn__scroll');
+
   scrollBtn?.addEventListener('click', () => {
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
   });
+
+  if (hero && woman && logo) {
+    const mqlMobile = window.matchMedia('(max-width: 767px)');
+    const mqlReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const getTopLayer = () => (mqlMobile.matches ? logo : woman);
+
+    let ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = Math.max(0, window.scrollY);
+        const h = hero!.offsetHeight || window.innerHeight;
+        const progress = Math.min(1, y / h);
+        hero!.style.setProperty('--hero-scroll', progress.toFixed(3));
+        ticking = false;
+      });
+    }
+
+    function activate() {
+      hero!.classList.add('is-ready');
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    if (mqlReduced.matches) {
+      activate();
+    } else {
+      // Sobald die Entrance-Animation fertig ist \u2192 Scroll-Logik aktivieren
+      getTopLayer().addEventListener('animationend', activate, { once: true });
+      // Sicherheits-Fallback
+      setTimeout(() => {
+        if (!hero!.classList.contains('is-ready')) activate();
+      }, 3000);
+    }
+
+    // Bei Viewport-Wechsel (z.\u202fB. Ger\u00e4tedrehung) ggf. neu binden
+    mqlMobile.addEventListener('change', () => {
+      if (hero!.classList.contains('is-ready')) onScroll();
+    });
+  }
 </script>
