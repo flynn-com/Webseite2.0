@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import Hero from '../components/Hero.astro';
 import { t, pathForLang } from '../i18n/ui';
 
 const lang = 'de' as const;
@@ -19,11 +20,9 @@ const projectsToShow = featured.length > 0
   lang={lang}
   title="Flynn Bertsch \u2013 Fotografie, Video, Webdesign, Design"
   description="Portfolio von Flynn Bertsch \u2013 Fotografie, Videografie, Webdesign und Design."
+  bodyClass="has-hero"
 >
-  <section class="hero container">
-    <h1>{t(lang, 'home.intro.headline')}</h1>
-    <p class="hero__subline">{t(lang, 'home.intro.subline')}</p>
-  </section>
+  <Hero lang={lang} />
 
   <section class="section container">
     <h2 class="section-title">{t(lang, 'home.featured.title')}</h2>

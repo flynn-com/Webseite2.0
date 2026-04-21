@@ -9,12 +9,17 @@ button { font: inherit; cursor: pointer; border: 0; background: none; padding: 0
 /* ---------- Design-Tokens (Phase 1 neutral; Phase 2 \u00fcberschreibt) ---------- */
 :root {
   --color-bg: #ffffff;
-  --color-fg: #141414;
+  --color-fg: #000000;
   --color-muted: #666;
   --color-border: #e5e5e5;
-  --color-accent: #141414;
+  --color-accent: #000000;
 
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Hero-spezifisch */
+  --color-hero-btn-bg: rgba(217, 217, 217, 0.2);
+  --color-hero-btn-bg-hover: rgba(255, 255, 255, 0.35);
+
+  --font-sans: "Helvetica Neue", Helvetica, Arial, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-serif: Georgia, "Times New Roman", serif;
 
   --space-1: 0.25rem;
@@ -152,6 +157,118 @@ img { background: #f5f5f5; }
 .filter-bar { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); }
 .filter-bar__button { border: 1px solid var(--color-border); padding: var(--space-2) var(--space-4); border-radius: 999px; background: transparent; }
 .filter-bar__button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+
+/* ---------- Hero (Startseite \u2013 Figma-Umsetzung) ---------- */
+.hero-flynn {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 560px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #c7c7c7 0%, #e6e6e6 55%, #f3f3f3 100%);
+  isolation: isolate;
+}
+
+.hero-flynn__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  z-index: 1;
+  user-select: none;
+  pointer-events: none;
+}
+
+.hero-flynn__title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(5rem, 22vw, 19.5rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: #000;
+  margin: 0;
+  z-index: 2;
+  white-space: nowrap;
+  mix-blend-mode: normal;
+}
+
+.hero-flynn__dot {
+  display: inline-block;
+  vertical-align: top;
+  font-size: 0.18em;
+  line-height: 1;
+  transform: translateY(-0.2em);
+  margin-right: 0.03em;
+}
+
+.hero-flynn__btn {
+  position: absolute;
+  left: 50%;
+  bottom: 26%;
+  transform: translateX(-50%);
+  display: inline-grid;
+  place-items: center;
+  padding: 0.75em 2em;
+  min-width: 5.5rem;
+  background: var(--color-hero-btn-bg);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: clamp(0.7rem, 1.5vw, 1.35rem);
+  letter-spacing: -0.06em;
+  text-decoration: none;
+  text-transform: lowercase;
+  border: 0;
+  border-radius: 2px;
+  z-index: 3;
+  transition: background 0.2s ease, transform 0.2s ease;
+  will-change: transform;
+}
+
+.hero-flynn__btn:hover,
+.hero-flynn__btn:focus-visible {
+  background: var(--color-hero-btn-bg-hover);
+  transform: translate(-50%, -2px);
+  outline: 0;
+}
+
+/* Beim Scrollen sanft aus dem Hero heraus */
+.hero-flynn__scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 2.5rem;
+  transform: translateX(-50%);
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  z-index: 3;
+  animation: heroScrollBounce 2.4s ease-in-out infinite;
+}
+
+@keyframes heroScrollBounce {
+  0%, 100% { transform: translate(-50%, 0); opacity: 0.6; }
+  50% { transform: translate(-50%, 6px); opacity: 1; }
+}
+
+/* Wenn der Header \u00fcber das Hero l\u00e4uft, transparent machen */
+.has-hero .site-header {
+  background: transparent;
+  border-bottom-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-flynn__scroll-hint { animation: none; }
+  .hero-flynn__btn { transition: none; }
+}
 
 /* ---------- Prose (Fließtexte) ---------- */
 .prose { max-width: 40rem; }

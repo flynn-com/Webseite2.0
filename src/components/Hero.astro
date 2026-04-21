@@ -1,0 +1,25 @@
+---
+import { pathForLang, withBase, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const buttonLabel = lang === 'de' ? '\u00fcber mich' : 'about me';
+const scrollHint = lang === 'de' ? 'Scroll' : 'Scroll';
+---
+
+<section class="hero-flynn" aria-label={lang === 'de' ? 'Startbereich' : 'Intro'}>
+  <img
+    class="hero-flynn__photo"
+    src={withBase('/uploads/hero/hero.jpg')}
+    alt=""
+    fetchpriority="high"
+  />
+  <h1 class="hero-flynn__title">
+    <span class="hero-flynn__dot" aria-hidden="true">.</span>Flynn
+  </h1>
+  <a class="hero-flynn__btn" href={pathForLang(lang, 'about')}>{buttonLabel}</a>
+  <span class="hero-flynn__scroll-hint" aria-hidden="true">{scrollHint} &darr;</span>
+</section>

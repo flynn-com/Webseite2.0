@@ -8,9 +8,10 @@ interface Props {
   title: string;
   description?: string;
   lang?: Lang;
+  bodyClass?: string;
 }
 
-const { title, description, lang: langProp } = Astro.props;
+const { title, description, lang: langProp, bodyClass } = Astro.props;
 const lang = langProp ?? getLangFromUrl(Astro.url);
 ---
 
@@ -24,7 +25,7 @@ const lang = langProp ?? getLangFromUrl(Astro.url);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
-  <body>
+  <body class={bodyClass}>
     <a class="skip-link" href="#main">Zum Inhalt springen</a>
     <Header lang={lang} />
     <main id="main">
