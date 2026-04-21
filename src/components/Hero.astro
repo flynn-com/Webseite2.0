@@ -7,19 +7,32 @@ interface Props {
 
 const { lang } = Astro.props;
 const buttonLabel = lang === 'de' ? '\u00fcber mich' : 'about me';
-const scrollHint = lang === 'de' ? 'Scroll' : 'Scroll';
 ---
 
-<section class="hero-flynn" aria-label={lang === 'de' ? 'Startbereich' : 'Intro'}>
-  <img
-    class="hero-flynn__photo"
-    src={withBase('/uploads/hero/hero.jpg')}
-    alt=""
-    fetchpriority="high"
-  />
-  <h1 class="hero-flynn__title">
-    <span class="hero-flynn__dot" aria-hidden="true">.</span>Flynn
-  </h1>
-  <a class="hero-flynn__btn" href={pathForLang(lang, 'about')}>{buttonLabel}</a>
-  <span class="hero-flynn__scroll-hint" aria-hidden="true">{scrollHint} &darr;</span>
+<section class="hero-flynn" aria-label="Flynn Bertsch">
+  <picture class="hero-flynn__picture">
+    <source
+      media="(max-width: 767px)"
+      srcset={withBase('/uploads/hero/hero-mobile.jpg')}
+    />
+    <source
+      media="(max-width: 1023px)"
+      srcset={withBase('/uploads/hero/hero-tablet.jpg')}
+    />
+    <img
+      class="hero-flynn__img"
+      src={withBase('/uploads/hero/hero-desktop.jpg')}
+      alt="Flynn Bertsch"
+      fetchpriority="high"
+    />
+  </picture>
+
+  <!-- Unsichtbare Klickfl\u00e4che \u00fcber dem \u201e\u00fcber mich\u201c-Button im Bild -->
+  <a
+    class="hero-flynn__btn-overlay"
+    href={pathForLang(lang, 'about')}
+    aria-label={buttonLabel}
+  >
+    <span class="visually-hidden">{buttonLabel}</span>
+  </a>
 </section>
