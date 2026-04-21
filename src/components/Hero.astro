@@ -7,25 +7,92 @@ interface Props {
 
 const { lang } = Astro.props;
 const buttonLabel = lang === 'de' ? '\u00fcber mich' : 'about me';
+const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
 ---
 
 <section class="hero-flynn" aria-label="Flynn Bertsch">
-  <picture class="hero-flynn__picture">
-    <source
-      media="(max-width: 767px)"
-      srcset={withBase('/uploads/hero/hero-mobile.jpg')}
-    />
-    <source
-      media="(max-width: 1023px)"
-      srcset={withBase('/uploads/hero/hero-tablet.jpg')}
-    />
-    <img
-      class="hero-flynn__img"
-      src={withBase('/uploads/hero/hero-desktop.jpg')}
-      alt="Flynn Bertsch"
-      fetchpriority="high"
-    />
+  <!-- Layer 1: Hintergrund (Himmel/Studiobackdrop) -->
+  <picture class="hero-flynn__bg">
+    <source media="(max-width: 767px)" srcset={withBase('/uploads/hero/sky-H.png')} />
+    <img src={withBase('/uploads/hero/sky-Q.png')} alt="" aria-hidden="true" />
   </picture>
 
-  <a class="hero-flynn__btn" href={pathForLang(lang, 'about')}>{buttonLabel}</a>
+  <!-- Layer 2: Logo FLYNN (auf Desktop/Tablet statisch, auf Mobile animiert) -->
+  <img
+    class="hero-flynn__logo"
+    src={withBase('/uploads/hero/logo-flynn.png')}
+    alt="FLYNN"
+  />
+
+  <!-- Layer 3: Frau (auf Desktop/Tablet animiert, auf Mobile statisch) -->
+  <img
+    class="hero-flynn__woman"
+    src={withBase('/uploads/hero/woman.png')}
+    alt=""
+    aria-hidden="true"
+  />
+
+  <!-- Glas-Button -->
+  <a class="glass-btn hero-flynn__cta" href={pathForLang(lang, 'about')}>
+    <span>{buttonLabel}</span>
+  </a>
+
+  <!-- Scroll-Pfeil (Glas) -->
+  <button
+    type="button"
+    class="glass-btn glass-btn--round hero-flynn__scroll"
+    aria-label={scrollLabel}
+  >
+    <img src={withBase('/uploads/hero/arrow.png')} alt="" aria-hidden="true" />
+  </button>
 </section>
+
+<script>
+  // Entrance-Animation l\u00e4uft per CSS; Scroll-Animation per JS.
+  // Wir verschieben den \u201etop layer\u201c (Frau auf Desktop, Logo auf Mobile)
+  // beim Scrollen proportional nach oben aus dem Viewport.
+  const hero = document.querySelector<HTMLElement>('.hero-flynn');
+  const woman = hero?.querySelector<HTMLElement>('.hero-flynn__woman');
+  const logo = hero?.querySelector<HTMLElement>('.hero-flynn__logo');
+  const scrollBtn = hero?.querySelector<HTMLButtonElement>('.hero-flynn__scroll');
+  scrollBtn?.addEventListener('click', () => {
+    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+  });
+  if (hero && woman && logo) {
+    const mql = window.matchMedia('(max-width: 767px)');
+
+    function getTopLayer(): HTMLElement {
+      return mql.matches ? logo! : woman!;
+    }
+
+    // CSS variable f\u00fcr Scroll-Fortschritt (0\u20131). Wird f\u00fcr translateY genutzt.
+    let ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = Math.max(0, window.scrollY);
+        const h = hero!.offsetHeight || window.innerHeight;
+        const progress = Math.min(1, y / h);
+        hero!.style.setProperty('--hero-scroll', progress.toFixed(3));
+        ticking = false;
+      });
+    }
+
+    // Entrance-Animation abwarten, dann Scroll-Listener aktivieren.
+    getTopLayer().addEventListener('animationend', () => {
+      hero.classList.add('is-ready');
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }, { once: true });
+
+    // Sicherheits-Fallback: sp\u00e4testens nach 3 s aktiv schalten
+    setTimeout(() => {
+      if (!hero.classList.contains('is-ready')) {
+        hero.classList.add('is-ready');
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+      }
+    }, 3000);
+  }
+</script>
