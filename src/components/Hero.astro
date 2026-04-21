@@ -6,25 +6,22 @@ interface Props {
 }
 
 const { lang } = Astro.props;
-const buttonLabel = lang === 'de' ? '\u00fcber mich' : 'about me';
+const aboutLabel = lang === 'de' ? '\u00dcBER MICH' : 'ABOUT';
+const contactLabel = lang === 'de' ? 'KONTAKT' : 'CONTACT';
 const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
 ---
 
 <section class="hero-flynn" aria-label="Flynn Bertsch">
-  <!-- Layer 1: Hintergrund (Himmel) -->
+  <!-- Layer 1: Hintergrund -->
   <picture class="hero-flynn__bg">
     <source media="(max-width: 767px)" srcset={withBase('/uploads/hero/sky-H.png')} />
     <img src={withBase('/uploads/hero/sky-Q.png')} alt="" aria-hidden="true" />
   </picture>
 
-  <!-- Layer 2: Logo FLYNN (Desktop/Tablet: Mitte, Mobile: oberste Ebene) -->
-  <img
-    class="hero-flynn__logo"
-    src={withBase('/uploads/hero/logo-flynn.png')}
-    alt="FLYNN"
-  />
+  <!-- Layer 2: Logo FLYNN -->
+  <img class="hero-flynn__logo" src={withBase('/uploads/hero/logo-flynn.png')} alt="FLYNN" />
 
-  <!-- Layer 3: Frau Cutout (Desktop/Tablet: oberste Ebene, Mobile: darunter) -->
+  <!-- Layer 3: Frau (Cutout) -->
   <img
     class="hero-flynn__woman"
     src={withBase('/uploads/hero/woman.png')}
@@ -32,10 +29,15 @@ const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
     aria-hidden="true"
   />
 
-  <!-- Glas-Button -->
-  <a class="glass-btn hero-flynn__cta" href={pathForLang(lang, 'about')}>
-    <span>{buttonLabel}</span>
-  </a>
+  <!-- Navigation (zwei Glas-Buttons am oberen Rand) -->
+  <nav class="hero-flynn__nav" aria-label="Hauptnavigation">
+    <a class="glass-btn glass-btn--pill" href="mailto:kontakt@example.com">
+      <span>{contactLabel}</span>
+    </a>
+    <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'about')}>
+      <span>{aboutLabel}</span>
+    </a>
+  </nav>
 
   <!-- Glas-Pfeil (Scroll-Hinweis) -->
   <button

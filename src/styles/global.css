@@ -190,13 +190,14 @@ a:hover { text-decoration-thickness: 2px; }
   background: none;
 }
 
-/* Layer 2: Logo \u201eFLYNN\u201c */
+/* Layer 2: Logo \u201eFLYNN\u201c \u2013 Gr\u00f6\u00dfe nach Figma (~70 % Frame-Breite) */
 .hero-flynn__logo {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(75vw, 1100px);
+  width: 70vw;
+  max-width: 1400px;
   height: auto;
   object-fit: contain;
   z-index: 2;
@@ -205,19 +206,26 @@ a:hover { text-decoration-thickness: 2px; }
   user-select: none;
 }
 
-/* Layer 3: Frau (Cutout) */
+/* Layer 3: Frau (Cutout) \u2013 bleed nach rechts wie im Figma */
 .hero-flynn__woman {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(70vw, 1100px);
+  width: 105vw;
+  max-width: 2100px;
   height: auto;
   object-fit: contain;
   z-index: 3;
   background: none;
   pointer-events: none;
   user-select: none;
+}
+
+/* Tablet: etwas kleiner */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-flynn__logo { width: 68vw; }
+  .hero-flynn__woman { width: 110vw; }
 }
 
 /* Mobile: Layer-Reihenfolge umgedreht \u2013 Logo ist Top-Layer */
@@ -264,6 +272,15 @@ a:hover { text-decoration-thickness: 2px; }
   outline: 0;
 }
 
+.glass-btn--pill {
+  padding: 0.85em 2.2em;
+  min-width: 9ch;
+  border-radius: 999px;
+  font-size: clamp(0.8rem, 1.1vw, 1.15rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
 .glass-btn--round {
   border-radius: 999px;
   padding: 0;
@@ -271,63 +288,54 @@ a:hover { text-decoration-thickness: 2px; }
   height: 3rem;
 }
 .glass-btn--round img {
-  width: 1.2rem;
+  width: 1.1rem;
   height: auto;
   display: block;
-  filter: brightness(0) invert(1);  /* Pfeil wei\u00df einf\u00e4rben */
+  filter: brightness(0) invert(1);
   opacity: 0.95;
 }
 
-/* ---------- Position der Glas-Elemente \u00fcber dem Hero ---------- */
-.hero-flynn__cta {
+/* ---------- Navigation (zwei Glas-Buttons oben im Hero) ---------- */
+.hero-flynn__nav {
   position: absolute;
+  top: 2.5rem;
   left: 50%;
-  top: 87%;
-  transform: translate(-50%, -50%);
-  padding: 0.75em 2.2em;
-  min-width: 11ch;
-  font-size: clamp(0.8rem, 1.3vw, 1.35rem);
-  border-radius: 999px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1.25rem;
   z-index: 4;
 }
-.hero-flynn__cta:hover,
-.hero-flynn__cta:focus-visible {
-  transform: translate(-50%, calc(-50% - 2px));
-}
 
+/* ---------- Scroll-Pfeil unten ---------- */
 .hero-flynn__scroll {
   position: absolute;
   left: 50%;
   bottom: 2.25rem;
   transform: translateX(-50%);
   z-index: 4;
-  animation: heroArrowBounce 2.4s ease-in-out infinite;
-}
-.hero-flynn__scroll:hover,
-.hero-flynn__scroll:focus-visible {
-  animation-play-state: paused;
 }
 
-@keyframes heroArrowBounce {
-  0%, 100% { transform: translate(-50%, 0); }
-  50%      { transform: translate(-50%, 8px); }
-}
-
+/* Mobile-Anpassungen */
 @media (max-width: 767px) {
-  .hero-flynn__cta {
-    top: 68%;
+  .hero-flynn__nav {
+    top: 1.5rem;
+    gap: 0.75rem;
+  }
+  .glass-btn--pill {
+    padding: 0.7em 1.5em;
     font-size: 0.75rem;
-    padding: 0.6em 1.7em;
   }
   .hero-flynn__scroll {
     bottom: 1.5rem;
   }
-  .glass-btn--round { width: 2.5rem; height: 2.5rem; }
-  .glass-btn--round img { width: 1rem; }
+  .glass-btn--round {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .glass-btn--round img { width: 0.95rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-flynn__scroll { animation: none; }
   .glass-btn { transition: none; }
 }
 
