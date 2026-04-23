@@ -171,7 +171,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 .hero-flynn-wrap {
   position: relative;
-  height: 140vh;              /* 100vh Hero + 40vh Animations-Scroll (kurz & knackig) */
+  height: 180vh;              /* 100vh Hero + 80vh Animations-Scroll */
   width: 100%;
 }
 
