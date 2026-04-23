@@ -3,7 +3,7 @@ title: Imagefilm für eine Werkstatt
 slug: imagefilm-werkstatt
 category: video
 date: 2026-02-08
-cover: /uploads/®flynn-olivenöl-2.avif
+cover: /uploads/®flynn-nyhro-4.avif
 description: Kurzer Imagefilm über das Handwerk einer kleinen Werkstatt.
 location: "München"
 gallery: []
