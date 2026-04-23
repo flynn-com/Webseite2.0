@@ -171,7 +171,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 .hero-flynn-wrap {
   position: relative;
-  height: 200vh;              /* 100vh Hero + 100vh Animations-Scroll */
+  height: 140vh;              /* 100vh Hero + 40vh Animations-Scroll (kurz & knackig) */
   width: 100%;
 }
 
@@ -284,9 +284,8 @@ a:hover { text-decoration-thickness: 2px; }
   }
   .hero-flynn.is-ready .hero-flynn__woman {
     animation: none;
-    transform: translate(-50%, calc(-50% - var(--hero-scroll) * 110vh));
-    opacity: calc(1 - var(--hero-scroll) * 0.9);
-    will-change: transform, opacity;
+    transform: translate(-50%, calc(-50% - var(--hero-scroll) * 130vh));
+    will-change: transform;
   }
 }
 
@@ -297,9 +296,8 @@ a:hover { text-decoration-thickness: 2px; }
   }
   .hero-flynn.is-ready .hero-flynn__woman {
     animation: none;
-    transform: translateY(calc(-50% - var(--hero-scroll) * 110vh));
-    opacity: calc(1 - var(--hero-scroll) * 0.9);
-    will-change: transform, opacity;
+    transform: translateY(calc(-50% - var(--hero-scroll) * 130vh));
+    will-change: transform;
   }
 }
 
@@ -310,9 +308,8 @@ a:hover { text-decoration-thickness: 2px; }
   }
   .hero-flynn.is-ready .hero-flynn__logo {
     animation: none;
-    transform: translate(-50%, calc(-50% - var(--hero-scroll) * 110vh));
-    opacity: calc(1 - var(--hero-scroll) * 0.9);
-    will-change: transform, opacity;
+    transform: translate(-50%, calc(-50% - var(--hero-scroll) * 130vh));
+    will-change: transform;
   }
 }
 
