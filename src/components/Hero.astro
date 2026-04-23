@@ -12,38 +12,32 @@ const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
 ---
 
 <section class="hero-flynn" aria-label="Flynn Bertsch">
-  <!-- Layer 1: Hintergrund (bleibt fix) -->
-  <picture class="hero-flynn__bg">
-    <source media="(max-width: 767px)" srcset={withBase('/uploads/hero/sky-H.png')} />
-    <img src={withBase('/uploads/hero/sky-Q.png')} alt="" aria-hidden="true" />
-  </picture>
+  <!-- Layer 1: Gradient-Hintergrund (scrollt normal mit) -->
+  <div class="hero-flynn__bg" aria-hidden="true"></div>
 
-  <!-- Innerer Container fuer alles, was mitscrollt -->
-  <div class="hero-flynn__scroll-layer">
-    <!-- Navigation (zwei Glas-Buttons am oberen Rand) -->
-    <nav class="hero-flynn__nav" aria-label="Hauptnavigation">
-      <a class="glass-btn glass-btn--pill" href="mailto:kontakt@example.com">
-        <span>{contactLabel}</span>
-      </a>
-      <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'about')}>
-        <span>{aboutLabel}</span>
-      </a>
-    </nav>
+  <!-- Navigation (zwei Glas-Buttons, scrollen mit) -->
+  <nav class="hero-flynn__nav" aria-label="Hauptnavigation">
+    <a class="glass-btn glass-btn--pill" href="mailto:kontakt@example.com">
+      <span>{contactLabel}</span>
+    </a>
+    <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'about')}>
+      <span>{aboutLabel}</span>
+    </a>
+  </nav>
 
-    <!-- Logo FLYNN -->
-    <img class="hero-flynn__logo" src={withBase('/uploads/hero/logo-flynn.png')} alt="FLYNN" />
+  <!-- Logo FLYNN (scrollt normal mit) -->
+  <img class="hero-flynn__logo" src={withBase('/uploads/hero/logo-flynn.png')} alt="FLYNN" />
 
-    <!-- Glas-Pfeil (Scroll-Hinweis) -->
-    <button
-      type="button"
-      class="glass-btn glass-btn--round hero-flynn__scroll"
-      aria-label={scrollLabel}
-    >
-      <img src={withBase('/uploads/hero/arrow.png')} alt="" aria-hidden="true" />
-    </button>
-  </div>
+  <!-- Glas-Pfeil (Scroll-Hinweis, scrollt mit) -->
+  <button
+    type="button"
+    class="glass-btn glass-btn--round hero-flynn__scroll"
+    aria-label={scrollLabel}
+  >
+    <img src={withBase('/uploads/hero/arrow.png')} alt="" aria-hidden="true" />
+  </button>
 
-  <!-- Layer 3: Frau (bleibt fix, ueber allem) -->
+  <!-- Layer 3: Frau (sticky, bleibt am Viewport-Rand) -->
   <div class="hero-flynn__woman-stage" aria-hidden="true">
     <img
       class="hero-flynn__woman"
