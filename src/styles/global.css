@@ -325,59 +325,6 @@ a:hover { text-decoration-thickness: 2px; }
   .hero-flynn__woman       { width: 175vw; }
 }
 
-/* ========== ENTRANCE-ANIMATIONEN ==========
-   Auf Tablet (centered) & Desktop (right-anchored): Frau gleitet von unten ein.
-   Auf Mobile: Logo gleitet von unten ein.                                   */
-
-/* Tablet: Frau ist zentriert */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .hero-flynn__woman {
-    animation: womanEnterCentered 1.8s cubic-bezier(.2,.7,.2,1) 0.6s both;
-  }
-}
-
-/* Desktop: Frau ist rechts-verankert */
-@media (min-width: 1024px) {
-  .hero-flynn__woman {
-    animation: womanEnterRight 1.8s cubic-bezier(.2,.7,.2,1) 0.6s both;
-  }
-}
-
-/* Mobile: Logo gleitet ein & scrollt weg, Frau bleibt statisch */
-@media (max-width: 767px) {
-  .hero-flynn__logo {
-    animation: logoEnterMobile 1.8s cubic-bezier(.2,.7,.2,1) 0.6s both;
-  }
-}
-
-@keyframes womanEnterCentered {
-  0%   { transform: translate(-50%, calc(-50% + 120vh)); opacity: 0; }
-  40%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%); opacity: 1; }
-}
-
-@keyframes womanEnterRight {
-  0%   { transform: translateY(calc(-50% + 120vh)); opacity: 0; }
-  40%  { opacity: 1; }
-  100% { transform: translateY(-50%); opacity: 1; }
-}
-
-@keyframes logoEnterMobile {
-  0%   { transform: translate(-50%, calc(-50% + 100vh)); opacity: 0; }
-  40%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%); opacity: 1; }
-}
-
-/* Reduced motion: alles sofort am Ziel */
-@media (prefers-reduced-motion: reduce) {
-  .hero-flynn__woman,
-  .hero-flynn__logo,
-  .hero-flynn__nav,
-  .hero-flynn__scroll {
-    animation: none !important;
-    opacity: 1 !important;
-  }
-}
 
 /* ---------- iOS-style Liquid-Glass-Button ---------- */
 /* Mehrschichtiger Effekt:
@@ -536,8 +483,6 @@ a:hover { text-decoration-thickness: 2px; }
   display: flex;
   gap: 1.25rem;
   z-index: 4;
-  opacity: 0;
-  animation: heroFadeIn 0.9s ease-out 1.7s forwards;
 }
 
 /* ---------- Scroll-Pfeil unten ---------- */
@@ -547,13 +492,6 @@ a:hover { text-decoration-thickness: 2px; }
   top: calc(100vh - 5.5rem);
   transform: translateX(-50%);
   z-index: 4;
-  opacity: 0;
-  animation: heroFadeIn 0.9s ease-out 2.0s forwards;
-}
-
-@keyframes heroFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
 }
 
 /* Mobile-Anpassungen */
