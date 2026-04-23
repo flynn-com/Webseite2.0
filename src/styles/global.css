@@ -164,19 +164,53 @@ a:hover { text-decoration-thickness: 2px; }
 .filter-bar__button { border: 1px solid var(--color-border); padding: var(--space-2) var(--space-4); border-radius: 999px; background: transparent; }
 .filter-bar__button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
 
-/* ---------- Hero mit Entrance- & Scroll-Locked-Animation ----------
-   Wrapper ist 200vh hoch. Die Hero-Section ist sticky und bleibt am oberen
-   Rand. W\u00e4hrend die ersten 100vh gescrollt werden, l\u00e4uft die Animation
-   (Top-Layer verschwindet); danach rutscht der Hero normal nach oben raus. */
-
-.hero-flynn-wrap {
-  position: relative;
-  height: 190vh;              /* 100vh Hero + 90vh Animations-Scroll */
-  width: 100%;
-}
+/* ---------- Hero: Sky + Frau sticky, Logo/Nav/Pfeil scrollen mit ----------
+   Die Hero-Section ist 190vh hoch. Bg und Frau sind position:sticky top:0 und
+   bleiben am Viewport-Oberrand, waehrend der Rest als absoluter Scroll-Layer
+   mit dem Dokument nach oben heraus scrollt. */
 
 .hero-flynn {
-  --hero-scroll: 0;           /* 0\u20131, vom JS beim Scrollen gesetzt */
+  position: relative;
+  width: 100%;
+  height: 190vh;
+  min-height: calc(640px + 90vh);
+  background: #e8e8e8;
+  isolation: isolate;
+}
+
+/* Scroll-Layer: Logo/Nav/Pfeil - scrollt mit dem Dokument weg */
+.hero-flynn__scroll-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 2;
+  pointer-events: none;
+}
+.hero-flynn__scroll-layer > * {
+  pointer-events: auto;
+}
+
+/* Sticky-Stage der Frau: am Viewport-Top gepinnt, ueberlagert den Bg */
+.hero-flynn__woman-stage {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  margin-top: -100vh;
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Legacy-Ueberrest (wird durch sticky-Layout oben ersetzt, nicht mehr aktiv) ----------
+   W\u00e4hrend die ersten 100vh gescrollt werden, l\u00e4uft die Animation
+   (Top-Layer verschwindet); danach rutscht der Hero normal nach oben raus. */
+
+
+.hero-flynn-LEGACY-UNUSED-ZZZ-TODO-DELETE {
+  /* legacy 0\u20131, vom JS beim Scrollen gesetzt */
   position: sticky;
   top: 0;
   width: 100%;
@@ -189,8 +223,11 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* Layer 1: Hintergrund f\u00fcllt den Hero-Bereich */
 .hero-flynn__bg {
-  position: absolute;
-  inset: 0;
+  position: sticky;
+  top: 0;
+  display: block;
+  width: 100%;
+  height: 100vh;
   z-index: 1;
 }
 .hero-flynn__bg img {
@@ -211,7 +248,6 @@ a:hover { text-decoration-thickness: 2px; }
   max-width: 1200px;
   height: auto;
   object-fit: contain;
-  z-index: 2;
   background: none;
   pointer-events: none;
   user-select: none;
@@ -227,7 +263,6 @@ a:hover { text-decoration-thickness: 2px; }
   max-width: 2850px;
   height: auto;
   object-fit: contain;
-  z-index: 3;
   background: none;
   pointer-events: none;
   user-select: none;
@@ -263,14 +298,10 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* Mobile: Layer-Reihenfolge umgedreht \u2013 Logo ist Top-Layer */
 @media (max-width: 767px) {
-  .hero-flynn__woman {
-    z-index: 2;
-    width: 175vw;
-  }
-  .hero-flynn__logo {
-    z-index: 3;
-    width: 80vw;
-  }
+  .hero-flynn__woman-stage { z-index: 2; }
+  .hero-flynn__scroll-layer { z-index: 3; }
+  .hero-flynn__woman { width: 175vw; }
+  .hero-flynn__logo { width: 80vw; }
 }
 
 /* ========== ENTRANCE-ANIMATIONEN ==========
@@ -282,11 +313,6 @@ a:hover { text-decoration-thickness: 2px; }
   .hero-flynn__woman {
     animation: womanEnterCentered 1.8s cubic-bezier(.2,.7,.2,1) 0.6s both;
   }
-  .hero-flynn.is-ready .hero-flynn__woman {
-    animation: none;
-    transform: translate(-50%, calc(-50% - var(--hero-scroll) * 130vh));
-    will-change: transform;
-  }
 }
 
 /* Desktop: Frau ist rechts-verankert */
@@ -294,22 +320,12 @@ a:hover { text-decoration-thickness: 2px; }
   .hero-flynn__woman {
     animation: womanEnterRight 1.8s cubic-bezier(.2,.7,.2,1) 0.6s both;
   }
-  .hero-flynn.is-ready .hero-flynn__woman {
-    animation: none;
-    transform: translateY(calc(-50% - var(--hero-scroll) * 130vh));
-    will-change: transform;
-  }
 }
 
 /* Mobile: Logo gleitet ein & scrollt weg, Frau bleibt statisch */
 @media (max-width: 767px) {
   .hero-flynn__logo {
     animation: logoEnterMobile 1.8s cubic-bezier(.2,.7,.2,1) 0.6s both;
-  }
-  .hero-flynn.is-ready .hero-flynn__logo {
-    animation: none;
-    transform: translate(-50%, calc(-50% - var(--hero-scroll) * 130vh));
-    will-change: transform;
   }
 }
 
