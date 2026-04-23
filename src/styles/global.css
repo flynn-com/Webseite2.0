@@ -116,6 +116,27 @@ a:hover { text-decoration-thickness: 2px; }
 .hero h1 { margin-bottom: var(--space-4); }
 .hero__subline { color: var(--color-muted); font-size: 1.1rem; }
 
+/* ---------- PORTFOLIO-Heading (unter dem Hero) ---------- */
+.portfolio-heading {
+  width: 100%;
+  padding: clamp(2rem, 6vw, 6rem) 1.5rem;
+  background: #ffffff;
+  text-align: center;
+}
+.portfolio-heading h1 {
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  font-size: clamp(3rem, 14vw, 13rem);
+  color: #000;
+}
+@media (max-width: 767px) {
+  .portfolio-heading { padding: 2rem 1rem; }
+  .portfolio-heading h1 { font-size: clamp(2.5rem, 15vw, 5rem); }
+}
+
 /* ---------- Project Card / Grid ---------- */
 .project-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-6); }
 @media (min-width: 768px) { .project-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -222,20 +243,25 @@ a:hover { text-decoration-thickness: 2px; }
 }
 
 /* Layer 1: Hintergrund f\u00fcllt den Hero-Bereich */
+/* Gradient-Hintergrund (scrollt normal mit der Seite, nicht sticky) */
 .hero-flynn__bg {
-  position: sticky;
+  position: absolute;
   top: 0;
-  display: block;
+  left: 0;
   width: 100%;
   height: 100vh;
   z-index: 1;
+  background: linear-gradient(
+    135deg,
+    #8a8a8a 0%,
+    #b5b5b5 30%,
+    #dcdcdc 55%,
+    #f2f2f2 75%,
+    #ffffff 100%
+  );
 }
 .hero-flynn__bg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  background: none;
+  display: none;
 }
 
 /* Layer 2: Logo \u201eFLYNN\u201c \u2013 immer horizontal mittig */
