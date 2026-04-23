@@ -27,3 +27,9 @@ Thumbs.db
 
 # Roh-Assets (in public/uploads/hero/ kopiert)
 /Bilder/
+
+# Photoshop / Rohdateien
+*.psd
+*.psb
+*.ai
+*.xcf
