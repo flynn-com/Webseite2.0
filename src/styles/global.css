@@ -192,25 +192,24 @@ a:hover { text-decoration-thickness: 2px; }
 
 .hero-flynn {
   position: relative;
-  display: flow-root; /* BFC: verhindert Margin-Collapse mit Kind-Elementen */
+  display: flow-root;
   width: 100%;
-  height: 190vh;
-  min-height: calc(640px + 90vh);
+  height: 100vh;        /* Hero = genau 1 Viewport; PORTFOLIO startet direkt drunter */
+  min-height: 640px;
   background: #ffffff;
-  isolation: isolate;
+  /* kein isolation:isolate — Frau ist fixed und braucht globalen Stacking-Context */
 }
 
 /* Kein scroll-layer mehr — Logo/Nav/Pfeil sind direkte Kinder von .hero-flynn */
 
-/* Sticky-Stage der Frau: am Viewport-Top gepinnt, ueberlagert den Bg.
-   KEIN margin-top:-100vh — alle anderen Hero-Elemente sind absolute,
-   daher belegt die Woman-Stage als einziges Flow-Element bereits y=0. */
+/* Frau: fixed — bleibt immer im Viewport, auch beim Scrollen durch PORTFOLIO */
 .hero-flynn__woman-stage {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100vh;
-  z-index: 3;
+  z-index: 3;           /* vor Logo (2) und Bg (1), hinter Nav/Buttons (4) */
   pointer-events: none;
   overflow: visible;
 }
