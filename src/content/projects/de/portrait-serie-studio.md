@@ -5,6 +5,7 @@ category: "fotografie"
 date: 2026-03-15
 cover: "/uploads/beispiel/cover-portrait.svg"
 description: "Eine Studio-Portrait-Serie mit Fokus auf Licht und Ausdruck."
+location: "Stuttgart"
 gallery:
   - "/uploads/beispiel/gallery-1.svg"
   - "/uploads/beispiel/gallery-2.svg"

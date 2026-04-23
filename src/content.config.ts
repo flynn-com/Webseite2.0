@@ -8,6 +8,7 @@ const projectFields = z.object({
   date: z.coerce.date(),
   cover: z.string(),
   description: z.string().optional(),
+  location: z.string().optional(),
   gallery: z.array(z.string()).default([]),
   youtube: z.array(z.string().url()).default([]),
   videos: z.array(z.string()).default([]),

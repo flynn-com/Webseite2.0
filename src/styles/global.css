@@ -56,7 +56,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* ---------- Utilities ---------- */
 .container { width: min(100% - 2rem, var(--container)); margin-inline: auto; }
-.section { padding-block: var(--space-12); }
+.section { position: relative; z-index: 4; background: #ffffff; padding-block: var(--space-12); }
 .section-title { margin-top: 0; margin-bottom: var(--space-6); }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 .skip-link { position: absolute; left: -9999px; top: 0; background: #000; color: #fff; padding: 0.5rem 1rem; z-index: 100; }
@@ -101,7 +101,7 @@ a:hover { text-decoration-thickness: 2px; }
 }
 
 /* ---------- Footer ---------- */
-.site-footer { border-top: 1px solid var(--color-border); margin-top: var(--space-16); }
+.site-footer { position: relative; z-index: 4; background: #ffffff; border-top: 1px solid var(--color-border); margin-top: var(--space-16); }
 .site-footer__inner { width: min(100% - 2rem, var(--container)); margin-inline: auto; padding-block: var(--space-8); display: flex; flex-direction: column; gap: var(--space-4); }
 .site-footer__copy { color: var(--color-muted); }
 .site-footer__legal { display: flex; gap: var(--space-4); flex-wrap: wrap; }
@@ -117,10 +117,14 @@ a:hover { text-decoration-thickness: 2px; }
 .hero__subline { color: var(--color-muted); font-size: 1.1rem; }
 
 /* ---------- PORTFOLIO-Heading (unter dem Hero) ---------- */
+/* Kein weisser Hintergrund — fixierte Frau (z-index:3) scheint durch.
+   Text als reiner Umriss (transparent + stroke): Frau sichtbar durch Buchstaben. */
 .portfolio-heading {
+  position: relative;
+  z-index: 4;
   width: 100%;
   padding: clamp(2rem, 6vw, 6rem) 1.5rem;
-  background: #ffffff;
+  background: transparent;
   text-align: center;
 }
 .portfolio-heading h1 {
@@ -130,26 +134,205 @@ a:hover { text-decoration-thickness: 2px; }
   letter-spacing: -0.04em;
   line-height: 0.95;
   font-size: clamp(3rem, 14vw, 13rem);
-  color: #000;
+  color: #1a1a1a;
+  -webkit-text-stroke: 0;
+  text-stroke: 0;
 }
 @media (max-width: 767px) {
   .portfolio-heading { padding: 2rem 1rem; }
   .portfolio-heading h1 { font-size: clamp(2.5rem, 15vw, 5rem); }
 }
 
-/* ---------- Project Card / Grid ---------- */
-.project-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-6); }
-@media (min-width: 768px) { .project-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1024px) { .project-grid { grid-template-columns: repeat(3, 1fr); } }
+/* ---------- Projekte-Section (transparent — Frau scheint durch) ---------- */
+.projects-section {
+  position: relative;
+  z-index: 4;
+  background: transparent;
+  padding: clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 3rem);
+}
+.projects-section__more {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+.projects-section__more a {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.projects-section__more a:hover { color: #fff; }
 
-.project-card { display: block; text-decoration: none; color: inherit; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; transition: transform 0.2s ease; }
-.project-card:hover { transform: translateY(-2px); }
-.project-card__media { aspect-ratio: 4 / 3; background: #f5f5f5; overflow: hidden; }
-.project-card__media img { width: 100%; height: 100%; object-fit: cover; }
-.project-card__body { padding: var(--space-4); }
-.project-card__meta { color: var(--color-muted); font-size: 0.85rem; display: flex; gap: var(--space-2); margin-bottom: var(--space-2); }
-.project-card__title { margin-bottom: var(--space-2); }
-.project-card__desc { color: var(--color-muted); font-size: 0.95rem; }
+/* ---------- Project Grid (Startseite) ---------- */
+.project-grid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  max-width: 1100px;
+  margin-inline: auto;
+}
+
+/* ---------- Neue Projekt-Karte (3 Spalten: Glass | Schwarz | Bild) ---------- */
+.proj-card {
+  display: grid;
+  grid-template-columns: 180px 260px 1fr;
+  min-height: 560px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* ── Linke Spalte: Glass-Effekt (Nummer + Location) ── */
+.proj-card__glass-col {
+  background: rgba(255,255,255,0.78);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.proj-card__number {
+  font-size: 26px;
+  line-height: 1;
+  margin: 0;
+  color: #0f0f0f;
+}
+.proj-card__number strong { font-weight: 700; }
+.proj-card__number span   { font-weight: 400; color: #aaa; }
+.proj-card__location {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #555;
+  margin: 0;
+}
+
+/* ── Mittlere Spalte: Schwarz (Titel + Text + Button) ── */
+.proj-card__info {
+  background: #0a0a0a;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.proj-card__title {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.proj-card__desc {
+  color: rgba(255,255,255,0.55);
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1.75;
+  margin: 0 0 24px;
+}
+.proj-card__cta {
+  display: inline-block;
+  align-self: flex-start;
+  background: #fff;
+  color: #0a0a0a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  padding: 11px 28px;
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+.proj-card__cta:hover { background: #e8e8e8; text-decoration: none; }
+
+/* ── Rechte Spalte: Bild-Karussell ── */
+.proj-card__media {
+  position: relative;
+  overflow: hidden;
+  background: #1a1a1a;
+}
+.proj-card__slides {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.proj-card__slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.proj-card__slide.is-active { opacity: 1; }
+
+.proj-card__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 2;
+}
+.proj-card__nav:hover { background: rgba(255,255,255,0.32); }
+.proj-card__nav--prev { left: 14px; }
+.proj-card__nav--next { right: 14px; }
+
+.proj-card__dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+.proj-card__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  border: 0;
+  cursor: pointer;
+  transition: background 0.2s;
+  padding: 0;
+}
+.proj-card__dot.is-active { background: #fff; }
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .proj-card {
+    grid-template-columns: 140px 210px 1fr;
+    min-height: 480px;
+  }
+  .proj-card__number { font-size: 22px; }
+  .proj-card__title  { font-size: 18px; }
+}
+
+/* Mobile — vorerst gestapelt */
+@media (max-width: 767px) {
+  .proj-card {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 260px;
+    min-height: unset;
+  }
+}
 
 /* ---------- Project Detail ---------- */
 .project-detail { padding-block: var(--space-8) var(--space-12); }
@@ -262,12 +445,13 @@ a:hover { text-decoration-thickness: 2px; }
   user-select: none;
 }
 
-/* Layer 3: Frau (Cutout) \u2013 bleed nach rechts wie im Figma */
+/* Layer 3: Frau (Cutout) – rechts verankert auf allen Breakpoints */
 .hero-flynn__woman {
   position: absolute;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  right: 0;
+  left: auto;
+  transform: translateY(-50%);
   width: 142vw;
   max-width: 2850px;
   height: auto;
@@ -277,10 +461,10 @@ a:hover { text-decoration-thickness: 2px; }
   user-select: none;
 }
 
-/* Tablet: etwas kleiner */
+/* Tablet: etwas kleiner, rechts verankert */
 @media (min-width: 768px) and (max-width: 1023px) {
   .hero-flynn__logo { width: 68vw; }
-  .hero-flynn__woman { width: 148vw; }
+  .hero-flynn__woman { width: 148vw; right: 0; left: auto; }
 }
 
 /* Ab Desktop: Frau rechts verankern (bleed off), Logo bleibt mittig \u2014

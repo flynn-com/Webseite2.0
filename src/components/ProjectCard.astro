@@ -1,5 +1,5 @@
 ---
-import { projectDetailPath, withBase, type Lang, t } from '../i18n/ui';
+import { projectDetailPath, withBase, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -8,25 +8,109 @@ interface Props {
   category: string;
   cover: string;
   description?: string;
+  location?: string;
+  gallery?: string[];
   date: Date;
+  index: number;
+  total: number;
 }
 
-const { lang, slug, title, category, cover, description, date } = Astro.props;
-const categoryLabel = t(lang, `projects.filter.${category}` as any);
-const formatter = new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-GB', { year: 'numeric', month: 'long' });
+const {
+  lang, slug, title, category, cover,
+  description, location, gallery = [],
+  date, index, total,
+} = Astro.props;
+
+// Bilder: gallery wenn vorhanden, sonst nur cover
+const images: string[] = gallery.length > 0 ? gallery : (cover ? [cover] : []);
+const hasCarousel = images.length > 1;
+
+// Nummer-Formatierung: 01 / 05
+const numCurrent = String(index + 1).padStart(2, '0');
+const numTotal   = String(total).padStart(2, '0');
+
+const detailHref = projectDetailPath(lang, slug);
 ---
 
-<a class="project-card" href={projectDetailPath(lang, slug)}>
-  <div class="project-card__media">
-    {cover ? <img src={withBase(cover)} alt="" loading="lazy" /> : null}
-  </div>
-  <div class="project-card__body">
-    <p class="project-card__meta">
-      <span>{categoryLabel}</span>
-      <span aria-hidden="true">&middot;</span>
-      <span>{formatter.format(date)}</span>
+<article class="proj-card">
+
+  <!-- ── Linke Glas-Spalte ── -->
+  <div class="proj-card__glass-col">
+    <p class="proj-card__number" aria-label={`Projekt ${numCurrent} von ${numTotal}`}>
+      <strong>{numCurrent}</strong><span>/{numTotal}</span>
     </p>
-    <h3 class="project-card__title">{title}</h3>
-    {description && <p class="project-card__desc">{description}</p>}
+    {location && <p class="proj-card__location">{location}</p>}
   </div>
-</a>
+
+  <!-- ── Mittlere Info-Spalte (schwarz) ── -->
+  <div class="proj-card__info">
+    <div class="proj-card__info-inner">
+      <h3 class="proj-card__title">{title}</h3>
+      {description && <p class="proj-card__desc">{description}</p>}
+    </div>
+    <a class="proj-card__cta" href={detailHref}>VIEW MORE</a>
+  </div>
+
+  <!-- ── Rechtes Bild-Karussell ── -->
+  <div class="proj-card__media" data-carousel>
+    <div class="proj-card__slides">
+      {images.map((src, i) => (
+        <img
+          class={`proj-card__slide${i === 0 ? ' is-active' : ''}`}
+          src={withBase(src)}
+          alt={i === 0 ? title : ''}
+          loading={i === 0 ? 'eager' : 'lazy'}
+          draggable="false"
+        />
+      ))}
+    </div>
+
+    {hasCarousel && (
+      <>
+        <button class="proj-card__nav proj-card__nav--prev" aria-label="Vorheriges Bild" type="button">
+          &#8249;
+        </button>
+        <button class="proj-card__nav proj-card__nav--next" aria-label="Nächstes Bild" type="button">
+          &#8250;
+        </button>
+        <div class="proj-card__dots">
+          {images.map((_, i) => (
+            <button
+              class={`proj-card__dot${i === 0 ? ' is-active' : ''}`}
+              aria-label={`Bild ${i + 1}`}
+              type="button"
+              data-index={i}
+            />
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+
+</article>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach(carousel => {
+    const slides = carousel.querySelectorAll<HTMLElement>('.proj-card__slide');
+    const dots   = carousel.querySelectorAll<HTMLElement>('.proj-card__dot');
+    const prev   = carousel.querySelector<HTMLButtonElement>('.proj-card__nav--prev');
+    const next   = carousel.querySelector<HTMLButtonElement>('.proj-card__nav--next');
+    if (slides.length < 2) return;
+
+    let current = 0;
+
+    function goTo(n: number) {
+      slides[current].classList.remove('is-active');
+      dots[current]?.classList.remove('is-active');
+      current = (n + slides.length) % slides.length;
+      slides[current].classList.add('is-active');
+      dots[current]?.classList.add('is-active');
+    }
+
+    prev?.addEventListener('click', () => goTo(current - 1));
+    next?.addEventListener('click', () => goTo(current + 1));
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => goTo(Number(dot.dataset.index)));
+    });
+  });
+</script>

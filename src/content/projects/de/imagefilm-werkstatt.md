@@ -5,6 +5,7 @@ category: video
 date: 2026-02-08
 cover: /uploads/®flynn-olivenöl-2.avif
 description: Kurzer Imagefilm über das Handwerk einer kleinen Werkstatt.
+location: "München"
 gallery: []
 youtube:
   - https://www.youtube.com/watch?v=dQw4w9WgXcQ

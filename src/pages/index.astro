@@ -28,14 +28,12 @@ const projectsToShow = featured.length > 0
     <h1>{t(lang, 'home.portfolio')}</h1>
   </section>
 
-  <section class="section container">
-    <h2 class="section-title">{t(lang, 'home.featured.title')}</h2>
-
+  <section class="projects-section">
     {projectsToShow.length === 0 ? (
-      <p>{t(lang, 'projects.empty')}</p>
+      <p style="color:#fff;">{t(lang, 'projects.empty')}</p>
     ) : (
       <div class="project-grid">
-        {projectsToShow.map((p) => (
+        {projectsToShow.map((p, i) => (
           <ProjectCard
             lang={lang}
             slug={p.id}
@@ -43,14 +41,18 @@ const projectsToShow = featured.length > 0
             category={p.data.category}
             cover={p.data.cover}
             description={p.data.description}
+            location={p.data.location}
+            gallery={p.data.gallery}
             date={p.data.date}
+            index={i}
+            total={projectsToShow.length}
           />
         ))}
       </div>
     )}
 
-    <p style="margin-top: 2rem;">
-      <a href={pathForLang(lang, 'projects')}>{t(lang, 'home.cta.allProjects')} &rarr;</a>
+    <p style="margin-top: 2rem; text-align: center;">
+      <a href={pathForLang(lang, 'projects')} style="color:#fff;">{t(lang, 'home.cta.allProjects')} &rarr;</a>
     </p>
   </section>
 </BaseLayout>
