@@ -232,8 +232,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* Layer 1: Hintergrund f\u00fcllt den Hero-Bereich */
 /* Gradient-Hintergrund (scrollt normal mit der Seite, nicht sticky).
-   Oben-rechts am dunkelsten (#7B7B7B), nach unten-links zu Weiss ausgeblendet.
-   Unten komplett weiss fuer nahtlosen Uebergang zur PORTFOLIO-Section. */
+   Oben-rechts am dunkelsten (#7B7B7B), nach unten-links nahtlos zu Weiss. */
 .hero-flynn__bg {
   position: absolute;
   top: 0;
@@ -241,20 +240,7 @@ a:hover { text-decoration-thickness: 2px; }
   width: 100%;
   height: 100vh;
   z-index: 1;
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0) 50%,
-      rgba(255, 255, 255, 1) 100%
-    ),
-    linear-gradient(
-      225deg,
-      #7B7B7B 0%,
-      #a8a8a8 28%,
-      #d8d8d8 52%,
-      #f0f0f0 75%,
-      #ffffff 100%
-    );
+  background: linear-gradient(to bottom left, #7B7B7B 0%, #ffffff 65%);
 }
 
 /* Layer 2: Logo \u201eFLYNN\u201c \u2013 immer horizontal mittig */
