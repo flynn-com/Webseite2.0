@@ -192,6 +192,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 .hero-flynn {
   position: relative;
+  display: flow-root; /* BFC: verhindert Margin-Collapse mit Kind-Elementen */
   width: 100%;
   height: 190vh;
   min-height: calc(640px + 90vh);
@@ -201,13 +202,14 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* Kein scroll-layer mehr — Logo/Nav/Pfeil sind direkte Kinder von .hero-flynn */
 
-/* Sticky-Stage der Frau: am Viewport-Top gepinnt, ueberlagert den Bg */
+/* Sticky-Stage der Frau: am Viewport-Top gepinnt, ueberlagert den Bg.
+   KEIN margin-top:-100vh — alle anderen Hero-Elemente sind absolute,
+   daher belegt die Woman-Stage als einziges Flow-Element bereits y=0. */
 .hero-flynn__woman-stage {
   position: sticky;
   top: 0;
   width: 100%;
   height: 100vh;
-  margin-top: -100vh;
   z-index: 3;
   pointer-events: none;
   overflow: visible;
