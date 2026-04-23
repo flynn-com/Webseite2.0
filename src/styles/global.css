@@ -316,12 +316,13 @@ a:hover { text-decoration-thickness: 2px; }
   .hero-flynn__woman { width: 2050px; }
 }
 
-/* Mobile: Layer-Reihenfolge umgedreht \u2013 Logo ist Top-Layer */
+/* Mobile: Frau hinter Logo */
 @media (max-width: 767px) {
   .hero-flynn__woman-stage { z-index: 2; }
-  .hero-flynn__scroll-layer { z-index: 3; }
-  .hero-flynn__woman { width: 175vw; }
-  .hero-flynn__logo { width: 80vw; }
+  .hero-flynn__logo        { z-index: 4; width: 80vw; }
+  .hero-flynn__nav         { z-index: 4; }
+  .hero-flynn__scroll      { z-index: 4; }
+  .hero-flynn__woman       { width: 175vw; }
 }
 
 /* ========== ENTRANCE-ANIMATIONEN ==========
