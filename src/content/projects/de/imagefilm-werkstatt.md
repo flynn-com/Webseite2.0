@@ -1,17 +1,17 @@
 ---
-title: "Imagefilm f\u00fcr eine Werkstatt"
-slug: "imagefilm-werkstatt"
-category: "video"
+title: Imagefilm für eine Werkstatt
+slug: imagefilm-werkstatt
+category: video
 date: 2026-02-08
-cover: "/uploads/beispiel/cover-video.svg"
-description: "Kurzer Imagefilm \u00fcber das Handwerk einer kleinen Werkstatt."
+cover: /uploads/®flynn-olivenöl-2.avif
+description: Kurzer Imagefilm über das Handwerk einer kleinen Werkstatt.
 gallery: []
 youtube:
-  - "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  - https://www.youtube.com/watch?v=dQw4w9WgXcQ
 videos: []
 tags:
-  - "imagefilm"
-  - "handwerk"
+  - imagefilm
+  - handwerk
 featured: true
 draft: false
 ---
