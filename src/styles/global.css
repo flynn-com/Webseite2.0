@@ -164,11 +164,21 @@ a:hover { text-decoration-thickness: 2px; }
 .filter-bar__button { border: 1px solid var(--color-border); padding: var(--space-2) var(--space-4); border-radius: 999px; background: transparent; }
 .filter-bar__button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
 
-/* ---------- Hero mit Entrance- & Scroll-Animation ---------- */
+/* ---------- Hero mit Entrance- & Scroll-Locked-Animation ----------
+   Wrapper ist 200vh hoch. Die Hero-Section ist sticky und bleibt am oberen
+   Rand. W\u00e4hrend die ersten 100vh gescrollt werden, l\u00e4uft die Animation
+   (Top-Layer verschwindet); danach rutscht der Hero normal nach oben raus. */
+
+.hero-flynn-wrap {
+  position: relative;
+  height: 200vh;              /* 100vh Hero + 100vh Animations-Scroll */
+  width: 100%;
+}
 
 .hero-flynn {
   --hero-scroll: 0;           /* 0\u20131, vom JS beim Scrollen gesetzt */
-  position: relative;
+  position: sticky;
+  top: 0;
   width: 100%;
   height: 100vh;
   min-height: 640px;
@@ -270,7 +280,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* Tablet: Frau ist zentriert */
 @media (min-width: 768px) and (max-width: 1023px) {
   .hero-flynn__woman {
-    animation: womanEnterCentered 1.4s cubic-bezier(.2,.7,.2,1) 0.45s both;
+    animation: womanEnterCentered 1.8s cubic-bezier(.2,.7,.2,1) 0.6s both;
   }
   .hero-flynn.is-ready .hero-flynn__woman {
     animation: none;
@@ -283,7 +293,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* Desktop: Frau ist rechts-verankert */
 @media (min-width: 1024px) {
   .hero-flynn__woman {
-    animation: womanEnterRight 1.4s cubic-bezier(.2,.7,.2,1) 0.45s both;
+    animation: womanEnterRight 1.8s cubic-bezier(.2,.7,.2,1) 0.6s both;
   }
   .hero-flynn.is-ready .hero-flynn__woman {
     animation: none;
@@ -296,7 +306,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* Mobile: Logo gleitet ein & scrollt weg, Frau bleibt statisch */
 @media (max-width: 767px) {
   .hero-flynn__logo {
-    animation: logoEnterMobile 1.4s cubic-bezier(.2,.7,.2,1) 0.45s both;
+    animation: logoEnterMobile 1.8s cubic-bezier(.2,.7,.2,1) 0.6s both;
   }
   .hero-flynn.is-ready .hero-flynn__logo {
     animation: none;
@@ -493,7 +503,7 @@ a:hover { text-decoration-thickness: 2px; }
   gap: 1.25rem;
   z-index: 4;
   opacity: 0;
-  animation: heroFadeIn 0.8s ease-out 1.3s forwards;
+  animation: heroFadeIn 0.9s ease-out 1.7s forwards;
 }
 
 /* ---------- Scroll-Pfeil unten ---------- */
@@ -504,7 +514,7 @@ a:hover { text-decoration-thickness: 2px; }
   transform: translateX(-50%);
   z-index: 4;
   opacity: 0;
-  animation: heroFadeIn 0.8s ease-out 1.55s forwards;
+  animation: heroFadeIn 0.9s ease-out 2.0s forwards;
 }
 
 @keyframes heroFadeIn {

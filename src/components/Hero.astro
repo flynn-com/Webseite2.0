@@ -11,6 +11,7 @@ const contactLabel = lang === 'de' ? 'KONTAKT' : 'CONTACT';
 const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
 ---
 
+<div class="hero-flynn-wrap">
 <section class="hero-flynn" aria-label="Flynn Bertsch">
   <!-- Layer 1: Hintergrund -->
   <picture class="hero-flynn__bg">
@@ -48,9 +49,11 @@ const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
     <img src={withBase('/uploads/hero/arrow.png')} alt="" aria-hidden="true" />
   </button>
 </section>
+</div>
 
 <script>
-  const hero = document.querySelector<HTMLElement>('.hero-flynn');
+  const wrap = document.querySelector<HTMLElement>('.hero-flynn-wrap');
+  const hero = wrap?.querySelector<HTMLElement>('.hero-flynn');
   const woman = hero?.querySelector<HTMLElement>('.hero-flynn__woman');
   const logo = hero?.querySelector<HTMLElement>('.hero-flynn__logo');
   const scrollBtn = hero?.querySelector<HTMLButtonElement>('.hero-flynn__scroll');
@@ -59,7 +62,7 @@ const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
   });
 
-  if (hero && woman && logo) {
+  if (wrap && hero && woman && logo) {
     const mqlMobile = window.matchMedia('(max-width: 767px)');
     const mqlReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -70,9 +73,11 @@ const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        const y = Math.max(0, window.scrollY);
-        const h = hero!.offsetHeight || window.innerHeight;
-        const progress = Math.min(1, y / h);
+        // Scrolled-through-Wrapper: vom Top des Wrappers bis zum Top des Hero-Bereichs
+        const wrapRect = wrap!.getBoundingClientRect();
+        const scrolled = Math.max(0, -wrapRect.top);
+        const range = Math.max(1, wrap!.offsetHeight - hero!.offsetHeight);
+        const progress = Math.min(1, scrolled / range);
         hero!.style.setProperty('--hero-scroll', progress.toFixed(3));
         ticking = false;
       });
