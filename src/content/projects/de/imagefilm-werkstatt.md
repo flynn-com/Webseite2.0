@@ -1,26 +1,19 @@
 ---
-title: Imagefilm für eine Werkstatt
-slug: imagefilm-werkstatt
-category: video
-date: 2026-02-08
-cover: /uploads/®flynn-nyhro-4.avif
+title: Arée
+slug: arée
+category: fotografie
+date: 2026-04-24
 description: Kurzer Imagefilm über das Handwerk einer kleinen Werkstatt.
-location: "München"
-gallery: []
-youtube:
-  - https://www.youtube.com/watch?v=dQw4w9WgXcQ
+gallery:
+  - /uploads/®flynn-arée-19.avif
+youtube: []
 videos: []
 tags:
-  - imagefilm
-  - handwerk
+  - Photoshooting
+  - Innenarchitektur
 featured: true
 draft: false
+location: München
+cover: /uploads/®flynn-arée-44.avif
 ---
-
-Ein 90-sekundiger Film \u00fcber die Arbeit in einer kleinen Werkstatt \u2013 gedreht an einem
-einzigen Tag, geschnitten auf die Musik des Kunden abgestimmt.
-
-## Ablauf
-
-Vorab haben wir gemeinsam das Storyboard entwickelt, damit am Drehtag alle Motive
-standen. Die Nachbearbeitung erfolgte in DaVinci Resolve.
+Die neu gestaltete Immobilie, welche von dem Architekturbüros Arée eingerichtet wurde, wurde in einer Fotoreihe abgebildet. Dabei lag der Fokus darauf, das Raumkonzept und die Einrichtung durch gezielte Perspektiven in Szene zu setzen.
