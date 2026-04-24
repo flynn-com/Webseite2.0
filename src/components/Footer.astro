@@ -1,5 +1,5 @@
 ---
-import { t, pathForLang, type Lang } from '../i18n/ui';
+import { t, pathForLang, withBase, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -7,16 +7,53 @@ interface Props {
 
 const { lang } = Astro.props;
 const year = new Date().getFullYear();
+
+const tagline = lang === 'de'
+  ? 'Fotografie · Videografie · Webdesign · Design'
+  : 'Photography · Videography · Web design · Design';
+
+const contactLabel  = lang === 'de' ? 'Kontakt'   : 'Contact';
+const navLabel      = lang === 'de' ? 'Navigation' : 'Navigation';
+const legalLabel    = lang === 'de' ? 'Rechtliches' : 'Legal';
 ---
 
-<footer class="site-footer">
-  <div class="site-footer__inner">
-    <p class="site-footer__copy">&copy; {year} Flynn Bertsch. {t(lang, 'footer.copyright')}</p>
-    <nav aria-label="Legal">
-      <ul class="site-footer__legal">
+<footer class="footer-glass">
+  <div class="footer-glass__inner">
+
+    <!-- Branding -->
+    <div class="footer-glass__brand">
+      <img
+        src={withBase('/uploads/hero/logo-flynn.png')}
+        alt="Flynn Bertsch"
+        class="footer-glass__logo"
+        loading="lazy"
+      />
+      <p class="footer-glass__tagline">{tagline}</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="footer-glass__col" aria-label={navLabel}>
+      <p class="footer-glass__col-title">{navLabel}</p>
+      <ul>
+        <li><a href={pathForLang(lang, 'home')}>{t(lang, 'nav.home')}</a></li>
+        <li><a href={pathForLang(lang, 'projects')}>{t(lang, 'nav.projects')}</a></li>
+        <li><a href={pathForLang(lang, 'about')}>{t(lang, 'nav.about')}</a></li>
+      </ul>
+    </nav>
+
+    <!-- Rechtliches -->
+    <nav class="footer-glass__col" aria-label={legalLabel}>
+      <p class="footer-glass__col-title">{legalLabel}</p>
+      <ul>
         <li><a href={pathForLang(lang, 'imprint')}>{t(lang, 'nav.imprint')}</a></li>
         <li><a href={pathForLang(lang, 'privacy')}>{t(lang, 'nav.privacy')}</a></li>
       </ul>
     </nav>
+
+  </div>
+
+  <!-- Copyright-Zeile -->
+  <div class="footer-glass__bottom">
+    <p>&copy; {year} Flynn Bertsch &mdash; {t(lang, 'footer.copyright')}</p>
   </div>
 </footer>
