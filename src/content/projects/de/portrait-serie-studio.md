@@ -3,6 +3,7 @@ title: "Portrait-Serie im Studio"
 slug: "portrait-serie-studio"
 category: "fotografie"
 date: 2026-03-15
+order: 2
 cover: "/uploads/beispiel/cover-portrait.svg"
 description: "Eine Studio-Portrait-Serie mit Fokus auf Licht und Ausdruck."
 location: "Stuttgart"

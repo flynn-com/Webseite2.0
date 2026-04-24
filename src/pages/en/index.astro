@@ -7,13 +7,10 @@ import { t, pathForLang } from '../../i18n/ui';
 
 const lang = 'en' as const;
 const allProjects = await getCollection('projects-en', ({ data }) => !data.draft);
-const featured = allProjects
+const projectsToShow = allProjects
   .filter((p) => p.data.featured)
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .sort((a, b) => a.data.order - b.data.order)
   .slice(0, 6);
-const projectsToShow = featured.length > 0
-  ? featured
-  : allProjects.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 6);
 ---
 
 <BaseLayout

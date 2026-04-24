@@ -3,6 +3,7 @@ title: Arée
 slug: arée
 category: fotografie
 date: 2026-04-24
+order: 1
 description: Kurzer Imagefilm über das Handwerk einer kleinen Werkstatt.
 gallery:
   - /uploads/®flynn-arée-19.avif

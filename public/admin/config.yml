@@ -1,10 +1,5 @@
 # ----------------------------------------------------------------------------------
 # Decap CMS Konfiguration
-#
-# Nach dem Anlegen der GitHub OAuth App und dem Deployen des Cloudflare Workers:
-#   1. Ersetze <dein-github-username>/<dein-repo> durch deine echten Werte
-#   2. Ersetze https://<dein-oauth-worker>.workers.dev durch die URL deines OAuth-Proxies
-#   3. Passe branch ggf. an, falls du nicht "main" nutzt
 # ----------------------------------------------------------------------------------
 
 backend:
@@ -14,14 +9,11 @@ backend:
   base_url: https://portfolio-oauth.flynn-fdc.workers.dev
   auth_endpoint: /auth
 
-# Lokales Testen des CMS ohne Auth/Repo: `npx decap-server` starten und
-# diese Zeile einkommentieren (nur f\u00fcr Entwicklung):
-# local_backend: true
-
 publish_mode: simple
 
-media_folder: "public/uploads"
-public_folder: "/uploads"
+# Medien global — Unterordner pro Projekt via {{slug}}
+media_folder: "public/uploads/projekte/{{slug}}"
+public_folder: "/uploads/projekte/{{slug}}"
 
 # Anzeige im CMS
 site_url: "https://flynn-com.github.io/Webseite2.0"
@@ -36,6 +28,9 @@ collections:
     create: true
     slug: "{{slug}}"
     preview_path: "projekte/{{slug}}"
+    # Medienordner pro Projekt: public/uploads/projekte/<slug>/
+    media_folder: "/public/uploads/projekte/{{slug}}"
+    public_folder: "/uploads/projekte/{{slug}}"
     editor:
       preview: false
     fields:
@@ -49,23 +44,36 @@ collections:
           - { label: "Video", value: "video" }
           - { label: "Webdesign", value: "webdesign" }
           - { label: "Design", value: "design" }
-      - { name: "date", label: "Datum", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { name: "cover", label: "Titelbild", widget: "image", media_library: { config: { multiple: false } } }
-      - { name: "description", label: "Kurzbeschreibung (1-2 S\u00e4tze)", widget: "text", required: false }
+      - { name: "order", label: "Reihenfolge auf der Startseite", widget: "number", default: 99, value_type: "int", min: 1, hint: "1 = ganz oben, 2 = zweite Position usw." }
+      - name: "cover"
+        label: "Titelbild (erscheint immer als erstes im Karussell)"
+        widget: "image"
+        media_library:
+          config:
+            multiple: false
+      - { name: "description", label: "Kurzbeschreibung (1-2 Sätze)", widget: "text", required: false }
+      - { name: "location", label: "Ort / Stadt", widget: "string", required: false, hint: "z.B. München, Stuttgart — erscheint im Glas-Panel" }
       - name: "gallery"
-        label: "Galerie (Bilder)"
+        label: "Weitere Bilder (Reihenfolge per Drag & Drop einstellbar)"
         widget: "list"
         required: false
-        field: { name: "image", label: "Bild", widget: "image" }
+        hint: "Das Titelbild wird automatisch als erstes angezeigt, dann folgen diese Bilder"
+        field:
+          name: "image"
+          label: "Bild"
+          widget: "image"
+          media_library:
+            config:
+              multiple: false
       - name: "youtube"
         label: "YouTube-Links"
         widget: "list"
         required: false
         summary: "{{fields.url}}"
-        field: { name: "url", label: "YouTube-URL", widget: "string", pattern: ['^https?://(www\.)?(youtube\.com|youtu\.be)/.+', 'Bitte eine g\u00fcltige YouTube-URL eingeben'] }
+        field: { name: "url", label: "YouTube-URL", widget: "string", pattern: ['^https?://(www\.)?(youtube\.com|youtu\.be)/.+', 'Bitte eine gültige YouTube-URL eingeben'] }
       - name: "videos"
         label: "Eigene Videos (max. 20 MB, MP4)"
-        hint: "Gr\u00f6\u00dfere Videos bitte als YouTube-Link einbinden"
+        hint: "Größere Videos bitte als YouTube-Link einbinden"
         widget: "list"
         required: false
         field: { name: "file", label: "Videodatei", widget: "file" }
@@ -74,9 +82,9 @@ collections:
         widget: "list"
         required: false
         field: { name: "tag", label: "Tag", widget: "string" }
-      - { name: "featured", label: "Auf Startseite hervorheben", widget: "boolean", default: false }
-      - { name: "draft", label: "Entwurf (nicht ver\u00f6ffentlichen)", widget: "boolean", default: false }
-      - { name: "body", label: "Fließtext (Markdown)", widget: "markdown" }
+      - { name: "featured", label: "Auf Startseite anzeigen", widget: "boolean", default: true }
+      - { name: "draft", label: "Entwurf (nicht veröffentlichen)", widget: "boolean", default: false }
+      - { name: "body", label: "Fließtext (Markdown)", widget: "markdown", required: false }
 
   # ---------------- ENGLISCH ----------------
   - name: "projects_en"
@@ -85,6 +93,8 @@ collections:
     create: true
     slug: "{{slug}}"
     preview_path: "en/projects/{{slug}}"
+    media_folder: "/public/uploads/projekte/{{slug}}"
+    public_folder: "/uploads/projekte/{{slug}}"
     editor:
       preview: false
     fields:
@@ -98,14 +108,27 @@ collections:
           - { label: "Video", value: "video" }
           - { label: "Web design", value: "webdesign" }
           - { label: "Design", value: "design" }
-      - { name: "date", label: "Date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { name: "cover", label: "Cover image", widget: "image" }
+      - { name: "order", label: "Order on homepage", widget: "number", default: 99, value_type: "int", min: 1, hint: "1 = first, 2 = second, etc." }
+      - name: "cover"
+        label: "Cover image (always shown first in carousel)"
+        widget: "image"
+        media_library:
+          config:
+            multiple: false
       - { name: "description", label: "Short description", widget: "text", required: false }
+      - { name: "location", label: "Location / City", widget: "string", required: false, hint: "e.g. Munich, Stuttgart — shown in the glass panel" }
       - name: "gallery"
-        label: "Gallery"
+        label: "Additional images (drag & drop to reorder)"
         widget: "list"
         required: false
-        field: { name: "image", label: "Image", widget: "image" }
+        hint: "Cover image is always shown first, these follow in order"
+        field:
+          name: "image"
+          label: "Image"
+          widget: "image"
+          media_library:
+            config:
+              multiple: false
       - name: "youtube"
         label: "YouTube links"
         widget: "list"
@@ -121,6 +144,6 @@ collections:
         widget: "list"
         required: false
         field: { name: "tag", label: "Tag", widget: "string" }
-      - { name: "featured", label: "Feature on homepage", widget: "boolean", default: false }
+      - { name: "featured", label: "Show on homepage", widget: "boolean", default: true }
       - { name: "draft", label: "Draft (do not publish)", widget: "boolean", default: false }
-      - { name: "body", label: "Body (Markdown)", widget: "markdown" }
+      - { name: "body", label: "Body (Markdown)", widget: "markdown", required: false }

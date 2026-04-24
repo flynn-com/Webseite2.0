@@ -184,7 +184,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* ── Linke Spalte: iOS 26 Liquid Glass ── */
 .proj-card__glass-col {
   position: relative;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(80, 80, 80, 0.35);
   -webkit-backdrop-filter: blur(10px) saturate(220%) brightness(1.06);
   backdrop-filter: blur(10px) saturate(220%) brightness(1.06);
   /* Rand-Highlight: helles Leuchten oben/links → dunkler unten/rechts */
@@ -218,16 +218,16 @@ a:hover { text-decoration-thickness: 2px; }
   font-size: 30px;
   line-height: 1;
   margin: 0;
-  color: #0f0f0f;
+  color: #ffffff;
 }
 .proj-card__number strong { font-weight: 700; }
-.proj-card__number span   { font-weight: 400; color: #aaa; }
+.proj-card__number span   { font-weight: 400; color: rgba(255,255,255,0.45); }
 .proj-card__location {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #555;
+  color: rgba(255,255,255,0.6);
   margin: 0;
 }
 
@@ -241,7 +241,7 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .proj-card__title {
   color: #fff;
-  font-size: 28px;
+  font-size: 40px;
   font-weight: 700;
   margin: 0 0 14px;
   text-transform: uppercase;

@@ -21,8 +21,11 @@ const {
   date, index, total,
 } = Astro.props;
 
-// Bilder: gallery wenn vorhanden, sonst nur cover
-const images: string[] = gallery.length > 0 ? gallery : (cover ? [cover] : []);
+// Bilder: Titelbild immer zuerst, dann Galerie-Bilder (ohne Duplikat)
+const images: string[] = [
+  ...(cover ? [cover] : []),
+  ...gallery.filter(img => img !== cover),
+];
 const hasCarousel = images.length > 1;
 
 // Nummer-Formatierung: 01 / 05
