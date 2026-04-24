@@ -181,18 +181,41 @@ a:hover { text-decoration-thickness: 2px; }
   overflow: hidden;
 }
 
-/* ── Linke Spalte: Glass-Effekt (Nummer + Location) ── */
+/* ── Linke Spalte: iOS 26 Liquid Glass ── */
 .proj-card__glass-col {
-  background: rgba(255,255,255,0.78);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  backdrop-filter: blur(24px) saturate(180%);
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  -webkit-backdrop-filter: blur(10px) saturate(220%) brightness(1.06);
+  backdrop-filter: blur(10px) saturate(220%) brightness(1.06);
+  /* Rand-Highlight: helles Leuchten oben/links → dunkler unten/rechts */
+  border-right: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.50),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.04),
+    inset 0 0 24px rgba(255, 255, 255, 0.04);
   padding: 24px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: hidden;
+}
+/* Schimmernder Spektral-Rand oben (iOS 26 Liquid-Glas-Kante) */
+.proj-card__glass-col::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(200, 220, 255, 0.08) 70%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
+  pointer-events: none;
 }
 .proj-card__number {
-  font-size: 26px;
+  font-size: 30px;
   line-height: 1;
   margin: 0;
   color: #0f0f0f;
@@ -218,11 +241,12 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .proj-card__title {
   color: #fff;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 700;
   margin: 0 0 14px;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  line-height: 1.1;
 }
 .proj-card__desc {
   color: rgba(255,255,255,0.55);
@@ -321,8 +345,8 @@ a:hover { text-decoration-thickness: 2px; }
     grid-template-columns: 140px 210px 1fr;
     min-height: 480px;
   }
-  .proj-card__number { font-size: 22px; }
-  .proj-card__title  { font-size: 18px; }
+  .proj-card__number { font-size: 24px; }
+  .proj-card__title  { font-size: 22px; }
 }
 
 /* Mobile — vorerst gestapelt */
@@ -414,16 +438,15 @@ a:hover { text-decoration-thickness: 2px; }
   isolation: isolate;
 }
 
-/* Layer 1: Hintergrund f\u00fcllt den Hero-Bereich */
-/* Gradient-Hintergrund (scrollt normal mit der Seite, nicht sticky).
-   Oben-rechts am dunkelsten (#7B7B7B), nach unten-links nahtlos zu Weiss. */
+/* Layer 1: Hintergrund — fixed wie die Frau, immer im Viewport sichtbar */
 .hero-flynn__bg {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
   z-index: 1;
+  pointer-events: none;
   background:
     linear-gradient(to bottom, transparent 55%, #ffffff 100%),
     linear-gradient(to bottom left, #7B7B7B 0%, #ffffff 65%);
