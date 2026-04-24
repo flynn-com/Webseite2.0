@@ -349,13 +349,14 @@ a:hover { text-decoration-thickness: 2px; }
   .proj-card__title  { font-size: 22px; }
 }
 
-/* Mobile — vorerst gestapelt */
+/* Mobile — gestapelt, Pfeile ausgeblendet, Swipe aktiv */
 @media (max-width: 767px) {
   .proj-card {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto 260px;
     min-height: unset;
   }
+  .proj-card__nav { display: none; }
 }
 
 /* ---------- Project Detail ---------- */
