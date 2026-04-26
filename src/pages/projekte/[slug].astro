@@ -28,8 +28,8 @@ const fmt = new Intl.DateTimeFormat('de-DE', { year: 'numeric', month: 'long', d
     <h1>{entry.data.title}</h1>
     <p class="project-detail__meta">
       <span>{t(lang, `projects.filter.${entry.data.category}` as any)}</span>
-      <span aria-hidden="true">&middot;</span>
-      <time datetime={entry.data.date.toISOString()}>{fmt.format(entry.data.date)}</time>
+      {entry.data.location && <><span aria-hidden="true">&middot;</span><span>{entry.data.location}</span></>}
+      {entry.data.date && <><span aria-hidden="true">&middot;</span><time datetime={entry.data.date.toISOString()}>{fmt.format(entry.data.date)}</time></>}
     </p>
 
     {entry.data.cover && (
