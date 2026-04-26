@@ -47,10 +47,8 @@ collections:
       - { name: "order", label: "Reihenfolge auf der Startseite", widget: "number", default: 99, value_type: "int", min: 1, hint: "1 = ganz oben, 2 = zweite Position usw." }
       - name: "cover"
         label: "Titelbild (erscheint immer als erstes im Karussell)"
-        widget: "image"
-        media_library:
-          config:
-            multiple: false
+        widget: "file"
+        hint: "Alle Formate erlaubt: JPG, PNG, WebP, AVIF, HEIC …"
       - { name: "description", label: "Kurzbeschreibung (1-2 Sätze)", widget: "text", required: false }
       - { name: "location", label: "Ort / Stadt", widget: "string", required: false, hint: "z.B. München, Stuttgart — erscheint im Glas-Panel" }
       - name: "gallery"
@@ -61,10 +59,7 @@ collections:
         field:
           name: "image"
           label: "Bild"
-          widget: "image"
-          media_library:
-            config:
-              multiple: false
+          widget: "file"
       - name: "youtube"
         label: "YouTube-Links"
         widget: "list"
@@ -111,10 +106,8 @@ collections:
       - { name: "order", label: "Order on homepage", widget: "number", default: 99, value_type: "int", min: 1, hint: "1 = first, 2 = second, etc." }
       - name: "cover"
         label: "Cover image (always shown first in carousel)"
-        widget: "image"
-        media_library:
-          config:
-            multiple: false
+        widget: "file"
+        hint: "All formats allowed: JPG, PNG, WebP, AVIF, HEIC …"
       - { name: "description", label: "Short description", widget: "text", required: false }
       - { name: "location", label: "Location / City", widget: "string", required: false, hint: "e.g. Munich, Stuttgart — shown in the glass panel" }
       - name: "gallery"
@@ -125,10 +118,7 @@ collections:
         field:
           name: "image"
           label: "Image"
-          widget: "image"
-          media_library:
-            config:
-              multiple: false
+          widget: "file"
       - name: "youtube"
         label: "YouTube links"
         widget: "list"
