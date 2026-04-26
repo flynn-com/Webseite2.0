@@ -1,24 +1,21 @@
 ---
-title: "Portrait-Serie im Studio"
-slug: "portrait-serie-studio"
-category: "fotografie"
-date: 2026-03-15
+title: Portrait-Serie im Studio
+slug: portrait-serie-studio
+category: fotografie
 order: 2
-cover: "/uploads/beispiel/cover-portrait.svg"
-description: "Eine Studio-Portrait-Serie mit Fokus auf Licht und Ausdruck."
-location: "Stuttgart"
-gallery:
-  - "/uploads/beispiel/gallery-1.svg"
-  - "/uploads/beispiel/gallery-2.svg"
-  - "/uploads/beispiel/gallery-3.svg"
+cover: /uploads/projekte/portrait-serie-im-studio/®flynn-olivenöl-1.avif
+description: Eine Studio-Portrait-Serie mit Fokus auf Licht und Ausdruck.
 youtube: []
 videos: []
 tags:
-  - "portrait"
-  - "studio"
-  - "schwarzwei\u00df"
+  - portrait
+  - studio
+  - schwarzweiß
 featured: true
 draft: false
+date: 2026-03-15
+location: Stuttgart
+gallery: []
 ---
 
 Diese Portrait-Serie entstand an einem Nachmittag im Studio. Im Mittelpunkt standen
