@@ -10,9 +10,18 @@ const projectFields = z.object({
   cover: z.string(),
   description: z.string().optional(),
   location: z.string().optional(),
-  gallery: z.array(z.string()).default([]),
-  youtube: z.array(z.string().url()).default([]),
-  videos: z.array(z.string()).default([]),
+  gallery: z.preprocess(
+    (val) => (typeof val === 'string' ? [val] : (val ?? [])),
+    z.array(z.string())
+  ).default([]),
+  youtube: z.preprocess(
+    (val) => (typeof val === 'string' ? [val] : (val ?? [])),
+    z.array(z.string())
+  ).default([]),
+  videos: z.preprocess(
+    (val) => (typeof val === 'string' ? [val] : (val ?? [])),
+    z.array(z.string())
+  ).default([]),
   tags: z.array(z.string()).default([]),
   featured: z.boolean().default(false),
   draft: z.boolean().default(false),
