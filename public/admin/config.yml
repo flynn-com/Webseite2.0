@@ -47,8 +47,8 @@ collections:
       - { name: "order", label: "Reihenfolge auf der Startseite", widget: "number", default: 99, value_type: "int", min: 1, hint: "1 = ganz oben, 2 = zweite Position usw." }
       - name: "cover"
         label: "Titelbild (erscheint immer als erstes im Karussell)"
-        widget: "file"
-        hint: "Alle Formate erlaubt: JPG, PNG, WebP, AVIF, HEIC …"
+        widget: "image"
+        hint: "Empfohlen: AVIF, 2400px, Qualität 80%"
       - { name: "description", label: "Kurzbeschreibung (1-2 Sätze)", widget: "text", required: false }
       - { name: "location", label: "Ort / Stadt", widget: "string", required: false, hint: "z.B. München, Stuttgart — erscheint im Glas-Panel" }
       - name: "gallery"
@@ -103,8 +103,8 @@ collections:
       - { name: "order", label: "Order on homepage", widget: "number", default: 99, value_type: "int", min: 1, hint: "1 = first, 2 = second, etc." }
       - name: "cover"
         label: "Cover image (always shown first in carousel)"
-        widget: "file"
-        hint: "All formats allowed: JPG, PNG, WebP, AVIF, HEIC …"
+        widget: "image"
+        hint: "Recommended: AVIF, 2400px, quality 80%"
       - { name: "description", label: "Short description", widget: "text", required: false }
       - { name: "location", label: "Location / City", widget: "string", required: false, hint: "e.g. Munich, Stuttgart — shown in the glass panel" }
       - name: "gallery"
