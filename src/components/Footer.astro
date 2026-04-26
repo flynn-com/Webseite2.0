@@ -52,8 +52,13 @@ const legalLabel    = lang === 'de' ? 'Rechtliches' : 'Legal';
 
   </div>
 
-  <!-- Copyright-Zeile -->
+  <!-- Copyright-Zeile + Sprachumschalter -->
   <div class="footer-glass__bottom">
     <p>&copy; {year} Flynn Bertsch &mdash; {t(lang, 'footer.copyright')}</p>
+    <div class="footer-glass__lang">
+      <a href={pathForLang('de', 'home')} class={lang === 'de' ? 'is-active' : ''}>DE</a>
+      <span>|</span>
+      <a href={pathForLang('en', 'home')} class={lang === 'en' ? 'is-active' : ''}>EN</a>
+    </div>
   </div>
 </footer>

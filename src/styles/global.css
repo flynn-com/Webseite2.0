@@ -184,7 +184,7 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .footer-glass__col a:hover { color: #ffffff; }
 
-/* Copyright-Zeile */
+/* Copyright-Zeile + Sprachumschalter */
 .footer-glass__bottom {
   position: relative;
   border-top: 1px solid rgba(255, 255, 255, 0.10);
@@ -192,14 +192,34 @@ a:hover { text-decoration-thickness: 2px; }
   max-width: 1100px;
   margin-inline: auto;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 .footer-glass__bottom p {
   color: rgba(255, 255, 255, 0.35);
   font-size: 11px;
   letter-spacing: 0.04em;
   margin: 0;
-  text-align: center;
 }
+.footer-glass__lang {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.footer-glass__lang span { color: rgba(255,255,255,0.25); }
+.footer-glass__lang a {
+  color: rgba(255,255,255,0.35);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-glass__lang a:hover { color: #fff; }
+.footer-glass__lang a.is-active { color: rgba(255,255,255,0.85); }
 
 /* ---------- Hero (Startseite) ---------- */
 .hero { padding-block: var(--space-16) var(--space-12); }
@@ -829,6 +849,24 @@ a:hover { text-decoration-thickness: 2px; }
   display: flex;
   gap: 1.25rem;
   z-index: 4;
+}
+
+/* ---------- Sprachumschalter oben rechts im Hero ---------- */
+.hero-lang-switch {
+  position: absolute;
+  top: 2.5rem;
+  right: 2rem;
+  z-index: 4;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  padding: 0.6em 1.3em;
+}
+.hero-lang-switch:hover { color: #fff; text-decoration: none; }
+@media (max-width: 767px) {
+  .hero-lang-switch { top: 1.5rem; right: 1rem; }
 }
 
 /* ---------- Scroll-Pfeil unten ---------- */

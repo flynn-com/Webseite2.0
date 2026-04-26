@@ -6,16 +6,19 @@ interface Props {
 }
 
 const { lang } = Astro.props;
-const aboutLabel = lang === 'de' ? '\u00dcBER MICH' : 'ABOUT';
-const contactLabel = lang === 'de' ? 'KONTAKT' : 'CONTACT';
-const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
+const aboutLabel   = lang === 'de' ? '\u00dcBER MICH' : 'ABOUT';
+const contactLabel = lang === 'de' ? 'KONTAKT'   : 'CONTACT';
+const scrollLabel  = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
+
+const langDeHref = pathForLang('de', 'home');
+const langEnHref = pathForLang('en', 'home');
 ---
 
 <section class="hero-flynn" aria-label="Flynn Bertsch">
   <!-- Layer 1: Gradient-Hintergrund (scrollt normal mit) -->
   <div class="hero-flynn__bg" aria-hidden="true"></div>
 
-  <!-- Navigation (zwei Glas-Buttons, scrollen mit) -->
+  <!-- Navigation (Glas-Buttons + Sprachumschalter, scrollen mit) -->
   <nav class="hero-flynn__nav" aria-label="Hauptnavigation">
     <a class="glass-btn glass-btn--pill" href="mailto:kontakt@example.com">
       <span>{contactLabel}</span>
@@ -23,7 +26,15 @@ const scrollLabel = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
     <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'about')}>
       <span>{aboutLabel}</span>
     </a>
+
   </nav>
+
+  <!-- Sprachumschalter oben rechts -->
+  <a
+    class="hero-lang-switch glass-btn glass-btn--pill"
+    href={lang === 'de' ? langEnHref : langDeHref}
+    aria-label={lang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
+  >{lang === 'de' ? 'EN' : 'DE'}</a>
 
   <!-- Logo FLYNN (scrollt normal mit) -->
   <img class="hero-flynn__logo" src={withBase('/uploads/hero/logo-flynn.png')} alt="FLYNN" />
