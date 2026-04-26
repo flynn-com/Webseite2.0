@@ -52,14 +52,11 @@ collections:
       - { name: "description", label: "Kurzbeschreibung (1-2 Sätze)", widget: "text", required: false }
       - { name: "location", label: "Ort / Stadt", widget: "string", required: false, hint: "z.B. München, Stuttgart — erscheint im Glas-Panel" }
       - name: "gallery"
-        label: "Weitere Bilder (Reihenfolge per Drag & Drop einstellbar)"
-        widget: "list"
+        label: "Weitere Bilder"
+        widget: "image"
+        allow_multiple: true
         required: false
-        hint: "Das Titelbild wird automatisch als erstes angezeigt, dann folgen diese Bilder"
-        field:
-          name: "image"
-          label: "Bild"
-          widget: "file"
+        hint: "Mehrere Bilder gleichzeitig auswählbar. Titelbild kommt automatisch zuerst."
       - name: "youtube"
         label: "YouTube-Links"
         widget: "list"
@@ -71,7 +68,7 @@ collections:
         hint: "Größere Videos bitte als YouTube-Link einbinden"
         widget: "list"
         required: false
-        field: { name: "file", label: "Videodatei", widget: "file" }
+        field: { name: "file", label: "Videodatei", widget: "file", allow_multiple: true }
       - name: "tags"
         label: "Tags"
         widget: "list"
@@ -111,14 +108,11 @@ collections:
       - { name: "description", label: "Short description", widget: "text", required: false }
       - { name: "location", label: "Location / City", widget: "string", required: false, hint: "e.g. Munich, Stuttgart — shown in the glass panel" }
       - name: "gallery"
-        label: "Additional images (drag & drop to reorder)"
-        widget: "list"
+        label: "Additional images"
+        widget: "image"
+        allow_multiple: true
         required: false
-        hint: "Cover image is always shown first, these follow in order"
-        field:
-          name: "image"
-          label: "Image"
-          widget: "file"
+        hint: "Select multiple images at once. Cover image is always shown first."
       - name: "youtube"
         label: "YouTube links"
         widget: "list"
@@ -128,7 +122,7 @@ collections:
         label: "Local videos (max 20 MB, MP4)"
         widget: "list"
         required: false
-        field: { name: "file", label: "Video file", widget: "file" }
+        field: { name: "file", label: "Video file", widget: "file", allow_multiple: true }
       - name: "tags"
         label: "Tags"
         widget: "list"
