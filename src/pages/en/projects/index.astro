@@ -6,19 +6,24 @@ import { t } from '../../../i18n/ui';
 
 const lang = 'en' as const;
 const projects = (await getCollection('projects-en', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  .sort((a, b) => a.data.order - b.data.order);
 
+const total = projects.length;
 const categories = ['all', 'fotografie', 'video', 'webdesign', 'design'] as const;
 ---
 
-<BaseLayout lang={lang} title={`${t(lang, 'projects.title')} \u2013 Flynn Bertsch`}>
-  <section class="section container">
-    <h1>{t(lang, 'projects.title')}</h1>
+<BaseLayout lang={lang} title={`${t(lang, 'projects.title')} – Flynn Bertsch`}>
+
+  <section class="projects-page-heading">
+    <h1>PROJECTS</h1>
+  </section>
+
+  <section class="projects-section">
 
     <div class="filter-bar" role="group" aria-label="Filter">
       {categories.map((cat) => (
         <button
-          class="filter-bar__button"
+          class={`filter-bar__btn${cat === 'all' ? ' is-active' : ''}`}
           type="button"
           data-filter={cat}
           aria-pressed={cat === 'all' ? 'true' : 'false'}
@@ -27,10 +32,10 @@ const categories = ['all', 'fotografie', 'video', 'webdesign', 'design'] as cons
     </div>
 
     {projects.length === 0 ? (
-      <p>{t(lang, 'projects.empty')}</p>
+      <p style="color:#fff;">{t(lang, 'projects.empty')}</p>
     ) : (
       <div class="project-grid" id="project-grid">
-        {projects.map((p) => (
+        {projects.map((p, i) => (
           <div class="project-grid__item" data-category={p.data.category}>
             <ProjectCard
               lang={lang}
@@ -39,22 +44,31 @@ const categories = ['all', 'fotografie', 'video', 'webdesign', 'design'] as cons
               category={p.data.category}
               cover={p.data.cover}
               description={p.data.description}
-              date={p.data.date}
+              location={p.data.location}
+              gallery={p.data.gallery}
+              date={p.data.date ?? new Date()}
+              index={i}
+              total={total}
             />
           </div>
         ))}
       </div>
     )}
   </section>
+
 </BaseLayout>
 
 <script>
-  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-bar__button');
-  const items = document.querySelectorAll<HTMLElement>('.project-grid__item');
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-bar__btn');
+  const items   = document.querySelectorAll<HTMLElement>('.project-grid__item');
+
   buttons.forEach((btn) => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
-      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      buttons.forEach((b) => {
+        b.setAttribute('aria-pressed', String(b === btn));
+        b.classList.toggle('is-active', b === btn);
+      });
       items.forEach((item) => {
         const show = filter === 'all' || item.dataset.category === filter;
         item.style.display = show ? '' : 'none';

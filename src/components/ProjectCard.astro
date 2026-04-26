@@ -51,7 +51,7 @@ const detailHref = projectDetailPath(lang, slug);
       <h3 class="proj-card__title">{title}</h3>
       {description && <p class="proj-card__desc">{description}</p>}
     </div>
-    <a class="proj-card__cta" href={detailHref}>VIEW MORE</a>
+    <a class="proj-card__cta" href={detailHref}>{lang === 'de' ? 'ZUM PROJEKT' : 'VIEW MORE'}</a>
   </div>
 
   <!-- ── Rechtes Bild-Karussell ── -->
