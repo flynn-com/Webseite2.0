@@ -64,8 +64,14 @@ collections:
         summary: "{{fields.url}}"
         field: { name: "url", label: "YouTube-URL", widget: "string", pattern: ['^https?://(www\.)?(youtube\.com|youtu\.be)/.+', 'Bitte eine gültige YouTube-URL eingeben'] }
       - name: "videos"
-        label: "Eigene Videos (max. 20 MB, MP4)"
+        label: "Eigene Videos Querformat (16:9, max. 20 MB, MP4)"
         hint: "Größere Videos bitte als YouTube-Link einbinden"
+        widget: "list"
+        required: false
+        field: { name: "file", label: "Videodatei", widget: "file", allow_multiple: true }
+      - name: "videos_portrait"
+        label: "Eigene Videos Hochkant (9:16, max. 20 MB, MP4)"
+        hint: "Reels, TikToks, vertikale Clips — werden im Raster als Hochkant-Slot angezeigt"
         widget: "list"
         required: false
         field: { name: "file", label: "Videodatei", widget: "file", allow_multiple: true }
@@ -119,7 +125,13 @@ collections:
         required: false
         field: { name: "url", label: "YouTube URL", widget: "string" }
       - name: "videos"
-        label: "Local videos (max 20 MB, MP4)"
+        label: "Local videos landscape (16:9, max 20 MB, MP4)"
+        widget: "list"
+        required: false
+        field: { name: "file", label: "Video file", widget: "file", allow_multiple: true }
+      - name: "videos_portrait"
+        label: "Local videos portrait (9:16, max 20 MB, MP4)"
+        hint: "Reels, TikToks, vertical clips — displayed as portrait slot in the grid"
         widget: "list"
         required: false
         field: { name: "file", label: "Video file", widget: "file", allow_multiple: true }

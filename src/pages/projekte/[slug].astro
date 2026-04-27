@@ -1,7 +1,6 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Gallery from '../../components/Gallery.astro';
 import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
 import LocalVideo from '../../components/LocalVideo.astro';
 import { t, pathForLang, withBase } from '../../i18n/ui';
@@ -18,55 +17,153 @@ interface Props { entry: CollectionEntry<'projects-de'>; }
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const lang = 'de' as const;
-const fmt = new Intl.DateTimeFormat('de-DE', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const galleryImages = entry.data.gallery.filter(img => img !== entry.data.cover);
+const totalImages = (entry.data.cover ? 1 : 0) + galleryImages.length;
+
+// Andere Projekte (aktuelles ausschließen, nach order sortieren)
+const allProjects = await getCollection('projects-de', ({ data }) => !data.draft);
+const otherProjects = allProjects
+  .filter(p => p.id !== entry.id)
+  .sort((a, b) => a.data.order - b.data.order);
 ---
 
-<BaseLayout lang={lang} title={`${entry.data.title} \u2013 Flynn Bertsch`} description={entry.data.description}>
-  <article class="project-detail container">
-    <a class="project-detail__back" href={pathForLang(lang, 'projects')}>{t(lang, 'project.back')}</a>
+<BaseLayout lang={lang} title={`${entry.data.title} – Flynn Bertsch`} description={entry.data.description}>
+<div class="pd-page">
 
-    <h1>{entry.data.title}</h1>
-    <p class="project-detail__meta">
-      <span>{t(lang, `projects.filter.${entry.data.category}` as any)}</span>
-      {entry.data.location && <><span aria-hidden="true">&middot;</span><span>{entry.data.location}</span></>}
-      {entry.data.date && <><span aria-hidden="true">&middot;</span><time datetime={entry.data.date.toISOString()}>{fmt.format(entry.data.date)}</time></>}
-    </p>
+  <!-- ── Zurück ── -->
+  <a class="pd-back" href={pathForLang(lang, 'projects')}>← {t(lang, 'project.back')}</a>
 
-    {entry.data.cover && (
-      <div class="project-detail__cover">
-        <img src={withBase(entry.data.cover)} alt="" />
+  <!-- ══════════════════════════════════════════════════
+       PROJEKT-KARTE — vertikal (Startseiten-Card 90° gedreht)
+       Zeile 1: Glass  |  Zeile 2: Bild  |  Zeile 3: Schwarz
+       ══════════════════════════════════════════════════ -->
+  <div class="pd-card">
+
+    <!-- Zeile 1: Glass-Panel — Titel links oben, Zahl rechts unten -->
+    <div class="pd-card__glass proj-card__glass-col">
+      <h1 class="pd-card__title">{entry.data.title}</h1>
+      <div class="pd-card__glass-bottom">
+        <p class="proj-card__number pd-card__number">
+          <strong>01</strong><span>/{String(totalImages).padStart(2, '0')}</span>
+        </p>
+        {entry.data.location && <p class="proj-card__location pd-card__location">{entry.data.location}</p>}
       </div>
-    )}
-
-    <div class="project-detail__body prose">
-      <Content />
     </div>
 
-    {entry.data.gallery.length > 0 && (
-      <Gallery images={entry.data.gallery} title={t(lang, 'project.gallery')} />
-    )}
-
-    {entry.data.videos.length > 0 && (
-      <section class="section">
-        <h2 class="section-title">{t(lang, 'project.videos')}</h2>
-        {entry.data.videos.map((src) => <LocalVideo src={src} />)}
-      </section>
-    )}
-
-    {entry.data.youtube.length > 0 && (
-      <section class="section">
-        <h2 class="section-title">{t(lang, 'project.youtube')}</h2>
-        {entry.data.youtube.map((url) => <YouTubeEmbed url={url} lang={lang} />)}
-      </section>
-    )}
-
-    {entry.data.tags.length > 0 && (
-      <div>
-        <h2 class="section-title">{t(lang, 'project.tags')}</h2>
-        <ul class="project-detail__tags">
-          {entry.data.tags.map((tag) => <li>{tag}</li>)}
-        </ul>
+    <!-- Zeile 2: Cover-Bild (= rechte Bild-Spalte der Startseitenkarte) -->
+    {entry.data.cover && (
+      <div class="pd-card__media">
+        <img src={withBase(entry.data.cover)} alt={entry.data.title} />
       </div>
     )}
-  </article>
+
+    <!-- Zeile 3: Schwarz-Panel (= mittlere schwarze Spalte der Startseitenkarte) -->
+    <div class="pd-card__info proj-card__info">
+      {entry.data.description && (
+        <p class="proj-card__desc">{entry.data.description}</p>
+      )}
+      <div class="pd-card__body prose">
+        <Content />
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       GALERIE — kein Border-Radius, 24px Abstand
+       ══════════════════════════════════════════════════ -->
+  {(galleryImages.length > 0 || entry.data.videos.length > 0 || entry.data.videos_portrait.length > 0 || entry.data.youtube.length > 0) && (
+    <section class="pd-gallery">
+
+      {galleryImages.map((src) => (
+        <button class="pd-gallery__item" data-src={withBase(src)} type="button">
+          <img src={withBase(src)} alt="" loading="lazy" />
+        </button>
+      ))}
+
+      {entry.data.videos.map((src) => (
+        <div class="pd-gallery__item pd-gallery__item--video">
+          <LocalVideo src={src} />
+        </div>
+      ))}
+
+      {entry.data.videos_portrait.map((src) => (
+        <div class="pd-gallery__item pd-gallery__item--video-portrait">
+          <LocalVideo src={src} />
+        </div>
+      ))}
+
+      {entry.data.youtube.map((url) => (
+        <div class="pd-gallery__item pd-gallery__item--video">
+          <YouTubeEmbed url={url} lang={lang} />
+        </div>
+      ))}
+
+    </section>
+  )}
+
+  <!-- ══════════════════════════════════════════════════
+       WEITERE PROJEKTE
+       ══════════════════════════════════════════════════ -->
+  {otherProjects.length > 0 && (
+    <section class="pd-more">
+      <h2 class="pd-more__heading">Weitere Projekte</h2>
+      <div class="pd-more__grid">
+        {otherProjects.map((p, i) => {
+          const pGallery = p.data.gallery.filter(img => img !== p.data.cover);
+          const pTotal = (p.data.cover ? 1 : 0) + pGallery.length;
+          return (
+            <a class="pd-more__card" href={`/Webseite2.0/projekte/${p.id}`}>
+              {/* Glass-Zeile */}
+              <div class="pd-more__glass proj-card__glass-col">
+                <span class="pd-more__title">{p.data.title}</span>
+                <span class="pd-more__num">
+                  <strong>01</strong>
+                  <span>/{String(pTotal).padStart(2, '0')}</span>
+                </span>
+              </div>
+              {/* Bild */}
+              <div class="pd-more__img">
+                <img src={withBase(p.data.cover)} alt={p.data.title} loading="lazy" />
+              </div>
+              {/* Schwarzer Streifen */}
+              <div class="pd-more__black proj-card__info"></div>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  )}
+
+  <!-- ── Lightbox ── -->
+  <div class="pd-lightbox" id="pdLightbox" aria-hidden="true">
+    <button class="pd-lightbox__close" id="pdLightboxClose" aria-label="Schließen">✕</button>
+    <img class="pd-lightbox__img" id="pdLightboxImg" src="" alt="" />
+  </div>
+
+</div>{/* pd-page */}
 </BaseLayout>
+
+<script>
+  const lightbox = document.getElementById('pdLightbox') as HTMLElement;
+  const lbImg    = document.getElementById('pdLightboxImg') as HTMLImageElement;
+  const lbClose  = document.getElementById('pdLightboxClose') as HTMLButtonElement;
+
+  document.querySelectorAll<HTMLButtonElement>('.pd-gallery__item:not(.pd-gallery__item--video)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      lbImg.src = btn.dataset.src ?? '';
+      lightbox.setAttribute('aria-hidden', 'false');
+      lightbox.classList.add('is-open');
+    });
+  });
+
+  function closeLightbox() {
+    lightbox.setAttribute('aria-hidden', 'true');
+    lightbox.classList.remove('is-open');
+  }
+
+  lbClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+</script>

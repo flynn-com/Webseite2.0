@@ -686,7 +686,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* Mobile: Logo hinter Frau */
 @media (max-width: 767px) {
   .hero-flynn__woman-stage { z-index: 3; }
-  .hero-flynn__logo        { z-index: 2; width: 80vw; }
+  .hero-flynn__logo        { z-index: 2; width: 92vw; }
   .hero-flynn__nav         { z-index: 6; }
   .hero-flynn__scroll      { z-index: 6; }
   .hero-flynn__woman       { width: 120vw; }
@@ -915,3 +915,299 @@ a:hover { text-decoration-thickness: 2px; }
 .prose h2, .prose h3 { margin-top: var(--space-8); margin-bottom: var(--space-3); }
 .prose ul, .prose ol { padding-left: 1.25rem; margin-top: var(--space-4); }
 .prose li + li { margin-top: var(--space-1); }
+
+/* ═══════════════════════════════════════════════════════════
+   PROJECT DETAIL — Startseitenkarte 90° gedreht
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Seiten-Wrapper: weißer Hintergrund, gleiche Seitenabstände wie Startseite ── */
+.pd-page {
+  background: #ffffff;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem) clamp(2rem, 5vw, 4rem);
+  min-height: 100vh;
+}
+
+/* ── Zurück-Link ── */
+.pd-back {
+  display: inline-block;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  color: rgba(0,0,0,0.45);
+  text-transform: uppercase;
+  transition: color 0.2s;
+  position: relative;
+  z-index: 5;
+}
+.pd-back:hover { color: #000; }
+
+/* ══ PROJECT DETAIL CARD (Startseitenkarte 90° gedreht) ══ */
+
+/* Wrapper: gleiche Breite wie project-grid auf der Startseite */
+.pd-card {
+  display: flex;
+  flex-direction: column;
+  max-width: 1800px;
+  margin-inline: auto;
+  border-radius: 20px 20px 0 0;   /* nur oben rund, unten eckig */
+  overflow: hidden;
+  /* Gleicher Außenabstand wie die Startseitenkarten */
+  margin-top: clamp(1rem, 2vw, 1.5rem);
+  margin-bottom: 0;
+}
+
+/* Zeile 1: Glass-Panel — Titel links, Zahl rechts, beide oben ausgerichtet */
+.pd-card__glass {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 28px 32px;
+  min-height: clamp(100px, 12vw, 170px);
+}
+.pd-card__title {
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  margin: 0;
+}
+.pd-card__glass-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+/* Zahlen auf der Detailseite größer als auf der Startseitenkarte */
+.pd-card__number {
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 1;
+  color: #ffffff;
+}
+.pd-card__number strong { font-weight: 700; }
+.pd-card__number span   { font-weight: 400; color: rgba(255,255,255,0.45); }
+.pd-card__location {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+}
+
+/* Zeile 2: Bild */
+.pd-card__media {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #111;
+}
+.pd-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Zeile 3: Schwarz-Panel — exakt wie .proj-card__info */
+.pd-card__info {
+  min-height: clamp(100px, 14vw, 180px);
+}
+.pd-card__body {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.78rem;
+  line-height: 1.8;
+  margin-top: 0.75rem;
+}
+.pd-card__body p { margin: 0; }
+
+/* ── Galerie unter der Karte — 3-Spalten-Raster ── */
+.pd-gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  max-width: 1800px;
+  margin-inline: auto;
+  padding: 24px 0 4rem;
+}
+
+/* Jedes 4. Item (4., 8., 12. …) → volle Breite, Querformat */
+.pd-gallery__item:nth-child(4n) {
+  grid-column: 1 / -1;
+  aspect-ratio: 16 / 9;
+}
+
+/* Die anderen drei → Hochkant nebeneinander */
+.pd-gallery__item:not(:nth-child(4n)) {
+  aspect-ratio: 3 / 4;
+}
+
+/* Querformat-Videos: volle Breite */
+.pd-gallery__item--video {
+  grid-column: 1 / -1;
+  aspect-ratio: 16 / 9;
+  cursor: default;
+}
+
+/* Hochkant-Videos (9:16): 1 Spalte, wie ein Hochkant-Bild */
+.pd-gallery__item--video-portrait {
+  grid-column: span 1;
+  aspect-ratio: 9 / 16;
+  cursor: default;
+}
+
+.pd-gallery__item {
+  display: block;
+  overflow: hidden;
+  border-radius: 0;
+  background: #111;
+  cursor: zoom-in;
+  padding: 0;
+  border: 0;
+  width: 100%;
+}
+.pd-gallery__item img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.pd-gallery__item:hover img { transform: scale(1.02); }
+
+/* ── Weitere Projekte ── */
+.pd-more {
+  max-width: 1800px;
+  margin-inline: auto;
+  padding-top: 3rem;
+}
+.pd-more__heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.35);
+  margin: 0 0 1.25rem;
+}
+.pd-more__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Karte = Miniatur der Hauptkarte */
+.pd-more__card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+.pd-more__card:hover { transform: translateY(-3px); }
+
+/* Glass-Zeile */
+.pd-more__glass {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  /* erbt backdrop-filter etc. von proj-card__glass-col */
+}
+.pd-more__title {
+  font-size: clamp(0.7rem, 1.2vw, 1rem);
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+.pd-more__num {
+  font-size: clamp(0.7rem, 1.2vw, 1rem);
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+.pd-more__num span { font-weight: 400; color: rgba(255,255,255,0.45); }
+
+/* Cover-Bild */
+.pd-more__img {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #111;
+}
+.pd-more__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.pd-more__card:hover .pd-more__img img { transform: scale(1.04); }
+
+/* Schwarzer Streifen unten */
+.pd-more__black {
+  min-height: 36px;
+  /* erbt background: #1a1a1a von proj-card__info */
+}
+
+@media (max-width: 767px) {
+  .pd-more__grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
+
+/* ── Lightbox ── */
+.pd-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.96);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.pd-lightbox.is-open {
+  opacity: 1;
+  pointer-events: all;
+}
+.pd-lightbox__img {
+  max-width: 92vw;
+  max-height: 90vh;
+  object-fit: contain;
+}
+.pd-lightbox__close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  font-size: 1.5rem;
+  color: #fff;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.pd-lightbox__close:hover { opacity: 1; }
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .pd-card { border-radius: 14px 14px 0 0; margin-top: 0.5rem; }
+  .pd-card__media { aspect-ratio: 4 / 3; }
+  .pd-gallery { grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px 0 2rem; }
+  .pd-gallery__item:nth-child(4n) { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+  .pd-gallery__item:not(:nth-child(4n)) { aspect-ratio: 3 / 4; }
+  .pd-card__location { font-size: 10px; }
+  /* Titel und Zahl auf gleiche Größe und Höhe bringen */
+  .pd-card__title  { font-size: 10vw; }
+  .pd-card__number { font-size: 10vw; }
+  .pd-card__glass  { padding: 18px 20px; align-items: flex-start; }
+}

@@ -22,6 +22,10 @@ const projectFields = z.object({
     (val) => (typeof val === 'string' ? [val] : (val ?? [])),
     z.array(z.string())
   ).default([]),
+  videos_portrait: z.preprocess(
+    (val) => (typeof val === 'string' ? [val] : (val ?? [])),
+    z.array(z.string())
+  ).default([]),
   tags: z.array(z.string()).default([]),
   featured: z.boolean().default(false),
   draft: z.boolean().default(false),
