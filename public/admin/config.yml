@@ -32,7 +32,7 @@ collections:
     media_folder: "/public/uploads/projekte/{{slug}}"
     public_folder: "/Webseite2.0/uploads/projekte/{{slug}}"
     editor:
-      preview: false
+      preview: true
     fields:
       - { name: "title", label: "Titel", widget: "string" }
       - { name: "slug", label: "URL-Slug (ohne Leerzeichen)", widget: "string", hint: "Erscheint in der URL, z.B. 'portrait-studio'" }
@@ -126,7 +126,7 @@ collections:
     media_folder: "/public/uploads/projekte/{{slug}}"
     public_folder: "/Webseite2.0/uploads/projekte/{{slug}}"
     editor:
-      preview: false
+      preview: true
     fields:
       - { name: "title", label: "Title", widget: "string" }
       - { name: "slug", label: "URL slug", widget: "string" }
