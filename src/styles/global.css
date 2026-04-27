@@ -278,7 +278,7 @@ a:hover { text-decoration-thickness: 2px; }
   display: flex;
   flex-direction: column;
   gap: clamp(1.5rem, 3vw, 2.5rem);
-  max-width: 2800px;
+  max-width: 1800px;
   margin-inline: auto;
 }
 
