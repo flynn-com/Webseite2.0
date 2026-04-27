@@ -11,6 +11,8 @@ gallery:
   - /uploads/projekte/arée/®flynn-arée-6.avif
   - /uploads/projekte/arée/®flynn-arée-26.avif
   - /uploads/projekte/arée/®flynn-arée-35.avif
+  - /uploads/projekte/arée/®flynn-arée-60.avif
+  - /uploads/projekte/arée/®flynn-arée-20.avif
 youtube: []
 videos: []
 tags:
