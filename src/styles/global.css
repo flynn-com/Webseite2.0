@@ -278,15 +278,16 @@ a:hover { text-decoration-thickness: 2px; }
   display: flex;
   flex-direction: column;
   gap: clamp(1.5rem, 3vw, 2.5rem);
-  max-width: 1100px;
+  max-width: 2800px;
   margin-inline: auto;
 }
 
 /* ---------- Neue Projekt-Karte (3 Spalten: Glass | Schwarz | Bild) ---------- */
 .proj-card {
   display: grid;
-  grid-template-columns: 180px 260px 1fr;
-  min-height: 560px;
+  /* Linke zwei Spalten wachsen proportional mit dem Viewport mit (bis max.) */
+  grid-template-columns: clamp(180px, 14vw, 380px) clamp(260px, 20vw, 520px) 1fr;
+  min-height: clamp(560px, 44vw, 900px);
   border-radius: 20px;
   overflow: hidden;
 }
