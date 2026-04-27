@@ -19,7 +19,6 @@ draft: false
 date: 2026-03-10
 gallery:
   - /uploads/projekte/nyhro/®flynn-nyhro-21.avif
-  - /uploads/projekte/nyhro/®flynn-nyhro-21.avif
   - /uploads/projekte/nyhro/®flynn-nyhro-26.avif
   - /uploads/projekte/nyhro/®flynn-nyhro-11.avif
   - /uploads/projekte/nyhro/®flynn-nyhro-3.avif
