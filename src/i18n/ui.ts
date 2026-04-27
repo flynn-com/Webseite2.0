@@ -78,6 +78,8 @@ export function withBase(path: string): string {
   const base = import.meta.env.BASE_URL ?? '/';
   const baseTrim = base.endsWith('/') ? base.slice(0, -1) : base;
   const norm = path.startsWith('/') ? path : '/' + path;
+  // Kein doppelter Prefix falls Decap den Base schon mitspeichert
+  if (baseTrim && norm.startsWith(baseTrim + '/')) return norm;
   return (baseTrim + norm) || '/';
 }
 

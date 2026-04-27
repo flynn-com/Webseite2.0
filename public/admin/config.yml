@@ -13,7 +13,7 @@ publish_mode: simple
 
 # Medien global — Unterordner pro Projekt via {{slug}}
 media_folder: "public/uploads/projekte/{{slug}}"
-public_folder: "/uploads/projekte/{{slug}}"
+public_folder: "/Webseite2.0/uploads/projekte/{{slug}}"
 
 # Anzeige im CMS
 site_url: "https://flynn-com.github.io/Webseite2.0"
@@ -30,7 +30,7 @@ collections:
     preview_path: "projekte/{{slug}}"
     # Medienordner pro Projekt: public/uploads/projekte/<slug>/
     media_folder: "/public/uploads/projekte/{{slug}}"
-    public_folder: "/uploads/projekte/{{slug}}"
+    public_folder: "/Webseite2.0/uploads/projekte/{{slug}}"
     editor:
       preview: false
     fields:
@@ -124,7 +124,7 @@ collections:
     slug: "{{slug}}"
     preview_path: "en/projects/{{slug}}"
     media_folder: "/public/uploads/projekte/{{slug}}"
-    public_folder: "/uploads/projekte/{{slug}}"
+    public_folder: "/Webseite2.0/uploads/projekte/{{slug}}"
     editor:
       preview: false
     fields:
