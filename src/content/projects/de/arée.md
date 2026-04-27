@@ -6,6 +6,9 @@ order: 1
 cover: /uploads/projekte/arée/®flynn-arée-15.avif
 description: "Räume aus ungesehenen Blickwinkeln "
 location: München
+gallery_focal:
+  - top center
+  - bottom center
 gallery:
   - /uploads/projekte/arée/®flynn-arée-38.avif
   - /uploads/projekte/arée/®flynn-arée-6.avif
