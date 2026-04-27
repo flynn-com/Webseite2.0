@@ -683,13 +683,13 @@ a:hover { text-decoration-thickness: 2px; }
   .hero-flynn__woman { width: 2050px; }
 }
 
-/* Mobile: Frau hinter Logo */
+/* Mobile: Logo hinter Frau */
 @media (max-width: 767px) {
-  .hero-flynn__woman-stage { z-index: 2; }
-  .hero-flynn__logo        { z-index: 4; width: 80vw; }
-  .hero-flynn__nav         { z-index: 4; }
-  .hero-flynn__scroll      { z-index: 4; }
-  .hero-flynn__woman       { width: 175vw; }
+  .hero-flynn__woman-stage { z-index: 3; }
+  .hero-flynn__logo        { z-index: 2; width: 80vw; }
+  .hero-flynn__nav         { z-index: 6; }
+  .hero-flynn__scroll      { z-index: 6; }
+  .hero-flynn__woman       { width: 120vw; }
 }
 
 
