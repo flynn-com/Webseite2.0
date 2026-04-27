@@ -1152,11 +1152,6 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .pd-more__card:hover .pd-more__img img { transform: scale(1.04); }
 
-/* Schwarzer Streifen unten */
-.pd-more__black {
-  min-height: 36px;
-  /* erbt background: #1a1a1a von proj-card__info */
-}
 
 @media (max-width: 767px) {
   .pd-more__grid { grid-template-columns: 1fr 1fr; gap: 12px; }

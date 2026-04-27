@@ -110,28 +110,22 @@ const otherProjects = allProjects
     <section class="pd-more">
       <h2 class="pd-more__heading">Weitere Projekte</h2>
       <div class="pd-more__grid">
-        {otherProjects.map((p, i) => {
-          const pGallery = p.data.gallery.filter(img => img !== p.data.cover);
-          const pTotal = (p.data.cover ? 1 : 0) + pGallery.length;
-          return (
+        {otherProjects.map((p) => (
             <a class="pd-more__card" href={`/Webseite2.0/projekte/${p.id}`}>
               {/* Glass-Zeile */}
               <div class="pd-more__glass proj-card__glass-col">
                 <span class="pd-more__title">{p.data.title}</span>
                 <span class="pd-more__num">
-                  <strong>01</strong>
-                  <span>/{String(pTotal).padStart(2, '0')}</span>
+                  <strong>{String(p.data.order).padStart(2, '0')}</strong>
+                  <span>/{String(allProjects.length).padStart(2, '0')}</span>
                 </span>
               </div>
               {/* Bild */}
               <div class="pd-more__img">
                 <img src={withBase(p.data.cover)} alt={p.data.title} loading="lazy" />
               </div>
-              {/* Schwarzer Streifen */}
-              <div class="pd-more__black proj-card__info"></div>
             </a>
-          );
-        })}
+        ))}
       </div>
     </section>
   )}
