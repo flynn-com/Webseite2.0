@@ -8,8 +8,10 @@ const projectFields = z.object({
   date: z.coerce.date().optional(),
   order: z.number().default(99),
   cover: z.string(),
+  cover_focal: z.string().default('center'),
   description: z.string().optional(),
   location: z.string().optional(),
+  gallery_focal: z.array(z.string()).default([]),
   gallery: z.preprocess(
     (val) => (typeof val === 'string' ? [val] : (val ?? [])),
     z.array(z.string())

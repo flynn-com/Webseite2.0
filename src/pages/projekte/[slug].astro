@@ -54,7 +54,7 @@ const otherProjects = allProjects
     <!-- Zeile 2: Cover-Bild (= rechte Bild-Spalte der Startseitenkarte) -->
     {entry.data.cover && (
       <div class="pd-card__media">
-        <img src={withBase(entry.data.cover)} alt={entry.data.title} />
+        <img src={withBase(entry.data.cover)} alt={entry.data.title} style={`object-position: ${entry.data.cover_focal}`} />
       </div>
     )}
 
@@ -76,11 +76,14 @@ const otherProjects = allProjects
   {(galleryImages.length > 0 || entry.data.videos.length > 0 || entry.data.videos_portrait.length > 0 || entry.data.youtube.length > 0) && (
     <section class="pd-gallery">
 
-      {galleryImages.map((src) => (
-        <button class="pd-gallery__item" data-src={withBase(src)} type="button">
-          <img src={withBase(src)} alt="" loading="lazy" />
-        </button>
-      ))}
+      {galleryImages.map((src, i) => {
+        const focal = entry.data.gallery_focal[i] ?? 'center';
+        return (
+          <button class="pd-gallery__item" data-src={withBase(src)} type="button">
+            <img src={withBase(src)} alt="" loading="lazy" style={`object-position: ${focal}`} />
+          </button>
+        );
+      })}
 
       {entry.data.videos.map((src) => (
         <div class="pd-gallery__item pd-gallery__item--video">

@@ -49,8 +49,40 @@ collections:
         label: "Titelbild (erscheint immer als erstes im Karussell)"
         widget: "image"
         hint: "Empfohlen: AVIF, 2400px, Qualität 80%"
+      - name: "cover_focal"
+        label: "Titelbild — Fokuspunkt (wo soll das Bild zentriert werden?)"
+        widget: "select"
+        required: false
+        default: "center"
+        hint: "Verhindert dass Köpfe oder wichtige Details abgeschnitten werden"
+        options:
+          - { label: "Mitte (Standard)", value: "center" }
+          - { label: "Oben Mitte", value: "top center" }
+          - { label: "Oben Links", value: "top left" }
+          - { label: "Oben Rechts", value: "top right" }
+          - { label: "Unten Mitte", value: "bottom center" }
+          - { label: "Links", value: "left center" }
+          - { label: "Rechts", value: "right center" }
       - { name: "description", label: "Kurzbeschreibung (1-2 Sätze)", widget: "text", required: false }
       - { name: "location", label: "Ort / Stadt", widget: "string", required: false, hint: "z.B. München, Stuttgart — erscheint im Glas-Panel" }
+      - name: "gallery_focal"
+        label: "Galerie — Fokuspunkte"
+        widget: "list"
+        required: false
+        hint: "Optional: für jedes Galeriebild (gleiche Reihenfolge) den Fokuspunkt angeben. Leer lassen = Mitte."
+        field:
+          name: "position"
+          label: "Position"
+          widget: "select"
+          default: "center"
+          options:
+            - { label: "Mitte", value: "center" }
+            - { label: "Oben Mitte", value: "top center" }
+            - { label: "Oben Links", value: "top left" }
+            - { label: "Oben Rechts", value: "top right" }
+            - { label: "Unten Mitte", value: "bottom center" }
+            - { label: "Links", value: "left center" }
+            - { label: "Rechts", value: "right center" }
       - name: "gallery"
         label: "Weitere Bilder"
         widget: "image"
