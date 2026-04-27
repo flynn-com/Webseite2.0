@@ -2,11 +2,30 @@
 
 var h = window.h;
 
-// Hilfsfunktion: Bild-URL auflösen (getAsset gibt Blob-URL zurück)
+// Hilfsfunktion: Bild-URL auflösen
+// - Frisch hochgeladene Bilder → Blob-URL (funktioniert direkt)
+// - Bestehende Git-Bilder → relativer Pfad, muss zu absoluter URL werden
 function resolveImg(getAsset, src) {
   if (!src) return null;
+
   var asset = getAsset(src);
-  return asset ? asset.toString() : src;
+  var url = asset ? asset.toString() : src;
+
+  // Blob-URLs (gerade hochgeladen) direkt verwenden
+  if (url && url.startsWith('blob:')) return url;
+
+  // Relative Pfade → absolute URL mit Basispfad
+  if (url && url.startsWith('/')) {
+    var base = '/Webseite2.0';
+    if (!url.startsWith(base + '/')) url = base + url;
+    try {
+      return window.parent.location.origin + url;
+    } catch (e) {
+      return url;
+    }
+  }
+
+  return url;
 }
 
 // ── Preview-Komponente ──
