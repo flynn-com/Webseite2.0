@@ -19,10 +19,17 @@ const { Content } = await render(entry);
 const lang = 'de' as const;
 
 const galleryImages = entry.data.gallery.filter(img => img !== entry.data.cover);
-const totalImages = (entry.data.cover ? 1 : 0) + galleryImages.length;
+const totalImages   = (entry.data.cover ? 1 : 0) + galleryImages.length;
 
-// Andere Projekte (aktuelles ausschließen, nach order sortieren)
-const allProjects = await getCollection('projects-de', ({ data }) => !data.draft);
+// Bilder den Layout-Slots zuweisen (Figma-Reihenfolge)
+const topThumbs  = galleryImages.slice(0, 2);   // 2 kleine Bilder oben rechts
+const fullImg    = galleryImages[2] ?? null;      // Breitbild Mitte
+const splitImg   = galleryImages[3] ?? null;      // Bild im Text-Split
+const bottomPair = galleryImages.slice(4, 6);     // 2 Bilder unten
+const extraImgs  = galleryImages.slice(6);        // übrige Bilder
+
+// Andere Projekte
+const allProjects   = await getCollection('projects-de', ({ data }) => !data.draft);
 const otherProjects = allProjects
   .filter(p => p.id !== entry.id)
   .sort((a, b) => a.data.order - b.data.order);
@@ -31,103 +38,158 @@ const otherProjects = allProjects
 <BaseLayout lang={lang} title={`${entry.data.title} – Flynn Bertsch`} description={entry.data.description}>
 <div class="pd-page">
 
-  <!-- ── Zurück ── -->
+  <!-- Zurück -->
   <a class="pd-back" href={pathForLang(lang, 'projects')}>← {t(lang, 'project.back')}</a>
 
-  <!-- ══════════════════════════════════════════════════
-       PROJEKT-KARTE — vertikal (Startseiten-Card 90° gedreht)
-       Zeile 1: Glass  |  Zeile 2: Bild  |  Zeile 3: Schwarz
-       ══════════════════════════════════════════════════ -->
-  <div class="pd-card">
+  <!-- ══ HAUPT-LAYOUT ══ -->
+  <div class="pd-layout">
 
-    <!-- Zeile 1: Glass-Panel — Titel links oben, Zahl rechts unten -->
-    <div class="pd-card__glass proj-card__glass-col">
-      <h1 class="pd-card__title">{entry.data.title}</h1>
-      <div class="pd-card__glass-bottom">
-        <p class="proj-card__number pd-card__number">
-          <strong>01</strong><span>/{String(totalImages).padStart(2, '0')}</span>
-        </p>
-        {entry.data.location && <p class="proj-card__location pd-card__location">{entry.data.location}</p>}
+    <!-- ── Header: Titel | Location | Zähler ── -->
+    <header class="pd-header">
+      <h1 class="pd-header__title">{entry.data.title}</h1>
+      {entry.data.location && <span class="pd-header__location">{entry.data.location}</span>}
+      <p class="pd-header__counter">
+        <strong>01</strong><span>/{String(totalImages).padStart(2, '0')}</span>
+      </p>
+    </header>
+
+    <!-- ── Top-Block: Großes Bild links + Text & 2 Bilder rechts ── -->
+    <div class="pd-top">
+
+      {entry.data.cover && (
+        <div class="pd-img pd-top__main">
+          <img
+            src={withBase(entry.data.cover)}
+            alt={entry.data.title}
+            style={`object-position:${entry.data.cover_focal}`}
+          />
+        </div>
+      )}
+
+      <div class="pd-top__right">
+        {entry.data.description && (
+          <p class="pd-text">{entry.data.description}</p>
+        )}
+        {topThumbs.length > 0 && (
+          <div class="pd-thumbs">
+            {topThumbs.map((src, i) => (
+              <button class="pd-img" data-src={withBase(src)} type="button">
+                <img
+                  src={withBase(src)}
+                  alt=""
+                  loading="lazy"
+                  style={`object-position:${entry.data.gallery_focal[i] ?? 'center'}`}
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
 
-    <!-- Zeile 2: Cover-Bild (= rechte Bild-Spalte der Startseitenkarte) -->
-    {entry.data.cover && (
-      <div class="pd-card__media">
-        <img src={withBase(entry.data.cover)} alt={entry.data.title} style={`object-position: ${entry.data.cover_focal}`} />
+    <!-- ── Breitbild Mitte ── -->
+    {fullImg && (
+      <button class="pd-img pd-full" data-src={withBase(fullImg)} type="button">
+        <img
+          src={withBase(fullImg)}
+          alt=""
+          loading="lazy"
+          style={`object-position:${entry.data.gallery_focal[2] ?? 'center'}`}
+        />
+      </button>
+    )}
+
+    <!-- ── Split: Text links + Bild rechts ── -->
+    {(splitImg || true) && (
+      <div class="pd-split">
+        <div class="pd-text pd-split__text prose">
+          <Content />
+        </div>
+        {splitImg && (
+          <button class="pd-img pd-split__img" data-src={withBase(splitImg)} type="button">
+            <img
+              src={withBase(splitImg)}
+              alt=""
+              loading="lazy"
+              style={`object-position:${entry.data.gallery_focal[3] ?? 'center'}`}
+            />
+          </button>
+        )}
       </div>
     )}
 
-    <!-- Zeile 3: Schwarz-Panel (= mittlere schwarze Spalte der Startseitenkarte) -->
-    <div class="pd-card__info proj-card__info">
-      {entry.data.description && (
-        <p class="proj-card__desc">{entry.data.description}</p>
-      )}
-      <div class="pd-card__body prose">
-        <Content />
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ══════════════════════════════════════════════════
-       GALERIE — kein Border-Radius, 24px Abstand
-       ══════════════════════════════════════════════════ -->
-  {(galleryImages.length > 0 || entry.data.videos.length > 0 || entry.data.videos_portrait.length > 0 || entry.data.youtube.length > 0) && (
-    <section class="pd-gallery">
-
-      {galleryImages.map((src, i) => {
-        const focal = entry.data.gallery_focal[i] ?? 'center';
-        return (
-          <button class="pd-gallery__item" data-src={withBase(src)} type="button">
-            <img src={withBase(src)} alt="" loading="lazy" style={`object-position: ${focal}`} />
+    <!-- ── Unteres Bildpaar ── -->
+    {bottomPair.length > 0 && (
+      <div class="pd-pair">
+        {bottomPair.map((src, i) => (
+          <button class="pd-img" data-src={withBase(src)} type="button">
+            <img
+              src={withBase(src)}
+              alt=""
+              loading="lazy"
+              style={`object-position:${entry.data.gallery_focal[4 + i] ?? 'center'}`}
+            />
           </button>
-        );
-      })}
+        ))}
+      </div>
+    )}
 
-      {entry.data.videos.map((src) => (
-        <div class="pd-gallery__item pd-gallery__item--video">
-          <LocalVideo src={src} />
-        </div>
-      ))}
+    <!-- ── Übrige Bilder ── -->
+    {extraImgs.length > 0 && (
+      <div class="pd-extra">
+        {extraImgs.map((src, i) => (
+          <button class="pd-img" data-src={withBase(src)} type="button">
+            <img
+              src={withBase(src)}
+              alt=""
+              loading="lazy"
+              style={`object-position:${entry.data.gallery_focal[6 + i] ?? 'center'}`}
+            />
+          </button>
+        ))}
+      </div>
+    )}
 
-      {entry.data.videos_portrait.map((src) => (
-        <div class="pd-gallery__item pd-gallery__item--video-portrait">
-          <LocalVideo src={src} />
-        </div>
-      ))}
+    <!-- ── Videos ── -->
+    {entry.data.videos.map((src) => (
+      <div class="pd-img pd-video">
+        <LocalVideo src={src} />
+      </div>
+    ))}
+    {entry.data.videos_portrait.map((src) => (
+      <div class="pd-img pd-video pd-video--portrait">
+        <LocalVideo src={src} />
+      </div>
+    ))}
+    {entry.data.youtube.map((url) => (
+      <div class="pd-img pd-video">
+        <YouTubeEmbed url={url} lang={lang} />
+      </div>
+    ))}
 
-      {entry.data.youtube.map((url) => (
-        <div class="pd-gallery__item pd-gallery__item--video">
-          <YouTubeEmbed url={url} lang={lang} />
-        </div>
-      ))}
+    <!-- ── Branding ── -->
+    <div class="pd-brand">*FLYNN</div>
 
-    </section>
-  )}
+  </div>{/* pd-layout */}
 
-  <!-- ══════════════════════════════════════════════════
-       WEITERE PROJEKTE
-       ══════════════════════════════════════════════════ -->
+  <!-- ══ WEITERE PROJEKTE ══ -->
   {otherProjects.length > 0 && (
     <section class="pd-more">
       <h2 class="pd-more__heading">Weitere Projekte</h2>
       <div class="pd-more__grid">
         {otherProjects.map((p) => (
-            <a class="pd-more__card" href={`/Webseite2.0/projekte/${p.id}`}>
-              {/* Glass-Zeile */}
-              <div class="pd-more__glass proj-card__glass-col">
-                <span class="pd-more__title">{p.data.title}</span>
-                <span class="pd-more__num">
-                  <strong>{String(p.data.order).padStart(2, '0')}</strong>
-                  <span>/{String(allProjects.length).padStart(2, '0')}</span>
-                </span>
-              </div>
-              {/* Bild */}
-              <div class="pd-more__img">
-                <img src={withBase(p.data.cover)} alt={p.data.title} loading="lazy" />
-              </div>
-            </a>
+          <a class="pd-more__card" href={`/Webseite2.0/projekte/${p.id}`}>
+            <div class="pd-more__glass proj-card__glass-col">
+              <span class="pd-more__title">{p.data.title}</span>
+              <span class="pd-more__num">
+                <strong>{String(p.data.order).padStart(2, '0')}</strong>
+                <span>/{String(allProjects.length).padStart(2, '0')}</span>
+              </span>
+            </div>
+            <div class="pd-more__img">
+              <img src={withBase(p.data.cover)} alt={p.data.title} loading="lazy" />
+            </div>
+          </a>
         ))}
       </div>
     </section>
@@ -147,7 +209,7 @@ const otherProjects = allProjects
   const lbImg    = document.getElementById('pdLightboxImg') as HTMLImageElement;
   const lbClose  = document.getElementById('pdLightboxClose') as HTMLButtonElement;
 
-  document.querySelectorAll<HTMLButtonElement>('.pd-gallery__item:not(.pd-gallery__item--video)').forEach(btn => {
+  document.querySelectorAll<HTMLButtonElement>('button.pd-img[data-src]').forEach(btn => {
     btn.addEventListener('click', () => {
       lbImg.src = btn.dataset.src ?? '';
       lightbox.setAttribute('aria-hidden', 'false');

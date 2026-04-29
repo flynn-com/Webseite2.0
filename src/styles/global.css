@@ -917,209 +917,156 @@ a:hover { text-decoration-thickness: 2px; }
 .prose li + li { margin-top: var(--space-1); }
 
 /* ═══════════════════════════════════════════════════════════
-   PROJECT DETAIL — Startseitenkarte 90° gedreht
+   PROJECT DETAIL — Figma Layout
    ═══════════════════════════════════════════════════════════ */
 
-/* ── Seiten-Wrapper: weißer Hintergrund, gleiche Seitenabstände wie Startseite ── */
 .pd-page {
-  background: #ffffff;
-  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem) clamp(2rem, 5vw, 4rem);
+  background: #111111;
   min-height: 100vh;
+  padding: clamp(1rem, 3vw, 2rem);
 }
-
-/* ── Zurück-Link ── */
 .pd-back {
   display: inline-block;
-  padding: 0.85rem 1.5rem;
+  padding: 0.75rem 0;
+  margin-bottom: 1rem;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-decoration: none;
-  color: rgba(0,0,0,0.45);
+  color: rgba(255,255,255,0.35);
   text-transform: uppercase;
   transition: color 0.2s;
-  position: relative;
-  z-index: 5;
 }
-.pd-back:hover { color: #000; }
-
-/* ══ PROJECT DETAIL CARD (Startseitenkarte 90° gedreht) ══ */
-
-/* Wrapper: gleiche Breite wie project-grid auf der Startseite */
-.pd-card {
+.pd-back:hover { color: #fff; }
+.pd-layout {
+  max-width: 1400px;
+  margin-inline: auto;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  padding: clamp(12px, 2vw, 20px);
   display: flex;
   flex-direction: column;
-  max-width: 1800px;
-  margin-inline: auto;
-  border-radius: 20px 20px 0 0;   /* nur oben rund, unten eckig */
-  overflow: hidden;
-  /* Gleicher Außenabstand wie die Startseitenkarten */
-  margin-top: clamp(1rem, 2vw, 1.5rem);
-  margin-bottom: 0;
+  gap: 10px;
 }
-
-/* Zeile 1: Glass-Panel — Titel links, Zahl rechts, beide oben ausgerichtet */
-.pd-card__glass {
+.pd-header {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  padding: 28px 32px;
-  min-height: clamp(100px, 12vw, 170px);
+  padding: 4px 4px 8px;
+  gap: 1rem;
 }
-.pd-card__title {
-  font-size: clamp(2rem, 5vw, 4.5rem);
-  font-weight: 700;
+.pd-header__title {
+  font-size: clamp(1.4rem, 4vw, 2.8rem);
+  font-weight: 900;
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
   line-height: 1;
   margin: 0;
 }
-.pd-card__glass-bottom {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-/* Zahlen auf der Detailseite größer als auf der Startseitenkarte */
-.pd-card__number {
-  font-size: clamp(2.5rem, 5vw, 5rem);
-  line-height: 1;
-  color: #ffffff;
-}
-.pd-card__number strong { font-weight: 700; }
-.pd-card__number span   { font-weight: 400; color: rgba(255,255,255,0.45); }
-.pd-card__location {
-  font-size: 14px;
+.pd-header__location {
+  font-size: 0.65rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
-  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.45);
   text-transform: uppercase;
 }
-
-/* Zeile 2: Bild */
-.pd-card__media {
-  width: 100%;
-  aspect-ratio: 16 / 9;
+.pd-header__counter {
+  font-size: clamp(1rem, 2.5vw, 1.6rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  margin: 0;
+  white-space: nowrap;
+}
+.pd-header__counter span { font-weight: 400; color: rgba(255,255,255,0.35); }
+.pd-img {
+  border-radius: 10px;
   overflow: hidden;
-  background: #111;
-}
-.pd-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  background: #1a1a1a;
   display: block;
-}
-
-/* Zeile 3: Schwarz-Panel — exakt wie .proj-card__info */
-.pd-card__info {
-  min-height: clamp(100px, 14vw, 180px);
-}
-.pd-card__body {
-  color: rgba(255,255,255,0.6);
-  font-size: 0.78rem;
-  line-height: 1.8;
-  margin-top: 0.75rem;
-}
-.pd-card__body p { margin: 0; }
-
-/* ── Galerie unter der Karte — 3-Spalten-Raster ── */
-.pd-gallery {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 24px;
-  max-width: 1800px;
-  margin-inline: auto;
-  padding: 24px 0 4rem;
-}
-
-/* Jedes 4. Item (4., 8., 12. …) → volle Breite, Querformat */
-.pd-gallery__item:nth-child(4n) {
-  grid-column: 1 / -1;
-  aspect-ratio: 16 / 9;
-}
-
-/* Die anderen drei → Hochkant nebeneinander */
-.pd-gallery__item:not(:nth-child(4n)) {
-  aspect-ratio: 3 / 4;
-}
-
-/* Querformat-Videos: volle Breite */
-.pd-gallery__item--video {
-  grid-column: 1 / -1;
-  aspect-ratio: 16 / 9;
-  cursor: default;
-}
-
-/* Hochkant-Videos (9:16): 1 Spalte, wie ein Hochkant-Bild */
-.pd-gallery__item--video-portrait {
-  grid-column: span 1;
-  aspect-ratio: 9 / 16;
-  cursor: default;
-}
-
-.pd-gallery__item {
-  display: block;
-  overflow: hidden;
-  border-radius: 0;
-  background: #111;
-  cursor: zoom-in;
-  padding: 0;
   border: 0;
+  padding: 0;
+  cursor: pointer;
   width: 100%;
 }
-.pd-gallery__item img {
+.pd-img img, .pd-img video {
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: cover;
+  display: block;
   transition: transform 0.4s ease;
 }
-.pd-gallery__item:hover img { transform: scale(1.02); }
-
-/* ── Weitere Projekte ── */
-.pd-more {
-  max-width: 1800px;
-  margin-inline: auto;
-  padding-top: 3rem;
+.pd-img:hover img { transform: scale(1.02); }
+.pd-top {
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  gap: 10px;
+  align-items: stretch;
 }
+.pd-top__main { min-height: clamp(280px, 40vw, 600px); }
+.pd-top__right { display: flex; flex-direction: column; gap: 10px; }
+.pd-text {
+  color: rgba(255,255,255,0.65);
+  font-size: clamp(0.72rem, 1vw, 0.85rem);
+  line-height: 1.75;
+  margin: 0;
+}
+.pd-thumbs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; }
+.pd-thumbs .pd-img { min-height: clamp(120px, 14vw, 220px); }
+.pd-full { width: 100%; aspect-ratio: 16 / 7; cursor: zoom-in; }
+.pd-split { display: grid; grid-template-columns: 38% 1fr; gap: 10px; align-items: start; }
+.pd-split__text { color: rgba(255,255,255,0.6); font-size: clamp(0.7rem, 1vw, 0.82rem); line-height: 1.8; padding: 4px 0; }
+.pd-split__text p { margin: 0; }
+.pd-split__text p + p { margin-top: 0.75rem; }
+.pd-split__img { aspect-ratio: 4 / 3; }
+.pd-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pd-pair .pd-img { aspect-ratio: 3 / 4; }
+.pd-extra { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pd-extra .pd-img { aspect-ratio: 3 / 4; }
+.pd-video { aspect-ratio: 16 / 9; cursor: default; }
+.pd-video--portrait { aspect-ratio: 9 / 16; max-width: 360px; margin-inline: auto; }
+.pd-brand {
+  text-align: center;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 900;
+  color: rgba(255,255,255,0.15);
+  letter-spacing: 0.08em;
+  padding: 1rem 0 0.5rem;
+  text-transform: uppercase;
+}
+.pd-more { max-width: 1400px; margin-inline: auto; padding-top: 2.5rem; }
 .pd-more__heading {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(0,0,0,0.35);
-  margin: 0 0 1.25rem;
+  color: rgba(255,255,255,0.25);
+  margin: 0 0 1rem;
 }
-.pd-more__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-/* Karte = Miniatur der Hauptkarte */
+.pd-more__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .pd-more__card {
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
   text-decoration: none;
   transition: transform 0.3s ease;
 }
 .pd-more__card:hover { transform: translateY(-3px); }
-
-/* Glass-Zeile */
 .pd-more__glass {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  /* erbt backdrop-filter etc. von proj-card__glass-col */
+  padding: 10px 14px;
 }
 .pd-more__title {
-  font-size: clamp(0.7rem, 1.2vw, 1rem);
+  font-size: clamp(0.65rem, 1.1vw, 0.9rem);
   font-weight: 700;
   color: #fff;
   text-transform: uppercase;
@@ -1130,79 +1077,33 @@ a:hover { text-decoration-thickness: 2px; }
   text-overflow: ellipsis;
   max-width: 60%;
 }
-.pd-more__num {
-  font-size: clamp(0.7rem, 1.2vw, 1rem);
-  font-weight: 700;
-  color: #fff;
-  white-space: nowrap;
-}
+.pd-more__num { font-size: clamp(0.65rem, 1.1vw, 0.9rem); font-weight: 700; color: #fff; white-space: nowrap; }
 .pd-more__num span { font-weight: 400; color: rgba(255,255,255,0.45); }
-
-/* Cover-Bild */
-.pd-more__img {
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: #111;
-}
-.pd-more__img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
+.pd-more__img { aspect-ratio: 4 / 3; overflow: hidden; background: #111; }
+.pd-more__img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
 .pd-more__card:hover .pd-more__img img { transform: scale(1.04); }
-
-
-@media (max-width: 767px) {
-  .pd-more__grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-}
-
-/* ── Lightbox ── */
 .pd-lightbox {
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background: rgba(0,0,0,0.96);
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
   transition: opacity 0.25s;
 }
-.pd-lightbox.is-open {
-  opacity: 1;
-  pointer-events: all;
-}
-.pd-lightbox__img {
-  max-width: 92vw;
-  max-height: 90vh;
-  object-fit: contain;
-}
+.pd-lightbox.is-open { opacity: 1; pointer-events: all; }
+.pd-lightbox__img { max-width: 92vw; max-height: 90vh; object-fit: contain; }
 .pd-lightbox__close {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.5rem;
-  font-size: 1.5rem;
-  color: #fff;
-  background: none;
-  border: 0;
-  cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.2s;
+  position: absolute; top: 1.25rem; right: 1.5rem;
+  font-size: 1.5rem; color: #fff; background: none; border: 0;
+  cursor: pointer; opacity: 0.6; transition: opacity 0.2s;
 }
 .pd-lightbox__close:hover { opacity: 1; }
-
-/* ── Mobile ── */
 @media (max-width: 767px) {
-  .pd-card { border-radius: 14px 14px 0 0; margin-top: 0.5rem; }
-  .pd-card__media { aspect-ratio: 4 / 3; }
-  .pd-gallery { grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px 0 2rem; }
-  .pd-gallery__item:nth-child(4n) { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
-  .pd-gallery__item:not(:nth-child(4n)) { aspect-ratio: 3 / 4; }
-  .pd-card__location { font-size: 10px; }
-  /* Titel und Zahl auf gleiche Größe und Höhe bringen */
-  .pd-card__title  { font-size: 10vw; }
-  .pd-card__number { font-size: 10vw; }
-  .pd-card__glass  { padding: 18px 20px; align-items: flex-start; }
+  .pd-layout { gap: 8px; padding: 10px; border-radius: 12px; }
+  .pd-top { grid-template-columns: 1fr; }
+  .pd-top__main { min-height: 60vw; }
+  .pd-split { grid-template-columns: 1fr; }
+  .pd-extra { grid-template-columns: 1fr 1fr; }
+  .pd-more__grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pd-header__location { display: none; }
 }
