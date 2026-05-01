@@ -1177,18 +1177,21 @@ a:hover { text-decoration-thickness: 2px; }
 .am-page {
   background: #fff;
   min-height: 100vh;
-  padding: 0 clamp(28px, 2.54vw, 60px) clamp(60px, 8vw, 120px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(40px, 5vw, 80px) clamp(28px, 2.54vw, 60px);
 }
 
 /* ── Haupt-Grid: Foto | Rechte Spalte ── */
 .am-layout {
   display: grid;
-  grid-template-columns: minmax(0, 520px) 1fr;
+  grid-template-columns: minmax(0, 667px) 1fr;
   gap: 0 clamp(24px, 3vw, 56px);
   align-items: center;
-  margin-top: clamp(20px, 2.5vw, 40px);
-  max-width: 1200px;
+  max-width: 1400px;
   margin-inline: auto;
+  width: 100%;
 }
 
 /* ── Foto ── */
