@@ -43,7 +43,18 @@ const projectsEn = defineCollection({
   schema: projectFields,
 });
 
+const aboutDe = defineCollection({
+  loader: glob({ pattern: 'de.md', base: './src/content/about' }),
+  schema: z.object({
+    photo: z.string(),
+    photo_focal: z.string().default('center'),
+    subtitle: z.string().default(''),
+    skills: z.array(z.string()).default([]),
+  }),
+});
+
 export const collections = {
   'projects-de': projectsDe,
   'projects-en': projectsEn,
+  'about-de': aboutDe,
 };

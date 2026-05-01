@@ -1,25 +1,68 @@
 ---
+import { getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { pathForLang, withBase } from '../i18n/ui';
+
+const entries = await getCollection('about-de');
+const entry = entries[0];
+const { Content } = await render(entry);
+const lang = 'de' as const;
 ---
 
-<BaseLayout lang="de" title="\u00dcber mich \u2013 Flynn Bertsch">
-  <section class="section container">
-    <h1>\u00dcber mich</h1>
-    <div class="prose">
-      <p>
-        Hallo, ich bin Flynn Bertsch. Ich arbeite als Fotograf, Videograf,
-        Webdesigner und Designer. Auf dieser Seite stelle ich meine Projekte
-        aus den letzten Jahren vor.
-      </p>
-      <p>
-        <em>Dieser Text ist ein Platzhalter \u2013 ersetze ihn durch deine echte Vorstellung
-        (Werdegang, was dich inspiriert, wie man mit dir arbeiten kann).</em>
-      </p>
+<BaseLayout lang={lang} title="Über mich – Flynn Bertsch" description={entry?.data.subtitle}>
+<div class="am-page">
 
-      <h2>Kontakt</h2>
-      <p>
-        E-Mail: <a href="mailto:kontakt@example.com">kontakt@example.com</a>
-      </p>
+  <!-- ── Zurück-Link ── -->
+  <a class="pd2-nav" href="/">
+    <span class="pd2-nav__icon">◄</span>
+    <span>Home</span>
+  </a>
+
+  <!-- ── Haupt-Layout: Foto | Rechte Spalte ── -->
+  <div class="am-layout">
+
+    <!-- ── Foto ── -->
+    <div class="am-photo">
+      {entry?.data.photo && (
+        <img
+          src={withBase(entry.data.photo)}
+          alt={`Flynn Bertsch`}
+          style={`object-position: ${entry.data.photo_focal}`}
+        />
+      )}
     </div>
-  </section>
+
+    <!-- ── Rechte Spalte ── -->
+    <div class="am-right">
+
+      <!-- Riesiger Name -->
+      <h1 class="am-name">
+        Flynn<br />Bertsch
+      </h1>
+
+      <!-- Berufsbezeichnung -->
+      {entry?.data.subtitle && (
+        <p class="am-subtitle">{entry.data.subtitle}</p>
+      )}
+
+      <!-- Skill-Pills -->
+      {entry?.data.skills.length > 0 && (
+        <div class="am-skills">
+          {entry.data.skills.map((s) => (
+            <span class="am-skill">{s}</span>
+          ))}
+        </div>
+      )}
+
+      <!-- Fließtext -->
+      {entry && (
+        <div class="am-body">
+          <Content />
+        </div>
+      )}
+
+    </div>
+  </div>
+
+</div>
 </BaseLayout>
