@@ -1,14 +1,14 @@
 {
   "de": {
-    "about":    "ueber-mich",
-    "projects": "projekte",
-    "imprint":  "impressum",
-    "privacy":  "datenschutz"
+    "about": "ueber",
+    "projects": "portfolio",
+    "imprint": "impressum",
+    "privacy": "datenschutz"
   },
   "en": {
-    "about":    "about",
+    "about": "about",
     "projects": "projects",
-    "imprint":  "imprint",
-    "privacy":  "privacy"
+    "imprint": "imprint",
+    "privacy": "privacy"
   }
 }
