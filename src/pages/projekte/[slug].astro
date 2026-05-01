@@ -58,21 +58,27 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
     <span>Projekte</span>
   </a>
 
-  <!-- ── Header: Riesiger Titel + Nummer ── -->
+  <!-- ── Header: Riesiger Titel + Nummer + Location ── -->
   <div class="pd2-header">
     <h1 class="pd2-title">{entry.data.title}</h1>
-    <p class="pd2-counter">
-      <span>{String(entry.data.order).padStart(2, '0')}/</span><span class="pd2-counter__total">{String(totalProjects).padStart(2, '0')}</span>
-    </p>
-  </div>
-
-  <!-- ── Beschreibung (links, max 44%) ── -->
-  {entry.data.description && (
-    <div class="pd2-description">
-      <p>{entry.data.description}</p>
+    <div class="pd2-header-right">
+      <p class="pd2-counter">
+        <span>{String(entry.data.order).padStart(2, '0')}/</span><span class="pd2-counter__total">{String(totalProjects).padStart(2, '0')}</span>
+      </p>
       {entry.data.location && <p class="pd2-location">{entry.data.location}</p>}
     </div>
-  )}
+  </div>
+
+  <!-- ── Prose / kurze Beschreibung (links, max 44%, über dem Hero) ── -->
+  {entry.body?.trim() ? (
+    <div class="pd2-prose">
+      <Content />
+    </div>
+  ) : entry.data.description ? (
+    <div class="pd2-prose">
+      <p>{entry.data.description}</p>
+    </div>
+  ) : null}
 
   <!-- ── Hero / Cover-Bild ── -->
   {entry.data.cover && (
@@ -135,13 +141,6 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
           <YouTubeEmbed url={url} lang={lang} />
         </div>
       ))}
-    </div>
-  )}
-
-  <!-- ── Fließtext (wenn vorhanden) ── -->
-  {entry.body?.trim() && (
-    <div class="pd2-prose">
-      <Content />
     </div>
   )}
 
