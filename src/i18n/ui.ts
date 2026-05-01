@@ -109,23 +109,28 @@ export type PageKey =
   | 'imprint'
   | 'privacy';
 
+// Slugs werden aus page-routes.json gelesen → im CMS unter "Einstellungen" änderbar
+import pageRoutes from '../data/page-routes.json';
+
 export const routes: Record<Lang, Record<PageKey, string>> = {
   de: {
-    home: '/',
-    projects: '/projekte/',
-    about: '/ueber-mich/',
-    imprint: '/impressum/',
-    privacy: '/datenschutz/',
+    home:     '/',
+    projects: `/${pageRoutes.de.projects}/`,
+    about:    `/${pageRoutes.de.about}/`,
+    imprint:  `/${pageRoutes.de.imprint}/`,
+    privacy:  `/${pageRoutes.de.privacy}/`,
   },
   en: {
-    home: '/en/',
-    projects: '/en/projects/',
-    about: '/en/about/',
-    imprint: '/en/imprint/',
-    privacy: '/en/privacy/',
+    home:     '/en/',
+    projects: `/en/${pageRoutes.en.projects}/`,
+    about:    `/en/${pageRoutes.en.about}/`,
+    imprint:  `/en/${pageRoutes.en.imprint}/`,
+    privacy:  `/en/${pageRoutes.en.privacy}/`,
   },
 };
 
 export function projectDetailPath(lang: Lang, slug: string): string {
-  return withBase(lang === 'de' ? `/projekte/${slug}/` : `/en/projects/${slug}/`);
+  const section = lang === 'de' ? pageRoutes.de.projects : pageRoutes.en.projects;
+  const prefix  = lang === 'de' ? '' : '/en';
+  return withBase(`${prefix}/${section}/${slug}/`);
 }

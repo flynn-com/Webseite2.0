@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import pageRoutes from '../../data/page-routes.json';
+
+type PageType = 'about' | 'imprint' | 'privacy';
+
+interface Props { page: PageType; }
+
+export async function getStaticPaths() {
+  return [
+    { params: { slug: pageRoutes.en.about },   props: { page: 'about'   as PageType } },
+    { params: { slug: pageRoutes.en.imprint },  props: { page: 'imprint' as PageType } },
+    { params: { slug: pageRoutes.en.privacy },  props: { page: 'privacy' as PageType } },
+  ];
+}
+
+const { page } = Astro.props;
+const lang = 'en' as const;
+
+const pageTitles: Record<PageType, string> = {
+  about:   'About – Flynn Bertsch',
+  imprint: 'Imprint – Flynn Bertsch',
+  privacy: 'Privacy – Flynn Bertsch',
+};
+---
+
+<BaseLayout lang={lang} title={pageTitles[page]}>
+
+  {page === 'about' && (
+    <section class="section container">
+      <h1>About</h1>
+      <div class="prose">
+        <p>Hi, I'm Flynn Bertsch. I work as a photographer, videographer, web designer and designer. On this site I present projects from the last few years.</p>
+        <p><em>This is placeholder text – replace it with your own introduction.</em></p>
+        <h2>Contact</h2>
+        <p>Email: <a href="mailto:kontakt@example.com">kontakt@example.com</a></p>
+      </div>
+    </section>
+  )}
+
+  {page === 'imprint' && (
+    <section class="section container">
+      <h1>Imprint</h1>
+      <div class="prose">
+        <h2>Information according to § 5 TMG</h2>
+        <p>Flynn Bertsch<br />Musterstraße 1<br />12345 Musterstadt<br />Germany</p>
+        <h2>Contact</h2>
+        <p>Phone: +49 (0) 000 000 000<br />Email: <a href="mailto:kontakt@example.com">kontakt@example.com</a></p>
+        <h2>VAT ID</h2>
+        <p>VAT identification number according to § 27 a German VAT Act: DE000000000</p>
+        <h2>Responsible for content</h2>
+        <p>Flynn Bertsch (address as above)</p>
+        <h2>Dispute resolution</h2>
+        <p>The European Commission provides a platform for online dispute resolution:
+          <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a>.
+        </p>
+      </div>
+    </section>
+  )}
+
+  {page === 'privacy' && (
+    <section class="section container">
+      <h1>Privacy policy</h1>
+      <div class="prose">
+        <h2>1. Controller</h2>
+        <p>Flynn Bertsch<br />Musterstraße 1<br />12345 Musterstadt, Germany<br />Email: <a href="mailto:kontakt@example.com">kontakt@example.com</a></p>
+        <h2>2. Hosting</h2>
+        <p>This site is hosted on GitHub Pages. Technically necessary data (IP address, access time, user agent) are processed in GitHub server logs. Legal basis: Art. 6 (1) (f) GDPR.</p>
+        <h2>3. Embedded content (YouTube)</h2>
+        <p>We use a click-to-load pattern: the YouTube player only loads after you actively click. We use <code>youtube-nocookie.com</code>.</p>
+        <h2>4. Cookies</h2>
+        <p>This site does not set its own cookies and does not use tracking.</p>
+        <h2>5. Your rights</h2>
+        <p>You have the right to access, rectify, erase, and object to the processing of your personal data (Art. 15–21 GDPR).</p>
+        <h2>6. Contacting me</h2>
+        <p>If you contact me by email, the data you send will be stored to respond to your enquiry. Legal basis: Art. 6 (1) (b) GDPR.</p>
+        <p><em>Last updated: {new Date().toLocaleDateString('en-GB')}</em></p>
+      </div>
+    </section>
+  )}
+
+</BaseLayout>

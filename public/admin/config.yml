@@ -23,6 +23,39 @@ locale: "de"
 collections:
 
   # ──────────────────────────────────────────
+  # EINSTELLUNGEN
+  # ──────────────────────────────────────────
+  - name: "settings"
+    label: "Einstellungen"
+    files:
+
+      - name: "page_routes"
+        label: "Seiten-URLs"
+        file: "src/data/page-routes.json"
+        format: json
+        editor:
+          preview: false
+        fields:
+          - name: "de"
+            label: "Deutsch — URL-Slugs"
+            widget: "object"
+            hint: "Nur Kleinbuchstaben, Zahlen und Bindestriche. Kein / davor oder danach."
+            fields:
+              - { name: "about",    label: "Über-mich-Seite",    widget: "string", default: "ueber-mich",  hint: "z.B. ueber-mich oder flynn" }
+              - { name: "projects", label: "Projekte-Übersicht",  widget: "string", default: "projekte",    hint: "z.B. projekte oder portfolio" }
+              - { name: "imprint",  label: "Impressum",           widget: "string", default: "impressum" }
+              - { name: "privacy",  label: "Datenschutz",         widget: "string", default: "datenschutz" }
+          - name: "en"
+            label: "Englisch — URL-Slugs"
+            widget: "object"
+            hint: "Lowercase letters, numbers and hyphens only."
+            fields:
+              - { name: "about",    label: "About page",     widget: "string", default: "about" }
+              - { name: "projects", label: "Projects index",  widget: "string", default: "projects" }
+              - { name: "imprint",  label: "Imprint",         widget: "string", default: "imprint" }
+              - { name: "privacy",  label: "Privacy",         widget: "string", default: "privacy" }
+
+  # ──────────────────────────────────────────
   # SEITENINHALTE (Singleton-Dateien)
   # ──────────────────────────────────────────
   - name: "pages"

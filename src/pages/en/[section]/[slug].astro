@@ -5,11 +5,12 @@ import Gallery from '../../../components/Gallery.astro';
 import YouTubeEmbed from '../../../components/YouTubeEmbed.astro';
 import LocalVideo from '../../../components/LocalVideo.astro';
 import { t, pathForLang, withBase } from '../../../i18n/ui';
+import pageRoutes from '../../../data/page-routes.json';
 
 export async function getStaticPaths() {
   const entries = await getCollection('projects-en', ({ data }) => !data.draft);
   return entries.map((entry) => ({
-    params: { slug: entry.data.slug },
+    params: { section: pageRoutes.en.projects, slug: entry.data.slug },
     props: { entry },
   }));
 }
@@ -21,7 +22,7 @@ const lang = 'en' as const;
 const fmt = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 
-<BaseLayout lang={lang} title={`${entry.data.title} \u2013 Flynn Bertsch`} description={entry.data.description}>
+<BaseLayout lang={lang} title={`${entry.data.title} – Flynn Bertsch`} description={entry.data.description}>
   <article class="project-detail container">
     <a class="project-detail__back" href={pathForLang(lang, 'projects')}>{t(lang, 'project.back')}</a>
 

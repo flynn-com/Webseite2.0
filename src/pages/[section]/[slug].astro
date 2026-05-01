@@ -3,12 +3,13 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
 import LocalVideo from '../../components/LocalVideo.astro';
-import { t, pathForLang, withBase } from '../../i18n/ui';
+import { t, pathForLang, projectDetailPath, withBase } from '../../i18n/ui';
+import pageRoutes from '../../data/page-routes.json';
 
 export async function getStaticPaths() {
   const entries = await getCollection('projects-de', ({ data }) => !data.draft);
   return entries.map((entry) => ({
-    params: { slug: entry.data.slug },
+    params: { section: pageRoutes.de.projects, slug: entry.data.slug },
     props: { entry },
   }));
 }
@@ -18,21 +19,18 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const lang = 'de' as const;
 
-// Alle Projekte für Zähler
 const allProjects = await getCollection('projects-de', ({ data }) => !data.draft)
   .then(list => list.sort((a, b) => a.data.order - b.data.order));
 const totalProjects = allProjects.length;
 
-// Galerie-Bilder (ohne Cover)
 const galleryImages = entry.data.gallery.filter(img => img !== entry.data.cover);
 
-// Symmetrische Galerie: abwechselnd 2 × Querformat, dann 3 × Hochformat
 type GalleryRow = { type: 'land2' | 'port3' | 'land1'; images: string[]; startIdx: number };
 const galleryRows: GalleryRow[] = [];
 let imgCursor = 0;
 let rowIndex = 0;
 while (imgCursor < galleryImages.length) {
-  const isLandscape = rowIndex % 2 === 0; // gerade Reihen = Querformat
+  const isLandscape = rowIndex % 2 === 0;
   if (isLandscape) {
     const imgs = galleryImages.slice(imgCursor, imgCursor + 2);
     galleryRows.push({ type: imgs.length === 1 ? 'land1' : 'land2', images: imgs, startIdx: imgCursor });
@@ -45,20 +43,17 @@ while (imgCursor < galleryImages.length) {
   rowIndex++;
 }
 
-// Andere Projekte
 const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 ---
 
 <BaseLayout lang={lang} title={`${entry.data.title} – Flynn Bertsch`} description={entry.data.description}>
 <div class="pd2-page">
 
-  <!-- ── Zurück-Link ── -->
   <a class="pd2-nav" href={pathForLang(lang, 'projects')}>
     <span class="pd2-nav__icon">◄</span>
     <span>Projekte</span>
   </a>
 
-  <!-- ── Header: Riesiger Titel + Nummer + Location ── -->
   <div class="pd2-header">
     <h1 class="pd2-title">{entry.data.title}</h1>
     <div class="pd2-header-right">
@@ -69,41 +64,27 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
     </div>
   </div>
 
-  <!-- ── Prose / kurze Beschreibung (links, max 44%, über dem Hero) ── -->
   {entry.body?.trim() ? (
-    <div class="pd2-prose">
-      <Content />
-    </div>
+    <div class="pd2-prose"><Content /></div>
   ) : entry.data.description ? (
-    <div class="pd2-prose">
-      <p>{entry.data.description}</p>
-    </div>
+    <div class="pd2-prose"><p>{entry.data.description}</p></div>
   ) : null}
 
-  <!-- ── Hero / Cover-Bild ── -->
   {entry.data.cover && (
     <div class="pd2-hero">
-      <img
-        src={withBase(entry.data.cover)}
-        alt={entry.data.title}
-        style={`object-position:${entry.data.cover_focal}`}
-      />
+      <img src={withBase(entry.data.cover)} alt={entry.data.title}
+        style={`object-position:${entry.data.cover_focal}`} />
     </div>
   )}
 
-  <!-- ── Galerie: symmetrisch Quer-/Hochformat ── -->
   {galleryRows.length > 0 && (
     <div class="pd2-gallery">
       {galleryRows.map((row) => (
         <div class={`pd2-row pd2-row--${row.type}`}>
           {row.images.map((src, i) => (
             <button class="pd2-img" data-src={withBase(src)} type="button">
-              <img
-                src={withBase(src)}
-                alt=""
-                loading="lazy"
-                style={`object-position:${entry.data.gallery_focal[row.startIdx + i] ?? 'center'}`}
-              />
+              <img src={withBase(src)} alt="" loading="lazy"
+                style={`object-position:${entry.data.gallery_focal[row.startIdx + i] ?? 'center'}`} />
             </button>
           ))}
         </div>
@@ -111,46 +92,36 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
     </div>
   )}
 
-  <!-- ── Videos (Querformat) ── -->
   {entry.data.videos.length > 0 && (
     <div class="pd2-gallery">
       {entry.data.videos.map((src) => (
-        <div class="pd2-video">
-          <LocalVideo src={src} />
-        </div>
+        <div class="pd2-video"><LocalVideo src={src} /></div>
       ))}
     </div>
   )}
 
-  <!-- ── Videos (Hochformat) ── -->
   {entry.data.videos_portrait.length > 0 && (
     <div class="pd2-row pd2-row--port3" style="margin-top: var(--pd2-gap);">
       {entry.data.videos_portrait.map((src) => (
-        <div class="pd2-video pd2-video--portrait">
-          <LocalVideo src={src} />
-        </div>
+        <div class="pd2-video pd2-video--portrait"><LocalVideo src={src} /></div>
       ))}
     </div>
   )}
 
-  <!-- ── YouTube ── -->
   {entry.data.youtube.length > 0 && (
     <div class="pd2-gallery">
       {entry.data.youtube.map((url) => (
-        <div class="pd2-video">
-          <YouTubeEmbed url={url} lang={lang} />
-        </div>
+        <div class="pd2-video"><YouTubeEmbed url={url} lang={lang} /></div>
       ))}
     </div>
   )}
 
-  <!-- ── Weitere Projekte ── -->
   {otherProjects.length > 0 && (
     <section class="pd2-more">
       <h2 class="pd2-more__heading">Weitere Projekte</h2>
       <div class="pd2-more__grid">
         {otherProjects.map((p) => (
-          <a class="pd2-more__card" href={`/Webseite2.0/projekte/${p.data.slug}`}>
+          <a class="pd2-more__card" href={projectDetailPath(lang, p.data.slug)}>
             <div class="pd2-more__img">
               <img src={withBase(p.data.cover)} alt={p.data.title} loading="lazy" />
             </div>
@@ -168,12 +139,10 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 
 </div>
 
-<!-- ── Lightbox ── -->
 <div class="pd2-lightbox" id="pdLightbox" aria-hidden="true">
   <button class="pd2-lightbox__close" id="pdLightboxClose" aria-label="Schließen">✕</button>
   <img class="pd2-lightbox__img" id="pdLightboxImg" src="" alt="" />
 </div>
-
 </BaseLayout>
 
 <script>

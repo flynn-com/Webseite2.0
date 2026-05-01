@@ -1,0 +1,125 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { pathForLang, withBase } from '../i18n/ui';
+import pageRoutes from '../data/page-routes.json';
+
+type PageType = 'about' | 'imprint' | 'privacy';
+
+interface Props {
+  page: PageType;
+  aboutEntry: CollectionEntry<'about-de'> | null;
+}
+
+export async function getStaticPaths() {
+  const aboutEntries = await getCollection('about-de');
+  const aboutEntry = aboutEntries[0] ?? null;
+
+  return [
+    { params: { slug: pageRoutes.de.about },   props: { page: 'about'   as PageType, aboutEntry } },
+    { params: { slug: pageRoutes.de.imprint },  props: { page: 'imprint' as PageType, aboutEntry: null } },
+    { params: { slug: pageRoutes.de.privacy },  props: { page: 'privacy' as PageType, aboutEntry: null } },
+  ];
+}
+
+const { page, aboutEntry } = Astro.props;
+const lang = 'de' as const;
+
+let Content: any = null;
+if (page === 'about' && aboutEntry) {
+  const rendered = await render(aboutEntry);
+  Content = rendered.Content;
+}
+
+const pageTitles: Record<PageType, string> = {
+  about:   'Über mich – Flynn Bertsch',
+  imprint: 'Impressum – Flynn Bertsch',
+  privacy: 'Datenschutz – Flynn Bertsch',
+};
+---
+
+<BaseLayout lang={lang} title={pageTitles[page]}>
+
+  {page === 'about' && (
+    <div class="am-page">
+      <a class="pd2-nav" href={pathForLang(lang, 'home')}>
+        <span class="pd2-nav__icon">◄</span>
+        <span>Home</span>
+      </a>
+      <div class="am-layout">
+        <div class="am-photo">
+          {aboutEntry?.data.photo && (
+            <img
+              src={withBase(aboutEntry.data.photo)}
+              alt="Flynn Bertsch"
+              style={`object-position: ${aboutEntry.data.photo_focal}`}
+            />
+          )}
+        </div>
+        <div class="am-right">
+          <h1 class="am-name">Flynn<br />Bertsch</h1>
+          {aboutEntry?.data.subtitle && (
+            <p class="am-subtitle">{aboutEntry.data.subtitle}</p>
+          )}
+          {aboutEntry && aboutEntry.data.skills.length > 0 && (
+            <div class="am-skills">
+              {aboutEntry.data.skills.map((s: string) => (
+                <span class="am-skill">{s}</span>
+              ))}
+            </div>
+          )}
+          {Content && (
+            <div class="am-body"><Content /></div>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+
+  {page === 'imprint' && (
+    <section class="section container">
+      <h1>Impressum</h1>
+      <div class="prose">
+        <h2>Angaben gemäß § 5 TMG</h2>
+        <p>Flynn Bertsch<br />Musterstraße 1<br />12345 Musterstadt<br />Deutschland</p>
+        <h2>Kontakt</h2>
+        <p>Telefon: +49 (0) 000 000 000<br />E-Mail: <a href="mailto:kontakt@example.com">kontakt@example.com</a></p>
+        <h2>Umsatzsteuer-ID</h2>
+        <p>Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz: DE000000000</p>
+        <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
+        <p>Flynn Bertsch (Anschrift wie oben)</p>
+        <h2>Streitschlichtung</h2>
+        <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
+          <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a>.
+        </p>
+        <p>Ich bin nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+        <h2>Haftung für Inhalte</h2>
+        <p>Als Diensteanbieter bin ich gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.</p>
+        <h2>Urheberrecht</h2>
+        <p>Die durch mich erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht.</p>
+      </div>
+    </section>
+  )}
+
+  {page === 'privacy' && (
+    <section class="section container">
+      <h1>Datenschutzerklärung</h1>
+      <div class="prose">
+        <h2>1. Verantwortlicher</h2>
+        <p>Flynn Bertsch<br />Musterstraße 1<br />12345 Musterstadt<br />E-Mail: <a href="mailto:kontakt@example.com">kontakt@example.com</a></p>
+        <h2>2. Hosting</h2>
+        <p>Diese Website wird auf GitHub Pages gehostet. Beim Aufruf werden technisch notwendige Daten (IP-Adresse, Zugriffszeit, User-Agent) in Server-Logs von GitHub verarbeitet. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO.</p>
+        <h2>3. Einbettung externer Inhalte (YouTube)</h2>
+        <p>Es wird das Zwei-Klick-Verfahren eingesetzt: Der YouTube-Player lädt erst nach aktivem Klick. Zusätzlich kommt <code>youtube-nocookie.com</code> zum Einsatz.</p>
+        <h2>4. Cookies</h2>
+        <p>Diese Website verwendet keine eigenen Cookies und kein Tracking.</p>
+        <h2>5. Ihre Rechte</h2>
+        <p>Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Löschung und Widerspruch (Art. 15–21 DSGVO).</p>
+        <h2>6. Kontaktaufnahme</h2>
+        <p>Wenn Sie mir per E-Mail schreiben, werden die übermittelten Angaben zur Bearbeitung Ihrer Anfrage gespeichert. Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO.</p>
+        <p><em>Stand: {new Date().toLocaleDateString('de-DE')}</em></p>
+      </div>
+    </section>
+  )}
+
+</BaseLayout>

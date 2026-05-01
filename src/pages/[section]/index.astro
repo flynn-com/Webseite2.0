@@ -3,6 +3,11 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { t } from '../../i18n/ui';
+import pageRoutes from '../../data/page-routes.json';
+
+export async function getStaticPaths() {
+  return [{ params: { section: pageRoutes.de.projects } }];
+}
 
 const lang = 'de' as const;
 const projects = (await getCollection('projects-de', ({ data }) => !data.draft))
