@@ -1,6 +1,6 @@
 ---
-photo: /uploads/about/flynn-portrait.jpg
-photo_focal: center
+photo: /Webseite2.0/uploads/about/mercedes-1.jpg
+photo_focal: top center
 subtitle: Fotograf & Videograf & Designer
 skills:
   - Fotografie
