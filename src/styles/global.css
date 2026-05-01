@@ -1183,10 +1183,12 @@ a:hover { text-decoration-thickness: 2px; }
 /* ── Haupt-Grid: Foto | Rechte Spalte ── */
 .am-layout {
   display: grid;
-  grid-template-columns: minmax(0, 420px) 1fr;
+  grid-template-columns: minmax(0, 520px) 1fr;
   gap: 0 clamp(24px, 3vw, 56px);
   align-items: center;
   margin-top: clamp(20px, 2.5vw, 40px);
+  max-width: 1200px;
+  margin-inline: auto;
 }
 
 /* ── Foto ── */
