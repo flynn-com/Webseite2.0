@@ -8,7 +8,7 @@ import { t, pathForLang, withBase } from '../../i18n/ui';
 export async function getStaticPaths() {
   const entries = await getCollection('projects-de', ({ data }) => !data.draft);
   return entries.map((entry) => ({
-    params: { slug: entry.id },
+    params: { slug: entry.data.slug },
     props: { entry },
   }));
 }
@@ -31,7 +31,7 @@ const extraImgs  = galleryImages.slice(6);        // übrige Bilder
 // Andere Projekte
 const allProjects   = await getCollection('projects-de', ({ data }) => !data.draft);
 const otherProjects = allProjects
-  .filter(p => p.id !== entry.id)
+  .filter(p => p.data.slug !== entry.data.slug)
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
@@ -39,7 +39,7 @@ const otherProjects = allProjects
 <div class="pd-page">
 
   <!-- Zurück -->
-  <a class="pd-back" href={pathForLang(lang, 'projects')}>← {t(lang, 'project.back')}</a>
+  <a class="pd-back" href={pathForLang(lang, 'projects')}>{t(lang, 'project.back')}</a>
 
   <!-- ══ HAUPT-LAYOUT ══ -->
   <div class="pd-layout">
@@ -178,7 +178,7 @@ const otherProjects = allProjects
       <h2 class="pd-more__heading">Weitere Projekte</h2>
       <div class="pd-more__grid">
         {otherProjects.map((p) => (
-          <a class="pd-more__card" href={`/Webseite2.0/projekte/${p.id}`}>
+          <a class="pd-more__card" href={`/Webseite2.0/projekte/${p.data.slug}`}>
             <div class="pd-more__glass proj-card__glass-col">
               <span class="pd-more__title">{p.data.title}</span>
               <span class="pd-more__num">

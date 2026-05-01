@@ -39,7 +39,7 @@ const categories = ['all', 'fotografie', 'video', 'webdesign', 'design'] as cons
           <div class="project-grid__item" data-category={p.data.category}>
             <ProjectCard
               lang={lang}
-              slug={p.id}
+              slug={p.data.slug}
               title={p.data.title}
               category={p.data.category}
               cover={p.data.cover}

@@ -4,6 +4,7 @@ slug: Nyhro
 category: fotografie
 order: 2
 cover: /uploads/projekte/nyhro/®flynn-nyhro-23.avif
+cover_focal: top left
 description: Editorial- und Kampagnen-Shooting - 2025 MIND Kollektion der Marke Nyhro.
 location: Stuttgart
 youtube: []

@@ -33,7 +33,7 @@ const projectsToShow = allProjects
         {projectsToShow.map((p, i) => (
           <ProjectCard
             lang={lang}
-            slug={p.id}
+            slug={p.data.slug}
             title={p.data.title}
             category={p.data.category}
             cover={p.data.cover}

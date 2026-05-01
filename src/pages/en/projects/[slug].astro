@@ -9,7 +9,7 @@ import { t, pathForLang, withBase } from '../../../i18n/ui';
 export async function getStaticPaths() {
   const entries = await getCollection('projects-en', ({ data }) => !data.draft);
   return entries.map((entry) => ({
-    params: { slug: entry.id },
+    params: { slug: entry.data.slug },
     props: { entry },
   }));
 }
