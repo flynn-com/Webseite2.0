@@ -1181,6 +1181,14 @@ a:hover { text-decoration-thickness: 2px; }
   flex-direction: column;
   justify-content: center;
   padding: clamp(40px, 5vw, 80px) clamp(28px, 2.54vw, 60px);
+  position: relative;
+}
+
+/* Nav bleibt oben links, unabhängig vom Flex-Centering */
+.am-page > .pd2-nav {
+  position: absolute;
+  top: clamp(16px, 2vw, 28px);
+  left: clamp(28px, 2.54vw, 60px);
 }
 
 /* ── Haupt-Grid: Foto | Rechte Spalte ── */
@@ -1230,7 +1238,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* ── Berufsbezeichnung ── */
 .am-subtitle {
   margin-top: clamp(14px, 1.8vw, 26px);
-  font-size: clamp(0.85rem, 1.38vw, 1.2rem);
+  font-size: clamp(1.1rem, 2vw, 1.75rem);
   font-weight: 700;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -0.06em;
@@ -1266,11 +1274,11 @@ a:hover { text-decoration-thickness: 2px; }
 .am-body {
   margin-top: clamp(18px, 2.2vw, 32px);
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 400;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: -0.05em;
-  text-transform: uppercase;
-  line-height: 1.65;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.7;
   color: #000;
 }
 .am-body p { margin: 0; }
