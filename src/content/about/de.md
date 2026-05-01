@@ -1,7 +1,7 @@
 ---
 photo: /Webseite2.0/uploads/about/mercedes-1.jpg
 photo_focal: top center
-subtitle: Fotograf & Videograf & Designer
+subtitle: Creative Director & Designer
 skills:
   - Fotografie
   - Videografie
