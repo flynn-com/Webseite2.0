@@ -54,7 +54,8 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 
   <!-- ── Zurück-Link ── -->
   <a class="pd2-nav" href={pathForLang(lang, 'projects')}>
-    ← {t(lang, 'project.back')}
+    <span class="pd2-nav__icon">◄</span>
+    <span>Projekte</span>
   </a>
 
   <!-- ── Header: Riesiger Titel + Nummer ── -->

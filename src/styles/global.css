@@ -934,17 +934,22 @@ a:hover { text-decoration-thickness: 2px; }
 .pd2-nav {
   display: inline-flex;
   align-items: center;
+  gap: 0.5em;
   padding: clamp(16px, 2vw, 28px) 0 0;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -0.06em;
   text-transform: uppercase;
-  color: rgba(0,0,0,0.45);
+  color: #000;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: opacity 0.2s;
 }
-.pd2-nav:hover { color: #000; }
+.pd2-nav:hover { opacity: 0.5; }
+.pd2-nav__icon {
+  font-size: 0.75em;
+  line-height: 1;
+}
 
 /* ── Header: Titel | Nummer ── */
 .pd2-header {
@@ -1001,7 +1006,6 @@ a:hover { text-decoration-thickness: 2px; }
   margin-top: clamp(20px, 2.5vw, 40px);
   width: 100%;
   aspect-ratio: 16 / 7;
-  border-radius: 10px;
   overflow: hidden;
   background: #e0e0e0;
 }
@@ -1038,7 +1042,6 @@ a:hover { text-decoration-thickness: 2px; }
   display: block;
   border: 0;
   padding: 0;
-  border-radius: 10px;
   overflow: hidden;
   background: #e0e0e0;
   cursor: zoom-in;
@@ -1057,7 +1060,6 @@ a:hover { text-decoration-thickness: 2px; }
 .pd2-video {
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 10px;
   overflow: hidden;
   background: #000;
 }
@@ -1108,7 +1110,6 @@ a:hover { text-decoration-thickness: 2px; }
 .pd2-more__card:hover { transform: translateY(-3px); }
 .pd2-more__img {
   aspect-ratio: 3 / 2;
-  border-radius: 8px;
   overflow: hidden;
   background: #e0e0e0;
 }
