@@ -9,21 +9,27 @@ type PageType = 'about' | 'imprint' | 'privacy' | 'contact';
 interface Props {
   page: PageType;
   contactEntry: CollectionEntry<'contact-en'> | null;
+  imprintEntry: CollectionEntry<'imprint-en'> | null;
+  privacyEntry: CollectionEntry<'privacy-en'> | null;
 }
 
 export async function getStaticPaths() {
   const contactEntries = await getCollection('contact-en');
   const contactEntry = contactEntries[0] ?? null;
+  const imprintEntries = await getCollection('imprint-en');
+  const imprintEntry = imprintEntries[0] ?? null;
+  const privacyEntries = await getCollection('privacy-en');
+  const privacyEntry = privacyEntries[0] ?? null;
 
   return [
-    { params: { slug: pageRoutes.en.about },   props: { page: 'about'   as PageType, contactEntry: null } },
-    { params: { slug: pageRoutes.en.imprint },  props: { page: 'imprint' as PageType, contactEntry: null } },
-    { params: { slug: pageRoutes.en.privacy },  props: { page: 'privacy' as PageType, contactEntry: null } },
-    { params: { slug: pageRoutes.en.contact },  props: { page: 'contact' as PageType, contactEntry } },
+    { params: { slug: pageRoutes.en.about },   props: { page: 'about'   as PageType, contactEntry: null, imprintEntry: null, privacyEntry: null } },
+    { params: { slug: pageRoutes.en.imprint },  props: { page: 'imprint' as PageType, contactEntry: null, imprintEntry, privacyEntry: null } },
+    { params: { slug: pageRoutes.en.privacy },  props: { page: 'privacy' as PageType, contactEntry: null, imprintEntry: null, privacyEntry } },
+    { params: { slug: pageRoutes.en.contact },  props: { page: 'contact' as PageType, contactEntry, imprintEntry: null, privacyEntry: null } },
   ];
 }
 
-const { page, contactEntry } = Astro.props;
+const { page, contactEntry, imprintEntry, privacyEntry } = Astro.props;
 const lang = 'en' as const;
 
 const pageTitles: Record<PageType, string> = {
@@ -49,44 +55,70 @@ const pageTitles: Record<PageType, string> = {
   )}
 
   {page === 'imprint' && (
-    <section class="section container">
-      <h1>Imprint</h1>
-      <div class="prose">
-        <h2>Information according to § 5 TMG</h2>
-        <p>Flynn Bertsch<br />Musterstraße 1<br />12345 Musterstadt<br />Germany</p>
-        <h2>Contact</h2>
-        <p>Phone: +49 (0) 000 000 000<br />Email: <a href="mailto:kontakt@example.com">kontakt@example.com</a></p>
-        <h2>VAT ID</h2>
-        <p>VAT identification number according to § 27 a German VAT Act: DE000000000</p>
-        <h2>Responsible for content</h2>
-        <p>Flynn Bertsch (address as above)</p>
-        <h2>Dispute resolution</h2>
-        <p>The European Commission provides a platform for online dispute resolution:
-          <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a>.
-        </p>
+    <div class="lp-page">
+      <a class="pd2-nav" href={pathForLang(lang, 'home')}>
+        <span class="pd2-nav__icon">◄</span>
+        <span>Home</span>
+      </a>
+      <div class="lp-inner">
+        <h1 class="lp-heading">Imprint</h1>
+        <div class="lp-section">
+          <p class="lp-section-title">Information according to § 5 TMG</p>
+          <p class="lp-text" style="white-space: pre-line">{imprintEntry?.data.address}</p>
+        </div>
+        <hr class="lp-divider" />
+        <div class="lp-section">
+          <p class="lp-section-title">Contact</p>
+          <p class="lp-text">Email: <a href={`mailto:${imprintEntry?.data.email}`}>{imprintEntry?.data.email}</a></p>
+        </div>
+        <hr class="lp-divider" />
+        <div class="lp-section">
+          <p class="lp-section-title">Tax information</p>
+          <p class="lp-text">{imprintEntry?.data.tax_note}</p>
+        </div>
+        <hr class="lp-divider" />
+        <div class="lp-section">
+          <p class="lp-section-title">Responsible for content pursuant to § 18 para. 2 MStV</p>
+          <p class="lp-text">{imprintEntry?.data.responsible}</p>
+        </div>
+        {imprintEntry?.data.sections.map((section: { title: string; text: string }) => (
+          <>
+            <hr class="lp-divider" />
+            <div class="lp-section">
+              <p class="lp-section-title">{section.title}</p>
+              <p class="lp-text">{section.text}</p>
+            </div>
+          </>
+        ))}
       </div>
-    </section>
+    </div>
   )}
 
   {page === 'privacy' && (
-    <section class="section container">
-      <h1>Privacy policy</h1>
-      <div class="prose">
-        <h2>1. Controller</h2>
-        <p>Flynn Bertsch<br />Musterstraße 1<br />12345 Musterstadt, Germany<br />Email: <a href="mailto:kontakt@example.com">kontakt@example.com</a></p>
-        <h2>2. Hosting</h2>
-        <p>This site is hosted on GitHub Pages. Technically necessary data (IP address, access time, user agent) are processed in GitHub server logs. Legal basis: Art. 6 (1) (f) GDPR.</p>
-        <h2>3. Embedded content (YouTube)</h2>
-        <p>We use a click-to-load pattern: the YouTube player only loads after you actively click. We use <code>youtube-nocookie.com</code>.</p>
-        <h2>4. Cookies</h2>
-        <p>This site does not set its own cookies and does not use tracking.</p>
-        <h2>5. Your rights</h2>
-        <p>You have the right to access, rectify, erase, and object to the processing of your personal data (Art. 15–21 GDPR).</p>
-        <h2>6. Contacting me</h2>
-        <p>If you contact me by email, the data you send will be stored to respond to your enquiry. Legal basis: Art. 6 (1) (b) GDPR.</p>
-        <p><em>Last updated: {new Date().toLocaleDateString('en-GB')}</em></p>
+    <div class="lp-page">
+      <a class="pd2-nav" href={pathForLang(lang, 'home')}>
+        <span class="pd2-nav__icon">◄</span>
+        <span>Home</span>
+      </a>
+      <div class="lp-inner">
+        <h1 class="lp-heading">Privacy</h1>
+        <div class="lp-section">
+          <p class="lp-section-title">1. Controller</p>
+          <p class="lp-text" style="white-space: pre-line">{privacyEntry?.data.address}</p>
+          <p class="lp-text">Email: <a href={`mailto:${privacyEntry?.data.email}`}>{privacyEntry?.data.email}</a></p>
+        </div>
+        {privacyEntry?.data.sections.map((section: { title: string; text: string }) => (
+          <>
+            <hr class="lp-divider" />
+            <div class="lp-section">
+              <p class="lp-section-title">{section.title}</p>
+              <p class="lp-text">{section.text}</p>
+            </div>
+          </>
+        ))}
+        <p class="lp-meta">Last updated: {new Date().toLocaleDateString('en-GB')}</p>
       </div>
-    </section>
+    </div>
   )}
 
 

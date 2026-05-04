@@ -150,6 +150,109 @@ collections:
               - { name: "label", label: "Label", widget: "string" }
               - { name: "url",   label: "URL",   widget: "string" }
 
+      # ── IMPRESSUM ──
+      - name: "imprint_de"
+        label: "Impressum (Deutsch)"
+        file: "src/content/imprint/de.md"
+        editor:
+          preview: false
+        fields:
+          - name: "address"
+            label: "Anschrift"
+            widget: "text"
+            hint: "Mehrzeilig: Name, Straße, PLZ Stadt, Land. Eine Serviceanschrift ist erlaubt."
+          - name: "email"
+            label: "E-Mail-Adresse"
+            widget: "string"
+          - name: "tax_note"
+            label: "Steuerlicher Hinweis"
+            widget: "string"
+            hint: "z.B. Kleinunternehmerregelung §19 UStG — oder deine USt-ID"
+          - name: "responsible"
+            label: "Verantwortlich für den Inhalt (§ 18 Abs. 2 MStV)"
+            widget: "string"
+            default: "Flynn Bertsch (Anschrift wie oben)"
+          - name: "sections"
+            label: "Weitere Abschnitte"
+            widget: "list"
+            summary: "{{fields.title}}"
+            hint: "Reihenfolge per Drag & Drop änderbar"
+            fields:
+              - { name: "title", label: "Abschnitts-Titel", widget: "string" }
+              - { name: "text",  label: "Text",             widget: "text" }
+
+      - name: "imprint_en"
+        label: "Imprint (English)"
+        file: "src/content/imprint/en.md"
+        editor:
+          preview: false
+        fields:
+          - name: "address"
+            label: "Address"
+            widget: "text"
+          - name: "email"
+            label: "Email address"
+            widget: "string"
+          - name: "tax_note"
+            label: "Tax note"
+            widget: "string"
+          - name: "responsible"
+            label: "Responsible for content (§ 18 para. 2 MStV)"
+            widget: "string"
+            default: "Flynn Bertsch (address as above)"
+          - name: "sections"
+            label: "Further sections"
+            widget: "list"
+            summary: "{{fields.title}}"
+            hint: "Drag & drop to reorder"
+            fields:
+              - { name: "title", label: "Section title", widget: "string" }
+              - { name: "text",  label: "Text",          widget: "text" }
+
+      # ── DATENSCHUTZ ──
+      - name: "privacy_de"
+        label: "Datenschutzerklärung (Deutsch)"
+        file: "src/content/privacy/de.md"
+        editor:
+          preview: false
+        fields:
+          - name: "address"
+            label: "Anschrift des Verantwortlichen"
+            widget: "text"
+            hint: "Muss mit dem Impressum übereinstimmen."
+          - name: "email"
+            label: "E-Mail-Adresse"
+            widget: "string"
+          - name: "sections"
+            label: "Abschnitte"
+            widget: "list"
+            summary: "{{fields.title}}"
+            hint: "Reihenfolge per Drag & Drop änderbar. Abschnitt 1 (Verantwortlicher) ist oben fest eingebaut."
+            fields:
+              - { name: "title", label: "Abschnitts-Titel", widget: "string" }
+              - { name: "text",  label: "Text",             widget: "text" }
+
+      - name: "privacy_en"
+        label: "Privacy policy (English)"
+        file: "src/content/privacy/en.md"
+        editor:
+          preview: false
+        fields:
+          - name: "address"
+            label: "Controller's address"
+            widget: "text"
+          - name: "email"
+            label: "Email address"
+            widget: "string"
+          - name: "sections"
+            label: "Sections"
+            widget: "list"
+            summary: "{{fields.title}}"
+            hint: "Drag & drop to reorder."
+            fields:
+              - { name: "title", label: "Section title", widget: "string" }
+              - { name: "text",  label: "Text",          widget: "text" }
+
   # ──────────────────────────────────────────
   # PROJEKTE
   # ──────────────────────────────────────────
