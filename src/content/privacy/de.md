@@ -1,10 +1,10 @@
 ## 1. Verantwortlicher
 
-Flynn Bertsch  
-DEINE STRASSE UND HAUSNUMMER  
-DEINE PLZ DEINE STADT  
-Deutschland  
-E-Mail: [DEINE@EMAIL.DE](mailto:DEINE@EMAIL.DE)
+Flynn Bertsch\
+DEINE STRASSE UND HAUSNUMMER\
+DEINE PLZ DEINE STADT\
+Deutschland\
+E-Mail: [info@flynnbertsch.com](mailto:DEINE@EMAIL.DE)
 
 ## 2. Hosting — GitHub Pages
 
