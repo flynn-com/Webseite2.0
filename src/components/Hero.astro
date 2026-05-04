@@ -20,7 +20,7 @@ const langEnHref = pathForLang('en', 'home');
 
   <!-- Navigation (Glas-Buttons + Sprachumschalter, scrollen mit) -->
   <nav class="hero-flynn__nav" aria-label="Hauptnavigation">
-    <a class="glass-btn glass-btn--pill" href="mailto:kontakt@example.com">
+    <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'contact')}>
       <span>{contactLabel}</span>
     </a>
     <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'about')}>
