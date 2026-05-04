@@ -20,8 +20,9 @@ const categories = ['all', 'fotografie', 'video', 'webdesign', 'design'] as cons
 <BaseLayout lang={lang} title={`${t(lang, 'projects.title')} – Flynn Bertsch`}>
 
   <section class="projects-page-heading">
-    <a class="projects-page-heading__home" href={pathForLang(lang, 'home')}>
-      &#8592; Home
+    <a class="pd2-nav projects-page-heading__home" href={pathForLang(lang, 'home')}>
+      <span class="pd2-nav__icon">&#9668;</span>
+      <span>Home</span>
     </a>
     <h1>PROJECTS</h1>
   </section>
