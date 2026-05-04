@@ -35,19 +35,15 @@ function fromEntry(entry, keys) {
 var FocalPicker = createClass({
 
   getInitialState: function () {
-    return { imgSrc: null, tick: 0 };
+    return { imgSrc: null };
   },
 
   componentDidMount: function () {
     var self = this;
-    // Polling: alle 600ms prüfen ob sich das Bild geändert hat
     this._poll = setInterval(function () {
       var url = self.readImage(self.props);
-      if (url !== self.state.imgSrc) {
-        self.setState({ imgSrc: url });
-      }
+      if (url !== self.state.imgSrc) self.setState({ imgSrc: url });
     }, 600);
-    // Sofort beim Mount versuchen
     var url = this.readImage(this.props);
     if (url) this.setState({ imgSrc: url });
   },
@@ -56,7 +52,6 @@ var FocalPicker = createClass({
     clearInterval(this._poll);
   },
 
-  // Bild-Pfad aus Entry lesen + zu URL auflösen
   readImage: function (props) {
     var entry      = props.entry;
     var field      = props.field;
@@ -79,20 +74,16 @@ var FocalPicker = createClass({
 
     // 2) Listen-Kontext via forID ("gallery-0-focal")
     if (!src) {
-      var forID = props.forID || '';
-      var m = forID.match(/(\w+)-(\d+)-\w+$/);
+      var m = (props.forID || '').match(/(\w+)-(\d+)-\w+$/);
       if (m) src = fromEntry(entry, ['data', m[1], parseInt(m[2], 10), imageField]);
     }
 
-    // 3) Top-Level-Feld ("cover", "photo", …)
+    // 3) Top-Level-Feld
     if (!src) src = fromEntry(entry, ['data', imageField]);
 
-    // 4) toJS Fallback für andere Entry-Formate
+    // 4) toJS Fallback
     if (!src && entry && typeof entry.toJS === 'function') {
-      try {
-        var raw = entry.toJS();
-        src = raw && raw.data && raw.data[imageField];
-      } catch(e) {}
+      try { var raw = entry.toJS(); src = raw && raw.data && raw.data[imageField]; } catch(e) {}
     }
 
     return src ? resolveImg(getAsset, src) : null;
@@ -106,44 +97,17 @@ var FocalPicker = createClass({
   },
 
   parsePos: function (value) {
-    if (!value) return { x: 50, y: 50 };
-    var parts = String(value).trim().split(/\s+/);
-    var x = parseFloat(parts[0]);
-    var y = parseFloat(parts[1]);
+    var parts = String(value || '50% 50%').trim().split(/\s+/);
+    var x = parseFloat(parts[0]), y = parseFloat(parts[1]);
     return { x: isNaN(x) ? 50 : x, y: isNaN(y) ? 50 : y };
   },
 
   render: function () {
-    var props  = this.props;
-    var value  = props.value || '50% 50%';
+    var value  = this.props.value || '50% 50%';
     var imgSrc = this.state.imgSrc;
     var pos    = this.parsePos(value);
 
-    // ── DEBUG: Rohwerte sichtbar machen ──
-    var field      = props.field;
-    var imageField = (field && typeof field.get === 'function' && field.get('image_field'))
-                   || (field && field.image_field) || 'cover';
-    var rawPath    = fromEntry(props.entry, ['data', imageField]) || '—';
-
     return h('div', { style: { fontFamily: 'sans-serif', lineHeight: '1.4' } },
-
-      // DEBUG-PANEL (temporär)
-      h('details', {
-        style: {
-          marginBottom: '8px', fontSize: '0.7rem',
-          background: '#fffbe6', border: '1px solid #f0c040',
-          borderRadius: '4px', padding: '4px 8px'
-        }
-      },
-        h('summary', { style: { cursor: 'pointer', color: '#888' } }, '🔍 Debug (bitte Screenshot schicken)'),
-        h('div', null,
-          h('div', null, 'image_field: ' + imageField),
-          h('div', null, 'rawPath: ' + rawPath),
-          h('div', null, 'forID: ' + (props.forID || '—')),
-          h('div', null, 'path: ' + (props.path || '—')),
-          h('div', null, 'imgSrc: ' + (imgSrc || '—'))
-        )
-      ),
 
       imgSrc
         ? h('div', {
@@ -182,14 +146,21 @@ var FocalPicker = createClass({
             style: {
               padding: '16px', background: '#f5f5f5', borderRadius: '4px',
               color: '#999', fontSize: '0.85rem', textAlign: 'center',
+              lineHeight: '1.6',
             }
-          }, 'Erst ein Bild auswählen – dann erscheint hier der Fokuspunkt-Picker.'),
+          },
+          'Fokuspunkt-Picker wird nach dem ersten Veröffentlichen aktiv.',
+          h('br', null),
+          h('span', { style: { fontSize: '0.75rem' } },
+            'Neues Projekt: erst „Speichern" klicken, dann hier den Punkt setzen.'
+          )
+        ),
 
       h('p', {
         style: { margin: '5px 0 0', fontSize: '0.72rem', color: '#777' }
       }, imgSrc
           ? '📍 Klicke auf das Bild. Aktueller Fokuspunkt: ' + value
-          : 'Fokuspunkt: ' + value
+          : 'Gespeicherter Wert: ' + value
       )
     );
   }
