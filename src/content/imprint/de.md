@@ -1,13 +1,11 @@
 ## Angaben gemäß § 5 TMG
 
-Flynn Bertsch  
-DEINE STRASSE UND HAUSNUMMER  
-DEINE PLZ DEINE STADT  
-Deutschland
+Flynn Bertsch\
+71229, Leonberg Deutschland
 
 ## Kontakt
 
-E-Mail: [DEINE@EMAIL.DE](mailto:DEINE@EMAIL.DE)
+E-Mail: [info@flynnbertsch.com](mailto:DEINE@EMAIL.DE)
 
 ## Steuerliche Angaben
 
