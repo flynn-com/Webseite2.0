@@ -1,8 +1,8 @@
 ## 1. Verantwortlicher
 
 Flynn Bertsch\
-DEINE STRASSE UND HAUSNUMMER\
-DEINE PLZ DEINE STADT\
+71229, Leonberg\
+\
 Deutschland\
 E-Mail: [info@flynnbertsch.com](mailto:DEINE@EMAIL.DE)
 
