@@ -78,16 +78,11 @@ collections:
             hint: "Portrait-Format empfohlen (2:3). AVIF oder JPG, max. 5 MB."
           - name: "photo_focal"
             label: "Profilbild — Fokuspunkt"
-            widget: "select"
+            widget: "focal-picker"
             required: false
-            default: "center"
-            hint: "Verhindert, dass der Kopf abgeschnitten wird"
-            options:
-              - { label: "Mitte (Standard)", value: "center" }
-              - { label: "Oben Mitte", value: "top center" }
-              - { label: "Oben Links", value: "top left" }
-              - { label: "Oben Rechts", value: "top right" }
-              - { label: "Unten Mitte", value: "bottom center" }
+            default: "50% 50%"
+            image_field: "photo"
+            hint: "Klicke auf das Bild um den Fokuspunkt zu setzen"
           - name: "subtitle"
             label: "Berufsbezeichnung (erscheint unter dem Namen)"
             widget: "string"
@@ -229,45 +224,31 @@ collections:
         widget: "image"
         hint: "Empfohlen: AVIF, 2400px, Qualität 80%"
       - name: "cover_focal"
-        label: "Titelbild — Fokuspunkt (wo soll das Bild zentriert werden?)"
-        widget: "select"
+        label: "Titelbild — Fokuspunkt"
+        widget: "focal-picker"
         required: false
-        default: "center"
-        hint: "Verhindert dass Köpfe oder wichtige Details abgeschnitten werden"
-        options:
-          - { label: "Mitte (Standard)", value: "center" }
-          - { label: "Oben Mitte", value: "top center" }
-          - { label: "Oben Links", value: "top left" }
-          - { label: "Oben Rechts", value: "top right" }
-          - { label: "Unten Mitte", value: "bottom center" }
-          - { label: "Links", value: "left center" }
-          - { label: "Rechts", value: "right center" }
+        default: "50% 50%"
+        image_field: "cover"
+        hint: "Klicke auf das Bild um den Fokuspunkt zu setzen"
       - { name: "description", label: "Kurzbeschreibung (1-2 Sätze)", widget: "text", required: false }
       - { name: "location", label: "Ort / Stadt", widget: "string", required: false, hint: "z.B. München, Stuttgart — erscheint im Glas-Panel" }
-      - name: "gallery_focal"
-        label: "Galerie — Fokuspunkte"
-        widget: "list"
-        required: false
-        hint: "Optional: für jedes Galeriebild (gleiche Reihenfolge) den Fokuspunkt angeben. Leer lassen = Mitte."
-        field:
-          name: "position"
-          label: "Position"
-          widget: "select"
-          default: "center"
-          options:
-            - { label: "Mitte", value: "center" }
-            - { label: "Oben Mitte", value: "top center" }
-            - { label: "Oben Links", value: "top left" }
-            - { label: "Oben Rechts", value: "top right" }
-            - { label: "Unten Mitte", value: "bottom center" }
-            - { label: "Links", value: "left center" }
-            - { label: "Rechts", value: "right center" }
       - name: "gallery"
         label: "Weitere Bilder"
-        widget: "image"
-        allow_multiple: true
+        widget: "list"
         required: false
-        hint: "Mehrere Bilder gleichzeitig auswählbar. Titelbild kommt automatisch zuerst."
+        hint: "Für jedes Bild kannst du den Fokuspunkt direkt auf dem Bild setzen"
+        summary: "{{fields.image}}"
+        fields:
+          - name: "image"
+            label: "Bild"
+            widget: "image"
+            hint: "AVIF oder JPG, max. 10 MB"
+          - name: "focal"
+            label: "Fokuspunkt"
+            widget: "focal-picker"
+            required: false
+            default: "50% 50%"
+            image_field: "image"
       - name: "youtube"
         label: "YouTube-Links"
         widget: "list"
@@ -322,14 +303,32 @@ collections:
         label: "Cover image (always shown first in carousel)"
         widget: "image"
         hint: "Recommended: AVIF, 2400px, quality 80%"
+      - name: "cover_focal"
+        label: "Cover image — focal point"
+        widget: "focal-picker"
+        required: false
+        default: "50% 50%"
+        image_field: "cover"
+        hint: "Click on the image to set the focal point"
       - { name: "description", label: "Short description", widget: "text", required: false }
       - { name: "location", label: "Location / City", widget: "string", required: false, hint: "e.g. Munich, Stuttgart — shown in the glass panel" }
       - name: "gallery"
         label: "Additional images"
-        widget: "image"
-        allow_multiple: true
+        widget: "list"
         required: false
-        hint: "Select multiple images at once. Cover image is always shown first."
+        hint: "Set the focal point for each image by clicking on it"
+        summary: "{{fields.image}}"
+        fields:
+          - name: "image"
+            label: "Image"
+            widget: "image"
+            hint: "AVIF or JPG, max. 10 MB"
+          - name: "focal"
+            label: "Focal point"
+            widget: "focal-picker"
+            required: false
+            default: "50% 50%"
+            image_field: "image"
       - name: "youtube"
         label: "YouTube links"
         widget: "list"

@@ -11,10 +11,20 @@ const projectFields = z.object({
   cover_focal: z.string().default('center'),
   description: z.string().optional(),
   location: z.string().optional(),
-  gallery_focal: z.array(z.string()).default([]),
   gallery: z.preprocess(
-    (val) => (typeof val === 'string' ? [val] : (val ?? [])),
-    z.array(z.string())
+    (val) => {
+      if (!val) return [];
+      if (typeof val === 'string') return [{ image: val, focal: '50% 50%' }];
+      if (!Array.isArray(val)) return [];
+      return val.map((item: unknown) => {
+        if (typeof item === 'string') return { image: item, focal: '50% 50%' };
+        return item;
+      });
+    },
+    z.array(z.object({
+      image: z.string(),
+      focal: z.string().default('50% 50%'),
+    }))
   ).default([]),
   youtube: z.preprocess(
     (val) => (typeof val === 'string' ? [val] : (val ?? [])),

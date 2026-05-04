@@ -9,7 +9,7 @@ interface Props {
   cover: string;
   description?: string;
   location?: string;
-  gallery?: string[];
+  gallery?: { image: string; focal: string }[];
   date: Date;
   index: number;
   total: number;
@@ -21,10 +21,10 @@ const {
   date, index, total,
 } = Astro.props;
 
-// Bilder: Titelbild immer zuerst, dann Galerie-Bilder (ohne Duplikat)
+// Bilder: Titelbild immer zuerst, dann Galerie-Bilder
 const images: string[] = [
   ...(cover ? [cover] : []),
-  ...gallery.filter(img => img !== cover),
+  ...gallery.map(g => g.image),
 ];
 const hasCarousel = images.length > 1;
 

@@ -1,8 +1,10 @@
 ---
 import { withBase } from '../i18n/ui';
 
+interface GalleryItem { image: string; focal: string; }
+
 interface Props {
-  images: string[];
+  images: GalleryItem[];
   title?: string;
 }
 
@@ -13,12 +15,13 @@ const { images, title } = Astro.props;
   <section class="gallery">
     {title && <h2 class="section-title">{title}</h2>}
     <ul class="gallery__grid">
-      {images.map((src) => {
-        const href = withBase(src);
+      {images.map((item) => {
+        const href = withBase(item.image);
         return (
           <li class="gallery__item">
             <a href={href} target="_blank" rel="noopener noreferrer">
-              <img src={href} alt="" loading="lazy" />
+              <img src={href} alt="" loading="lazy"
+                style={`object-position:${item.focal ?? '50% 50%'}`} />
             </a>
           </li>
         );

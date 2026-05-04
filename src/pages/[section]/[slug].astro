@@ -23,9 +23,10 @@ const allProjects = await getCollection('projects-de', ({ data }) => !data.draft
   .then(list => list.sort((a, b) => a.data.order - b.data.order));
 const totalProjects = allProjects.length;
 
-const galleryImages = entry.data.gallery.filter(img => img !== entry.data.cover);
+const galleryImages = entry.data.gallery;
 
-type GalleryRow = { type: 'land2' | 'port3' | 'land1'; images: string[]; startIdx: number };
+type GalleryItem = { image: string; focal: string };
+type GalleryRow = { type: 'land2' | 'port3' | 'land1'; images: GalleryItem[]; startIdx: number };
 const galleryRows: GalleryRow[] = [];
 let imgCursor = 0;
 let rowIndex = 0;
@@ -81,10 +82,10 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
     <div class="pd2-gallery">
       {galleryRows.map((row) => (
         <div class={`pd2-row pd2-row--${row.type}`}>
-          {row.images.map((src, i) => (
-            <button class="pd2-img" data-src={withBase(src)} type="button">
-              <img src={withBase(src)} alt="" loading="lazy"
-                style={`object-position:${entry.data.gallery_focal[row.startIdx + i] ?? 'center'}`} />
+          {row.images.map((item) => (
+            <button class="pd2-img" data-src={withBase(item.image)} type="button">
+              <img src={withBase(item.image)} alt="" loading="lazy"
+                style={`object-position:${item.focal ?? '50% 50%'}`} />
             </button>
           ))}
         </div>

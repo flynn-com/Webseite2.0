@@ -4,18 +4,22 @@ slug: Arée
 category: fotografie
 order: 1
 cover: /uploads/projekte/arée/®flynn-arée-15.avif
+cover_focal: 50% 50%
 description: "Räume aus ungesehenen Blickwinkeln "
 location: München
-gallery_focal:
-  - top center
-  - bottom center
 gallery:
-  - /uploads/projekte/arée/®flynn-arée-38.avif
-  - /uploads/projekte/arée/®flynn-arée-6.avif
-  - /uploads/projekte/arée/®flynn-arée-26.avif
-  - /uploads/projekte/arée/®flynn-arée-35.avif
-  - /uploads/projekte/arée/®flynn-arée-60.avif
-  - /uploads/projekte/arée/®flynn-arée-20.avif
+  - image: /uploads/projekte/arée/®flynn-arée-38.avif
+    focal: "top center"
+  - image: /uploads/projekte/arée/®flynn-arée-6.avif
+    focal: "bottom center"
+  - image: /uploads/projekte/arée/®flynn-arée-26.avif
+    focal: "50% 50%"
+  - image: /uploads/projekte/arée/®flynn-arée-35.avif
+    focal: "50% 50%"
+  - image: /uploads/projekte/arée/®flynn-arée-60.avif
+    focal: "50% 50%"
+  - image: /uploads/projekte/arée/®flynn-arée-20.avif
+    focal: "50% 50%"
 youtube: []
 videos: []
 tags:
