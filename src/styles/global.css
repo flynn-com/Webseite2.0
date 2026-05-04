@@ -1559,6 +1559,32 @@ a:hover { text-decoration-thickness: 2px; }
 
 .lp-divider { border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: clamp(20px, 3vw, 36px) 0 0; }
 
+/* Rendered markdown within lp-page */
+.lp-prose h2 {
+  font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+  font-weight: 700;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.35);
+  margin: clamp(28px, 4vw, 48px) 0 10px;
+  padding-top: clamp(20px, 3vw, 36px);
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+.lp-prose h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.lp-prose p {
+  font-size: clamp(0.85rem, 1.2vw, 1rem);
+  font-weight: 400;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.01em;
+  line-height: 1.75;
+  color: #000;
+  margin: 0;
+}
+.lp-prose p + p { margin-top: 0.6em; }
+.lp-prose a { color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.3); transition: border-color 0.2s; }
+.lp-prose a:hover { border-color: #000; }
+
 .lp-meta {
   margin-top: clamp(32px, 5vw, 56px);
   font-size: 0.75rem;

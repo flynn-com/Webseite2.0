@@ -72,43 +72,26 @@ const contactEn = defineCollection({
   schema: contactSchema,
 });
 
-const legalSectionSchema = z.object({
-  title: z.string(),
-  text: z.string(),
-});
-
-const imprintSchema = z.object({
-  address: z.string().default(''),
-  email: z.string().default(''),
-  tax_note: z.string().default(''),
-  responsible: z.string().default(''),
-  sections: z.array(legalSectionSchema).default([]),
-});
+const legalSchema = z.object({});
 
 const imprintDe = defineCollection({
   loader: glob({ pattern: 'de.md', base: './src/content/imprint' }),
-  schema: imprintSchema,
+  schema: legalSchema,
 });
 
 const imprintEn = defineCollection({
   loader: glob({ pattern: 'en.md', base: './src/content/imprint' }),
-  schema: imprintSchema,
-});
-
-const privacySchema = z.object({
-  address: z.string().default(''),
-  email: z.string().default(''),
-  sections: z.array(legalSectionSchema).default([]),
+  schema: legalSchema,
 });
 
 const privacyDe = defineCollection({
   loader: glob({ pattern: 'de.md', base: './src/content/privacy' }),
-  schema: privacySchema,
+  schema: legalSchema,
 });
 
 const privacyEn = defineCollection({
   loader: glob({ pattern: 'en.md', base: './src/content/privacy' }),
-  schema: privacySchema,
+  schema: legalSchema,
 });
 
 export const collections = {

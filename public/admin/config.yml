@@ -157,29 +157,10 @@ collections:
         editor:
           preview: false
         fields:
-          - name: "address"
-            label: "Anschrift"
-            widget: "text"
-            hint: "Mehrzeilig: Name, Straße, PLZ Stadt, Land. Eine Serviceanschrift ist erlaubt."
-          - name: "email"
-            label: "E-Mail-Adresse"
-            widget: "string"
-          - name: "tax_note"
-            label: "Steuerlicher Hinweis"
-            widget: "string"
-            hint: "z.B. Kleinunternehmerregelung §19 UStG — oder deine USt-ID"
-          - name: "responsible"
-            label: "Verantwortlich für den Inhalt (§ 18 Abs. 2 MStV)"
-            widget: "string"
-            default: "Flynn Bertsch (Anschrift wie oben)"
-          - name: "sections"
-            label: "Weitere Abschnitte"
-            widget: "list"
-            summary: "{{fields.title}}"
-            hint: "Reihenfolge per Drag & Drop änderbar"
-            fields:
-              - { name: "title", label: "Abschnitts-Titel", widget: "string" }
-              - { name: "text",  label: "Text",             widget: "text" }
+          - name: "body"
+            label: "Impressum-Text"
+            widget: "markdown"
+            hint: "## für Abschnittsüberschriften verwenden, darunter normaler Text."
 
       - name: "imprint_en"
         label: "Imprint (English)"
@@ -187,27 +168,10 @@ collections:
         editor:
           preview: false
         fields:
-          - name: "address"
-            label: "Address"
-            widget: "text"
-          - name: "email"
-            label: "Email address"
-            widget: "string"
-          - name: "tax_note"
-            label: "Tax note"
-            widget: "string"
-          - name: "responsible"
-            label: "Responsible for content (§ 18 para. 2 MStV)"
-            widget: "string"
-            default: "Flynn Bertsch (address as above)"
-          - name: "sections"
-            label: "Further sections"
-            widget: "list"
-            summary: "{{fields.title}}"
-            hint: "Drag & drop to reorder"
-            fields:
-              - { name: "title", label: "Section title", widget: "string" }
-              - { name: "text",  label: "Text",          widget: "text" }
+          - name: "body"
+            label: "Imprint text"
+            widget: "markdown"
+            hint: "Use ## for section headings, followed by regular text."
 
       # ── DATENSCHUTZ ──
       - name: "privacy_de"
@@ -216,21 +180,10 @@ collections:
         editor:
           preview: false
         fields:
-          - name: "address"
-            label: "Anschrift des Verantwortlichen"
-            widget: "text"
-            hint: "Muss mit dem Impressum übereinstimmen."
-          - name: "email"
-            label: "E-Mail-Adresse"
-            widget: "string"
-          - name: "sections"
-            label: "Abschnitte"
-            widget: "list"
-            summary: "{{fields.title}}"
-            hint: "Reihenfolge per Drag & Drop änderbar. Abschnitt 1 (Verantwortlicher) ist oben fest eingebaut."
-            fields:
-              - { name: "title", label: "Abschnitts-Titel", widget: "string" }
-              - { name: "text",  label: "Text",             widget: "text" }
+          - name: "body"
+            label: "Datenschutz-Text"
+            widget: "markdown"
+            hint: "## für Abschnittsüberschriften verwenden, darunter normaler Text."
 
       - name: "privacy_en"
         label: "Privacy policy (English)"
@@ -238,20 +191,10 @@ collections:
         editor:
           preview: false
         fields:
-          - name: "address"
-            label: "Controller's address"
-            widget: "text"
-          - name: "email"
-            label: "Email address"
-            widget: "string"
-          - name: "sections"
-            label: "Sections"
-            widget: "list"
-            summary: "{{fields.title}}"
-            hint: "Drag & drop to reorder."
-            fields:
-              - { name: "title", label: "Section title", widget: "string" }
-              - { name: "text",  label: "Text",          widget: "text" }
+          - name: "body"
+            label: "Privacy policy text"
+            widget: "markdown"
+            hint: "Use ## for section headings, followed by regular text."
 
   # ──────────────────────────────────────────
   # PROJEKTE

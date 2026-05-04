@@ -1,5 +1,5 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import pageRoutes from '../../data/page-routes.json';
 import { pathForLang } from '../../i18n/ui';
@@ -30,6 +30,18 @@ export async function getStaticPaths() {
 }
 
 const { page, contactEntry, imprintEntry, privacyEntry } = Astro.props;
+
+let ImprintContent: any = null;
+if (page === 'imprint' && imprintEntry) {
+  const rendered = await render(imprintEntry);
+  ImprintContent = rendered.Content;
+}
+
+let PrivacyContent: any = null;
+if (page === 'privacy' && privacyEntry) {
+  const rendered = await render(privacyEntry);
+  PrivacyContent = rendered.Content;
+}
 const lang = 'en' as const;
 
 const pageTitles: Record<PageType, string> = {
@@ -62,34 +74,9 @@ const pageTitles: Record<PageType, string> = {
       </a>
       <div class="lp-inner">
         <h1 class="lp-heading">Imprint</h1>
-        <div class="lp-section">
-          <p class="lp-section-title">Information according to § 5 TMG</p>
-          <p class="lp-text" style="white-space: pre-line">{imprintEntry?.data.address}</p>
+        <div class="lp-prose">
+          {ImprintContent && <ImprintContent />}
         </div>
-        <hr class="lp-divider" />
-        <div class="lp-section">
-          <p class="lp-section-title">Contact</p>
-          <p class="lp-text">Email: <a href={`mailto:${imprintEntry?.data.email}`}>{imprintEntry?.data.email}</a></p>
-        </div>
-        <hr class="lp-divider" />
-        <div class="lp-section">
-          <p class="lp-section-title">Tax information</p>
-          <p class="lp-text">{imprintEntry?.data.tax_note}</p>
-        </div>
-        <hr class="lp-divider" />
-        <div class="lp-section">
-          <p class="lp-section-title">Responsible for content pursuant to § 18 para. 2 MStV</p>
-          <p class="lp-text">{imprintEntry?.data.responsible}</p>
-        </div>
-        {imprintEntry?.data.sections.map((section: { title: string; text: string }) => (
-          <>
-            <hr class="lp-divider" />
-            <div class="lp-section">
-              <p class="lp-section-title">{section.title}</p>
-              <p class="lp-text">{section.text}</p>
-            </div>
-          </>
-        ))}
       </div>
     </div>
   )}
@@ -102,20 +89,9 @@ const pageTitles: Record<PageType, string> = {
       </a>
       <div class="lp-inner">
         <h1 class="lp-heading">Privacy</h1>
-        <div class="lp-section">
-          <p class="lp-section-title">1. Controller</p>
-          <p class="lp-text" style="white-space: pre-line">{privacyEntry?.data.address}</p>
-          <p class="lp-text">Email: <a href={`mailto:${privacyEntry?.data.email}`}>{privacyEntry?.data.email}</a></p>
+        <div class="lp-prose">
+          {PrivacyContent && <PrivacyContent />}
         </div>
-        {privacyEntry?.data.sections.map((section: { title: string; text: string }) => (
-          <>
-            <hr class="lp-divider" />
-            <div class="lp-section">
-              <p class="lp-section-title">{section.title}</p>
-              <p class="lp-text">{section.text}</p>
-            </div>
-          </>
-        ))}
         <p class="lp-meta">Last updated: {new Date().toLocaleDateString('en-GB')}</p>
       </div>
     </div>
