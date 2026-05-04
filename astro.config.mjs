@@ -2,11 +2,7 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://flynn-com.github.io',
-  base: '/Webseite2.0',
-  // Bei eigener Domain (z. B. flynnbertsch.com) sp\u00e4ter stattdessen:
-  //   site: 'https://flynnbertsch.com',
-  //   base: '/',  (oder Zeile entfernen)
+  site: 'https://flynnbertsch.com',
   i18n: {
     defaultLocale: 'de',
     locales: ['de', 'en'],

@@ -1,5 +1,5 @@
 ---
-photo: /Webseite2.0/uploads/about/®flynn.avif
+photo: /uploads/about/®flynn.avif
 photo_focal: top center
 subtitle: Creative Director & Designer
 skills:

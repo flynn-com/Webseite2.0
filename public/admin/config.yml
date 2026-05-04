@@ -13,11 +13,11 @@ publish_mode: simple
 
 # Medien global — Unterordner pro Projekt via {{slug}}
 media_folder: "public/uploads/projekte/{{slug}}"
-public_folder: "/Webseite2.0/uploads/projekte/{{slug}}"
+public_folder: "/uploads/projekte/{{slug}}"
 
 # Anzeige im CMS
-site_url: "https://flynn-com.github.io/Webseite2.0"
-display_url: "https://flynn-com.github.io/Webseite2.0"
+site_url: "https://flynnbertsch.com"
+display_url: "https://flynnbertsch.com"
 locale: "de"
 
 collections:
@@ -68,7 +68,7 @@ collections:
         label: "Über mich (Deutsch)"
         file: "src/content/about/de.md"
         media_folder: "/public/uploads/about"
-        public_folder: "/Webseite2.0/uploads/about"
+        public_folder: "/uploads/about"
         editor:
           preview: false
         fields:
@@ -209,7 +209,7 @@ collections:
     preview_path: "projekte/{{slug}}"
     # Medienordner pro Projekt: public/uploads/projekte/<slug>/
     media_folder: "/public/uploads/projekte/{{slug}}"
-    public_folder: "/Webseite2.0/uploads/projekte/{{slug}}"
+    public_folder: "/uploads/projekte/{{slug}}"
     editor:
       preview: true
     fields:
@@ -303,7 +303,7 @@ collections:
     slug: "{{slug}}"
     preview_path: "en/projects/{{slug}}"
     media_folder: "/public/uploads/projekte/{{slug}}"
-    public_folder: "/Webseite2.0/uploads/projekte/{{slug}}"
+    public_folder: "/uploads/projekte/{{slug}}"
     editor:
       preview: true
     fields:
