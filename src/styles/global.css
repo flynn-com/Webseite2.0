@@ -1194,8 +1194,8 @@ a:hover { text-decoration-thickness: 2px; }
 /* ── Haupt-Grid: Foto | Rechte Spalte ── */
 .am-layout {
   display: grid;
-  grid-template-columns: minmax(0, 667px) 1fr;
-  gap: 0 clamp(24px, 3vw, 56px);
+  grid-template-columns: minmax(0, clamp(160px, 25vw, 480px)) 1fr;
+  gap: 0 clamp(20px, 3vw, 56px);
   align-items: center;
   max-width: 1400px;
   margin-inline: auto;
@@ -1284,17 +1284,37 @@ a:hover { text-decoration-thickness: 2px; }
 .am-body p { margin: 0; }
 .am-body p + p { margin-top: 0.75rem; }
 
-/* ── Responsive: Tablet / iPad (Desktop-Layout, kleiner mit Luft) ── */
+/* ── Kontakt-Button oben rechts ── */
+.am-contact-btn {
+  position: absolute;
+  top: clamp(16px, 2vw, 28px);
+  right: clamp(28px, 2.54vw, 60px);
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 22px;
+  background: #000;
+  color: #fff;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  text-decoration: none;
+  line-height: 1;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.am-contact-btn:hover { opacity: 0.6; text-decoration: none; }
+
+/* ── Responsive: Tablet / iPad (Desktop-Layout, mehr Luft) ── */
 @media (min-width: 601px) and (max-width: 1100px) {
   .am-page {
-    padding-left:  clamp(48px, 9vw, 100px);
-    padding-right: clamp(48px, 9vw, 100px);
+    padding-left:  max(30px, 7vw);
+    padding-right: max(30px, 7vw);
   }
-  .am-layout {
-    grid-template-columns: minmax(0, 380px) 1fr;
-    max-width: 860px;
-  }
-  .am-name { font-size: clamp(2.8rem, 8.5vw, 6.5rem); }
+  .am-name { font-size: clamp(2.4rem, 7vw, 5.5rem); }
+  .am-subtitle { font-size: clamp(0.8rem, 1.5vw, 1.1rem); }
 }
 
 /* ── Responsive: Mobile (Figma: iPhone 16 & 17 Pro Max – 430px) ── */
@@ -1372,4 +1392,99 @@ a:hover { text-decoration-thickness: 2px; }
     letter-spacing: -0.06em;
     line-height: 1.65;
   }
+
+  /* Kontakt-Button: kleiner auf Mobile */
+  .am-contact-btn {
+    font-size: 0.7rem;
+    padding: 6px 14px;
+    top: clamp(14px, 3.5vw, 22px);
+    right: clamp(16px, 4vw, 28px);
+  }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   KONTAKT — Vollbild-Seite
+   ═══════════════════════════════════════════════════════════ */
+
+.ct-page {
+  background: #000;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(80px, 10vw, 140px) clamp(28px, 5vw, 80px);
+  position: relative;
+  text-align: center;
+}
+
+/* Zurück-Link oben links */
+.ct-page > .pd2-nav {
+  position: absolute;
+  top: clamp(16px, 2vw, 28px);
+  left: clamp(28px, 2.54vw, 60px);
+  color: #fff;
+  opacity: 0.7;
+}
+.ct-page > .pd2-nav:hover { opacity: 1; }
+
+.ct-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.5vw, 28px);
+}
+
+.ct-heading {
+  font-size: clamp(3.5rem, 12vw, 10rem);
+  font-weight: 700;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+  line-height: 0.9;
+  color: #fff;
+  margin: 0;
+}
+
+.ct-sub {
+  font-size: clamp(0.85rem, 2vw, 1.25rem);
+  font-weight: 400;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+}
+
+.ct-email {
+  display: inline-block;
+  font-size: clamp(1rem, 2.5vw, 1.6rem);
+  font-weight: 700;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.04em;
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 2px solid rgba(255,255,255,0.35);
+  padding-bottom: 2px;
+  transition: border-color 0.2s;
+}
+.ct-email:hover { border-color: #fff; text-decoration: none; }
+
+.ct-links {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: clamp(6px, 1vw, 12px);
+}
+
+.ct-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.ct-link:hover { color: #fff; text-decoration: none; }

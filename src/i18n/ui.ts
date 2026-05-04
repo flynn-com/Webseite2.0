@@ -107,7 +107,8 @@ export type PageKey =
   | 'projects'
   | 'about'
   | 'imprint'
-  | 'privacy';
+  | 'privacy'
+  | 'contact';
 
 // Slugs werden aus page-routes.json gelesen → im CMS unter "Einstellungen" änderbar
 import pageRoutes from '../data/page-routes.json';
@@ -119,6 +120,7 @@ export const routes: Record<Lang, Record<PageKey, string>> = {
     about:    `/${pageRoutes.de.about}/`,
     imprint:  `/${pageRoutes.de.imprint}/`,
     privacy:  `/${pageRoutes.de.privacy}/`,
+    contact:  `/${pageRoutes.de.contact}/`,
   },
   en: {
     home:     '/en/',
@@ -126,6 +128,7 @@ export const routes: Record<Lang, Record<PageKey, string>> = {
     about:    `/en/${pageRoutes.en.about}/`,
     imprint:  `/en/${pageRoutes.en.imprint}/`,
     privacy:  `/en/${pageRoutes.en.privacy}/`,
+    contact:  `/en/${pageRoutes.en.contact}/`,
   },
 };
 

@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import pageRoutes from '../../data/page-routes.json';
+import { pathForLang } from '../../i18n/ui';
 
-type PageType = 'about' | 'imprint' | 'privacy';
+type PageType = 'about' | 'imprint' | 'privacy' | 'contact';
 
 interface Props { page: PageType; }
 
@@ -11,6 +12,7 @@ export async function getStaticPaths() {
     { params: { slug: pageRoutes.en.about },   props: { page: 'about'   as PageType } },
     { params: { slug: pageRoutes.en.imprint },  props: { page: 'imprint' as PageType } },
     { params: { slug: pageRoutes.en.privacy },  props: { page: 'privacy' as PageType } },
+    { params: { slug: pageRoutes.en.contact },  props: { page: 'contact' as PageType } },
   ];
 }
 
@@ -21,6 +23,7 @@ const pageTitles: Record<PageType, string> = {
   about:   'About – Flynn Bertsch',
   imprint: 'Imprint – Flynn Bertsch',
   privacy: 'Privacy – Flynn Bertsch',
+  contact: 'Contact – Flynn Bertsch',
 };
 ---
 
@@ -77,6 +80,24 @@ const pageTitles: Record<PageType, string> = {
         <p><em>Last updated: {new Date().toLocaleDateString('en-GB')}</em></p>
       </div>
     </section>
+  )}
+
+
+  {page === 'contact' && (
+    <div class="ct-page">
+      <a class="pd2-nav" href={pathForLang(lang, 'home')}>
+        <span class="pd2-nav__icon">◄</span>
+        <span>Home</span>
+      </a>
+      <div class="ct-inner">
+        <h1 class="ct-heading">Contact</h1>
+        <p class="ct-sub">Let's work together.</p>
+        <a class="ct-email" href="mailto:kontakt@example.com">kontakt@example.com</a>
+        <div class="ct-links">
+          <a href="https://instagram.com" target="_blank" rel="noopener" class="ct-link">Instagram ↗</a>
+        </div>
+      </div>
+    </div>
   )}
 
 </BaseLayout>

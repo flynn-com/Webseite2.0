@@ -45,6 +45,7 @@ collections:
               - { name: "projects", label: "Projekte-Übersicht",  widget: "string", default: "projekte",    hint: "z.B. projekte oder portfolio" }
               - { name: "imprint",  label: "Impressum",           widget: "string", default: "impressum" }
               - { name: "privacy",  label: "Datenschutz",         widget: "string", default: "datenschutz" }
+              - { name: "contact",  label: "Kontakt",             widget: "string", default: "kontakt" }
           - name: "en"
             label: "Englisch — URL-Slugs"
             widget: "object"
@@ -54,6 +55,7 @@ collections:
               - { name: "projects", label: "Projects index",  widget: "string", default: "projects" }
               - { name: "imprint",  label: "Imprint",         widget: "string", default: "imprint" }
               - { name: "privacy",  label: "Privacy",         widget: "string", default: "privacy" }
+              - { name: "contact",  label: "Contact",         widget: "string", default: "contact" }
 
   # ──────────────────────────────────────────
   # SEITENINHALTE (Singleton-Dateien)

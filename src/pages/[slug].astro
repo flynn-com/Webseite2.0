@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { pathForLang, withBase } from '../i18n/ui';
 import pageRoutes from '../data/page-routes.json';
 
-type PageType = 'about' | 'imprint' | 'privacy';
+type PageType = 'about' | 'imprint' | 'privacy' | 'contact';
 
 interface Props {
   page: PageType;
@@ -19,6 +19,7 @@ export async function getStaticPaths() {
     { params: { slug: pageRoutes.de.about },   props: { page: 'about'   as PageType, aboutEntry } },
     { params: { slug: pageRoutes.de.imprint },  props: { page: 'imprint' as PageType, aboutEntry: null } },
     { params: { slug: pageRoutes.de.privacy },  props: { page: 'privacy' as PageType, aboutEntry: null } },
+    { params: { slug: pageRoutes.de.contact },  props: { page: 'contact' as PageType, aboutEntry: null } },
   ];
 }
 
@@ -35,6 +36,7 @@ const pageTitles: Record<PageType, string> = {
   about:   'Über mich – Flynn Bertsch',
   imprint: 'Impressum – Flynn Bertsch',
   privacy: 'Datenschutz – Flynn Bertsch',
+  contact: 'Kontakt – Flynn Bertsch',
 };
 ---
 
@@ -46,6 +48,7 @@ const pageTitles: Record<PageType, string> = {
         <span class="pd2-nav__icon">◄</span>
         <span>Home</span>
       </a>
+      <a class="am-contact-btn" href={pathForLang(lang, 'contact')}>Kontakt</a>
       <div class="am-layout">
         <div class="am-photo">
           {aboutEntry?.data.photo && (
@@ -120,6 +123,23 @@ const pageTitles: Record<PageType, string> = {
         <p><em>Stand: {new Date().toLocaleDateString('de-DE')}</em></p>
       </div>
     </section>
+  )}
+
+  {page === 'contact' && (
+    <div class="ct-page">
+      <a class="pd2-nav" href={pathForLang(lang, 'home')}>
+        <span class="pd2-nav__icon">◄</span>
+        <span>Home</span>
+      </a>
+      <div class="ct-inner">
+        <h1 class="ct-heading">Kontakt</h1>
+        <p class="ct-sub">Lass uns zusammenarbeiten.</p>
+        <a class="ct-email" href="mailto:kontakt@example.com">kontakt@example.com</a>
+        <div class="ct-links">
+          <a href="https://instagram.com" target="_blank" rel="noopener" class="ct-link">Instagram ↗</a>
+        </div>
+      </div>
+    </div>
   )}
 
 </BaseLayout>
