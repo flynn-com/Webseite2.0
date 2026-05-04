@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
-import { t } from '../../i18n/ui';
+import { t, pathForLang } from '../../i18n/ui';
 import pageRoutes from '../../data/page-routes.json';
 
 export async function getStaticPaths() {
@@ -20,6 +20,9 @@ const categories = ['all', 'fotografie', 'video', 'webdesign', 'design'] as cons
 <BaseLayout lang={lang} title={`${t(lang, 'projects.title')} – Flynn Bertsch`}>
 
   <section class="projects-page-heading">
+    <a class="projects-page-heading__home" href={pathForLang(lang, 'home')}>
+      &#8592; Home
+    </a>
     <h1>PROJEKTE</h1>
   </section>
 
