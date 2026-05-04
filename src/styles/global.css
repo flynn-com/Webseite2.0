@@ -1284,16 +1284,85 @@ a:hover { text-decoration-thickness: 2px; }
 .am-body p { margin: 0; }
 .am-body p + p { margin-top: 0.75rem; }
 
-/* ── Responsive ── */
+/* ── Responsive: Tablet ── */
 @media (max-width: 900px) {
   .am-layout { grid-template-columns: 1fr 1fr; }
   .am-name { font-size: clamp(3rem, 10vw, 6rem); }
 }
+
+/* ── Responsive: Mobile (Figma: iPhone 16 & 17 Pro Max – 430px) ── */
 @media (max-width: 600px) {
+  /* Seite: kein vertikales Zentrieren – von oben stapeln */
+  .am-page {
+    justify-content: flex-start;
+    padding-top: clamp(64px, 15vw, 90px); /* Platz für absolut-positionierten Nav */
+    padding-left: clamp(16px, 4vw, 28px);
+    padding-right: clamp(16px, 4vw, 28px);
+  }
+
+  /* Grid: einspältig, alles zentriert */
   .am-layout {
     grid-template-columns: 1fr;
-    gap: clamp(20px, 4vw, 32px) 0;
+    gap: 0;
+    justify-items: center;
+    max-width: 100%;
   }
-  .am-photo { max-width: 70%; }
-  .am-name { font-size: clamp(3.5rem, 18vw, 6rem); }
+
+  /* Foto: 228/430 = 53vw, Figma-Höhe 269/228 ≈ 1.18× Breite */
+  .am-photo {
+    width: 53vw;
+    max-width: 228px;
+    aspect-ratio: 228 / 269;
+    border-radius: 15px;
+    margin-inline: auto;
+  }
+
+  /* Rechte Spalte: zentriert, direkt unter Foto */
+  .am-right {
+    align-items: center;
+    text-align: center;
+    margin-top: 0;
+    width: 100%;
+  }
+
+  /* Name: 80px bei 430px = 18.6vw, direkt unter Foto */
+  .am-name {
+    font-size: clamp(3rem, 18.6vw, 80px);
+    margin-top: 0;
+    text-align: center;
+    line-height: 0.88;
+  }
+
+  /* Subtitle: 20px bei 430px = 4.65vw */
+  .am-subtitle {
+    font-size: clamp(0.85rem, 4.65vw, 20px);
+    text-align: center;
+    margin-top: clamp(8px, 2vw, 14px);
+    letter-spacing: -0.06em;
+  }
+
+  /* Pills: kleinere Größe, zentriert */
+  .am-skills {
+    justify-content: center;
+    margin-top: clamp(6px, 1.5vw, 10px);
+    gap: 4px;
+  }
+  .am-skill {
+    font-size: 10.5px;
+    padding: 4px 11px;
+    border-radius: 99px;
+    height: 20px;
+    letter-spacing: -0.06em;
+  }
+
+  /* Body: 12px, zentrierter Text, 85% Breite */
+  .am-body {
+    font-size: 12px;
+    text-align: center;
+    width: 85%;
+    margin-inline: auto;
+    margin-top: clamp(20px, 5vw, 32px);
+    letter-spacing: -0.06em;
+    line-height: 1.65;
+  }
 }
