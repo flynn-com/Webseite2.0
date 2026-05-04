@@ -234,21 +234,9 @@ collections:
       - { name: "location", label: "Ort / Stadt", widget: "string", required: false, hint: "z.B. München, Stuttgart — erscheint im Glas-Panel" }
       - name: "gallery"
         label: "Weitere Bilder"
-        widget: "list"
+        widget: "gallery-focal"
         required: false
-        hint: "Für jedes Bild kannst du den Fokuspunkt direkt auf dem Bild setzen"
-        summary: "{{fields.image}}"
-        fields:
-          - name: "image"
-            label: "Bild"
-            widget: "image"
-            hint: "AVIF oder JPG, max. 10 MB"
-          - name: "focal"
-            label: "Fokuspunkt"
-            widget: "focal-picker"
-            required: false
-            default: "50% 50%"
-            image_field: "image"
+        hint: "Mehrere AVIF-Bilder gleichzeitig auswählbar. Klick auf ein Bild = Fokuspunkt setzen."
       - name: "youtube"
         label: "YouTube-Links"
         widget: "list"
@@ -314,21 +302,9 @@ collections:
       - { name: "location", label: "Location / City", widget: "string", required: false, hint: "e.g. Munich, Stuttgart — shown in the glass panel" }
       - name: "gallery"
         label: "Additional images"
-        widget: "list"
+        widget: "gallery-focal"
         required: false
-        hint: "Set the focal point for each image by clicking on it"
-        summary: "{{fields.image}}"
-        fields:
-          - name: "image"
-            label: "Image"
-            widget: "image"
-            hint: "AVIF or JPG, max. 10 MB"
-          - name: "focal"
-            label: "Focal point"
-            widget: "focal-picker"
-            required: false
-            default: "50% 50%"
-            image_field: "image"
+        hint: "Select multiple AVIF images at once. Click an image to set its focal point."
       - name: "youtube"
         label: "YouTube links"
         widget: "list"

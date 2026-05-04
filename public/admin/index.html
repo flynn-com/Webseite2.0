@@ -9,7 +9,35 @@
   <body>
     <!-- Decap CMS 3.x -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-    <!-- Live-Vorschau Template -->
+    <!-- Live-Vorschau + Custom Widgets -->
     <script src="/admin/preview.js"></script>
+
+    <!-- AVIF-Fix: patcht file-inputs damit AVIF-Dateien im Dateiauswahl-Dialog sichtbar sind -->
+    <script>
+      (function () {
+        function patchInput(input) {
+          if (input.tagName !== 'INPUT' || input.type !== 'file') return;
+          var accept = input.getAttribute('accept') || '';
+          if (!accept.includes('.avif')) {
+            input.setAttribute('accept',
+              accept ? accept + ',.avif,image/avif' : '.avif,image/avif,image/*');
+          }
+        }
+
+        // Bereits vorhandene inputs patchen
+        document.querySelectorAll('input[type="file"]').forEach(patchInput);
+
+        // Zukünftige inputs beobachten (Decap rendert React dynamisch)
+        new MutationObserver(function (mutations) {
+          mutations.forEach(function (m) {
+            m.addedNodes.forEach(function (node) {
+              if (!node.querySelectorAll) return;
+              node.querySelectorAll('input[type="file"]').forEach(patchInput);
+              if (node.tagName === 'INPUT') patchInput(node);
+            });
+          });
+        }).observe(document.body, { childList: true, subtree: true });
+      })();
+    </script>
   </body>
 </html>
