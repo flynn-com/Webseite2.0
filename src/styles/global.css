@@ -537,7 +537,7 @@ a:hover { text-decoration-thickness: 2px; }
   -webkit-backdrop-filter: blur(10px) saturate(200%);
   backdrop-filter: blur(10px) saturate(200%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.40);
-  color: rgba(255, 255, 255, 0.80);
+  color: #ffffff;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.10em;
@@ -571,26 +571,25 @@ a:hover { text-decoration-thickness: 2px; }
   -webkit-backdrop-filter: blur(10px) saturate(200%);
   backdrop-filter: blur(10px) saturate(200%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.30);
-  color: rgba(255, 255, 255, 0.60);
+  color: #ffffff;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .filter-bar__btn:hover {
-  background: rgba(100, 100, 100, 0.40);
-  color: rgba(255, 255, 255, 0.90);
+  background: rgba(120, 120, 120, 0.45);
+  color: #ffffff;
 }
 .filter-bar__btn.is-active {
-  background: #ffffff;
-  color: #1a1a1a;
-  border-color: rgba(255, 255, 255, 0.90);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-  text-shadow: none;
-  letter-spacing: 0.08em;
-  font-weight: 700;
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.70);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.50), 0 0 0 1px rgba(255,255,255,0.30);
+  font-weight: 800;
+  letter-spacing: 0.12em;
 }
 
 /* ---------- Hero: Sky + Frau sticky, Logo/Nav/Pfeil scrollen mit ----------
