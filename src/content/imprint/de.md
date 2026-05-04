@@ -9,7 +9,7 @@ E-Mail: [info@flynnbertsch.com](mailto:DEINE@EMAIL.DE)
 
 ## Steuerliche Angaben
 
-Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).
+Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung). Eine Umsatzsteuer-Identifikationsnummer ist daher nicht vorhanden.
 
 ## Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
 
