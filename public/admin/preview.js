@@ -4,7 +4,7 @@
 var h = window.h;
 
 // ─────────────────────────────────────────────────
-// Hilfsfunktion: Bild-URL auflösen (Blob oder Pfad)
+// Hilfsfunktionen
 // ─────────────────────────────────────────────────
 function resolveImg(getAsset, src) {
   if (!src) return null;
@@ -16,31 +16,17 @@ function resolveImg(getAsset, src) {
     if (url.startsWith('/')) return window.location.origin + url;
     return url;
   } catch (e) {
-    if (typeof src === 'string' && src.startsWith('/')) {
-      return window.location.origin + src;
-    }
+    if (typeof src === 'string' && src.startsWith('/')) return window.location.origin + src;
     return src || null;
   }
 }
 
-// ─────────────────────────────────────────────────
-// Hilfsfunktion: Wert aus Entry lesen
-// Unterstützt Immutable.js UND Plain Objects (beide kommen in Decap v3 vor)
-// ─────────────────────────────────────────────────
 function fromEntry(entry, keys) {
   if (!entry) return null;
   try {
-    // Immutable.js
-    if (typeof entry.getIn === 'function') {
-      return entry.getIn(keys);
-    }
-    // Plain object
-    return keys.reduce(function(o, k) {
-      return o != null ? o[k] : null;
-    }, entry);
-  } catch (e) {
-    return null;
-  }
+    if (typeof entry.getIn === 'function') return entry.getIn(keys);
+    return keys.reduce(function(o, k) { return o != null ? o[k] : null; }, entry);
+  } catch (e) { return null; }
 }
 
 // ─────────────────────────────────────────────────
@@ -49,62 +35,67 @@ function fromEntry(entry, keys) {
 var FocalPicker = createClass({
 
   getInitialState: function () {
-    return { imgSrc: null };
+    return { imgSrc: null, tick: 0 };
   },
 
   componentDidMount: function () {
-    this.refreshImage(this.props);
+    var self = this;
+    // Polling: alle 600ms prüfen ob sich das Bild geändert hat
+    this._poll = setInterval(function () {
+      var url = self.readImage(self.props);
+      if (url !== self.state.imgSrc) {
+        self.setState({ imgSrc: url });
+      }
+    }, 600);
+    // Sofort beim Mount versuchen
+    var url = this.readImage(this.props);
+    if (url) this.setState({ imgSrc: url });
   },
 
-  componentDidUpdate: function (prevProps) {
-    // Entry-Wechsel: Bild neu einlesen
-    var prevData = fromEntry(prevProps.entry, ['data']);
-    var nextData = fromEntry(this.props.entry, ['data']);
-    if (prevData !== nextData) {
-      this.refreshImage(this.props);
-    }
+  componentWillUnmount: function () {
+    clearInterval(this._poll);
   },
 
-  // Bild-URL aus Entry ermitteln und in State speichern
-  refreshImage: function (props) {
-    var src = this.readImagePath(props);
-    var url = src ? resolveImg(props.getAsset, src) : null;
-    if (url !== this.state.imgSrc) {
-      this.setState({ imgSrc: url });
-    }
-  },
-
-  // Pfad des verknüpften Bildes aus der Entry-Datenstruktur lesen
-  readImagePath: function (props) {
+  // Bild-Pfad aus Entry lesen + zu URL auflösen
+  readImage: function (props) {
     var entry      = props.entry;
     var field      = props.field;
+    var getAsset   = props.getAsset;
     var imageField = (field && typeof field.get === 'function' && field.get('image_field'))
                    || (field && field.image_field)
                    || 'cover';
 
-    // ── 1) Liste: path-Prop "gallery.0.focal" ──
+    var src = null;
+
+    // 1) Listen-Kontext via path-Prop ("gallery.0.focal")
     var path = props.path;
     if (path && typeof path === 'string') {
       var parts = path.split('.');
       if (parts.length >= 3) {
         var idx = parseInt(parts[1], 10);
-        if (!isNaN(idx)) {
-          var v = fromEntry(entry, ['data', parts[0], idx, imageField]);
-          if (v) return v;
-        }
+        if (!isNaN(idx)) src = fromEntry(entry, ['data', parts[0], idx, imageField]);
       }
     }
 
-    // ── 2) Liste: forID "gallery-0-focal" (Fallback) ──
-    var forID = props.forID || '';
-    var m = forID.match(/(\w+)-(\d+)-\w+$/);
-    if (m) {
-      var v = fromEntry(entry, ['data', m[1], parseInt(m[2], 10), imageField]);
-      if (v) return v;
+    // 2) Listen-Kontext via forID ("gallery-0-focal")
+    if (!src) {
+      var forID = props.forID || '';
+      var m = forID.match(/(\w+)-(\d+)-\w+$/);
+      if (m) src = fromEntry(entry, ['data', m[1], parseInt(m[2], 10), imageField]);
     }
 
-    // ── 3) Top-Level-Feld ──
-    return fromEntry(entry, ['data', imageField]) || null;
+    // 3) Top-Level-Feld ("cover", "photo", …)
+    if (!src) src = fromEntry(entry, ['data', imageField]);
+
+    // 4) toJS Fallback für andere Entry-Formate
+    if (!src && entry && typeof entry.toJS === 'function') {
+      try {
+        var raw = entry.toJS();
+        src = raw && raw.data && raw.data[imageField];
+      } catch(e) {}
+    }
+
+    return src ? resolveImg(getAsset, src) : null;
   },
 
   handleClick: function (e) {
@@ -123,65 +114,74 @@ var FocalPicker = createClass({
   },
 
   render: function () {
-    var value  = this.props.value || '50% 50%';
+    var props  = this.props;
+    var value  = props.value || '50% 50%';
     var imgSrc = this.state.imgSrc;
     var pos    = this.parsePos(value);
 
+    // ── DEBUG: Rohwerte sichtbar machen ──
+    var field      = props.field;
+    var imageField = (field && typeof field.get === 'function' && field.get('image_field'))
+                   || (field && field.image_field) || 'cover';
+    var rawPath    = fromEntry(props.entry, ['data', imageField]) || '—';
+
     return h('div', { style: { fontFamily: 'sans-serif', lineHeight: '1.4' } },
 
-      imgSrc
+      // DEBUG-PANEL (temporär)
+      h('details', {
+        style: {
+          marginBottom: '8px', fontSize: '0.7rem',
+          background: '#fffbe6', border: '1px solid #f0c040',
+          borderRadius: '4px', padding: '4px 8px'
+        }
+      },
+        h('summary', { style: { cursor: 'pointer', color: '#888' } }, '🔍 Debug (bitte Screenshot schicken)'),
+        h('div', null,
+          h('div', null, 'image_field: ' + imageField),
+          h('div', null, 'rawPath: ' + rawPath),
+          h('div', null, 'forID: ' + (props.forID || '—')),
+          h('div', null, 'path: ' + (props.path || '—')),
+          h('div', null, 'imgSrc: ' + (imgSrc || '—'))
+        )
+      ),
 
-        // ── Bild mit klickbarem Fokuspunkt ──
+      imgSrc
         ? h('div', {
-            onClick:   this.handleClick,
-            title:     'Klicken um Fokuspunkt zu setzen',
+            onClick: this.handleClick,
+            title: 'Klicken um Fokuspunkt zu setzen',
             style: {
-              position:    'relative',
-              cursor:      'crosshair',
-              display:     'block',
-              width:       '100%',
-              borderRadius:'4px',
-              overflow:    'hidden',
-              userSelect:  'none',
-              background:  '#e8e8e8',
+              position: 'relative', cursor: 'crosshair', display: 'block',
+              width: '100%', borderRadius: '4px', overflow: 'hidden',
+              userSelect: 'none', background: '#e8e8e8',
             }
           },
           h('img', {
             src: imgSrc, draggable: false,
             style: { display: 'block', width: '100%', maxHeight: '360px', objectFit: 'contain' }
           }),
-          // Vertikale Linie
           h('div', { style: {
             position: 'absolute', left: pos.x + '%', top: 0, bottom: 0,
             width: '1px', background: 'rgba(255,255,255,0.6)',
             transform: 'translateX(-50%)', pointerEvents: 'none',
           }}),
-          // Horizontale Linie
           h('div', { style: {
             position: 'absolute', top: pos.y + '%', left: 0, right: 0,
             height: '1px', background: 'rgba(255,255,255,0.6)',
             transform: 'translateY(-50%)', pointerEvents: 'none',
           }}),
-          // Punkt
           h('div', { style: {
-            position:     'absolute',
-            left:         pos.x + '%',
-            top:          pos.y + '%',
-            transform:    'translate(-50%, -50%)',
-            width:        '20px', height: '20px', borderRadius: '50%',
-            background:   'rgba(255,255,255,0.95)',
-            border:       '2.5px solid #111',
-            boxShadow:    '0 0 0 1.5px rgba(255,255,255,0.6), 0 2px 8px rgba(0,0,0,0.45)',
-            pointerEvents:'none',
+            position: 'absolute', left: pos.x + '%', top: pos.y + '%',
+            transform: 'translate(-50%, -50%)',
+            width: '20px', height: '20px', borderRadius: '50%',
+            background: 'rgba(255,255,255,0.95)', border: '2.5px solid #111',
+            boxShadow: '0 0 0 1.5px rgba(255,255,255,0.6), 0 2px 8px rgba(0,0,0,0.45)',
+            pointerEvents: 'none',
           }})
         )
-
-        // ── Kein Bild verfügbar ──
         : h('div', {
             style: {
-              padding:      '16px', background: '#f5f5f5',
-              borderRadius: '4px', color: '#999',
-              fontSize:     '0.85rem', textAlign: 'center',
+              padding: '16px', background: '#f5f5f5', borderRadius: '4px',
+              color: '#999', fontSize: '0.85rem', textAlign: 'center',
             }
           }, 'Erst ein Bild auswählen – dann erscheint hier der Fokuspunkt-Picker.'),
 
@@ -199,7 +199,7 @@ CMS.registerWidget('focal-picker', FocalPicker);
 
 
 // ─────────────────────────────────────────────────
-// GALERIE-HILFSFUNKTION für Live-Vorschau
+// GALERIE-HILFSFUNKTION
 // ─────────────────────────────────────────────────
 function buildGalleryRows(items) {
   var rows = [], cursor = 0, ri = 0;
@@ -207,15 +207,14 @@ function buildGalleryRows(items) {
     var isLand = ri % 2 === 0;
     var chunk  = items.slice(cursor, cursor + (isLand ? 2 : 3));
     rows.push({ type: isLand ? (chunk.length === 1 ? 'land1' : 'land2') : 'port3', items: chunk });
-    cursor += chunk.length;
-    ri++;
+    cursor += chunk.length; ri++;
   }
   return rows;
 }
 
 
 // ─────────────────────────────────────────────────
-// PROJEKT-VORSCHAU Komponente
+// PROJEKT-VORSCHAU
 // ─────────────────────────────────────────────────
 var ProjectPreview = createClass({
   render: function () {
@@ -238,16 +237,11 @@ var ProjectPreview = createClass({
     var orderStr = String(order).padStart(2, '0');
 
     return h('div', { className: 'pd2-page' },
-
-      h('p', { className: 'preview-hint' },
-        '👁 Live-Vorschau — so sieht die fertige Projektseite aus.'
-      ),
-
+      h('p', { className: 'preview-hint' }, '👁 Live-Vorschau — so sieht die fertige Projektseite aus.'),
       h('a', { className: 'pd2-nav', href: '#' },
         h('span', { className: 'pd2-nav__icon' }, '◄'),
         h('span', null, 'Projekte')
       ),
-
       h('div', { className: 'pd2-header' },
         h('h1', { className: 'pd2-title' }, title || 'Projekttitel'),
         h('div', { className: 'pd2-header-right' },
@@ -258,15 +252,12 @@ var ProjectPreview = createClass({
           location ? h('p', { className: 'pd2-location' }, location) : null
         )
       ),
-
       description ? h('div', { className: 'pd2-prose' }, h('p', null, description)) : null,
-
       h('div', { className: 'pd2-hero' + (cover ? '' : ' pd2-hero--empty') },
         cover
           ? h('img', { src: cover, alt: title, style: { objectPosition: coverFocal } })
           : h('span', null, 'Kein Titelbild ausgewählt')
       ),
-
       rows.length > 0
         ? h('div', { className: 'pd2-gallery' },
             rows.map(function (row, ri) {
