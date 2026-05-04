@@ -6,8 +6,8 @@ order: 2
 cover: /uploads/projekte/nyhro/®flynn-nyhro-11.avif
 cover_focal: 50% 33%
 gallery:
-  - focal: 50% 50%
-    image: /uploads/projekte/nyhro/®flynn-nyhro-21.avif
+  - image: /uploads/projekte/nyhro/®flynn-nyhro-21.avif
+    focal: 54% 22%
 featured: true
 draft: false
 ---
