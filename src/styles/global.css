@@ -1187,8 +1187,9 @@ a:hover { text-decoration-thickness: 2px; }
 /* Nav bleibt oben links, unabhängig vom Flex-Centering */
 .am-page > .pd2-nav {
   position: absolute;
-  top: clamp(16px, 2vw, 28px);
+  top: clamp(32px, 4vw, 52px);
   left: clamp(28px, 2.54vw, 60px);
+  transform: translateY(-50%);
 }
 
 /* ── Haupt-Grid: Foto | Rechte Spalte ── */
@@ -1287,8 +1288,9 @@ a:hover { text-decoration-thickness: 2px; }
 /* ── Kontakt-Button oben rechts ── */
 .am-contact-btn {
   position: absolute;
-  top: clamp(16px, 2vw, 28px);
+  top: clamp(32px, 4vw, 52px);
   right: clamp(28px, 2.54vw, 60px);
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   padding: 8px 22px;
@@ -1397,7 +1399,7 @@ a:hover { text-decoration-thickness: 2px; }
   .am-contact-btn {
     font-size: 0.7rem;
     padding: 6px 14px;
-    top: clamp(14px, 3.5vw, 22px);
+    top: clamp(28px, 7vw, 44px);
     right: clamp(16px, 4vw, 28px);
   }
 }
@@ -1425,9 +1427,10 @@ a:hover { text-decoration-thickness: 2px; }
   top: clamp(16px, 2vw, 28px);
   left: clamp(28px, 2.54vw, 60px);
   color: #000;
-  opacity: 0.5;
+  opacity: 1;
+  transition: color 0.2s;
 }
-.ct-page > .pd2-nav:hover { opacity: 1; }
+.ct-page > .pd2-nav:hover { color: #aaa; opacity: 1; }
 
 .ct-inner {
   display: flex;
