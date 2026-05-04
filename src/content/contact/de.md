@@ -1,7 +1,7 @@
 ---
 subtitle: Lass uns zusammenarbeiten.
-email: kontakt@example.com
+email: info@flynnbertsch.com
 links:
   - label: Instagram
-    url: https://instagram.com
+    url: https://www.instagram.com/flynnbertsch/
 ---
