@@ -1407,8 +1407,8 @@ a:hover { text-decoration-thickness: 2px; }
    ═══════════════════════════════════════════════════════════ */
 
 .ct-page {
-  background: #000;
-  color: #fff;
+  background: #fff;
+  color: #000;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -1424,8 +1424,8 @@ a:hover { text-decoration-thickness: 2px; }
   position: absolute;
   top: clamp(16px, 2vw, 28px);
   left: clamp(28px, 2.54vw, 60px);
-  color: #fff;
-  opacity: 0.7;
+  color: #000;
+  opacity: 0.5;
 }
 .ct-page > .pd2-nav:hover { opacity: 1; }
 
@@ -1443,7 +1443,7 @@ a:hover { text-decoration-thickness: 2px; }
   letter-spacing: -0.06em;
   text-transform: uppercase;
   line-height: 0.9;
-  color: #fff;
+  color: #000;
   margin: 0;
 }
 
@@ -1453,7 +1453,7 @@ a:hover { text-decoration-thickness: 2px; }
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -0.02em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.6);
+  color: rgba(0,0,0,0.5);
   margin: 0;
 }
 
@@ -1463,13 +1463,13 @@ a:hover { text-decoration-thickness: 2px; }
   font-weight: 700;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -0.04em;
-  color: #fff;
+  color: #000;
   text-decoration: none;
-  border-bottom: 2px solid rgba(255,255,255,0.35);
+  border-bottom: 2px solid rgba(0,0,0,0.25);
   padding-bottom: 2px;
   transition: border-color 0.2s;
 }
-.ct-email:hover { border-color: #fff; text-decoration: none; }
+.ct-email:hover { border-color: #000; text-decoration: none; }
 
 .ct-links {
   display: flex;
@@ -1483,8 +1483,8 @@ a:hover { text-decoration-thickness: 2px; }
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -0.02em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
+  color: rgba(0,0,0,0.45);
   text-decoration: none;
   transition: color 0.2s;
 }
-.ct-link:hover { color: #fff; text-decoration: none; }
+.ct-link:hover { color: #000; text-decoration: none; }

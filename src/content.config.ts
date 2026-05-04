@@ -53,8 +53,29 @@ const aboutDe = defineCollection({
   }),
 });
 
+const contactSchema = z.object({
+  subtitle: z.string().default(''),
+  email: z.string().default(''),
+  links: z.array(z.object({
+    label: z.string(),
+    url: z.string(),
+  })).default([]),
+});
+
+const contactDe = defineCollection({
+  loader: glob({ pattern: 'de.md', base: './src/content/contact' }),
+  schema: contactSchema,
+});
+
+const contactEn = defineCollection({
+  loader: glob({ pattern: 'en.md', base: './src/content/contact' }),
+  schema: contactSchema,
+});
+
 export const collections = {
   'projects-de': projectsDe,
   'projects-en': projectsEn,
   'about-de': aboutDe,
+  'contact-de': contactDe,
+  'contact-en': contactEn,
 };

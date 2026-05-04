@@ -1,22 +1,29 @@
 ---
+import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import pageRoutes from '../../data/page-routes.json';
 import { pathForLang } from '../../i18n/ui';
 
 type PageType = 'about' | 'imprint' | 'privacy' | 'contact';
 
-interface Props { page: PageType; }
+interface Props {
+  page: PageType;
+  contactEntry: CollectionEntry<'contact-en'> | null;
+}
 
 export async function getStaticPaths() {
+  const contactEntries = await getCollection('contact-en');
+  const contactEntry = contactEntries[0] ?? null;
+
   return [
-    { params: { slug: pageRoutes.en.about },   props: { page: 'about'   as PageType } },
-    { params: { slug: pageRoutes.en.imprint },  props: { page: 'imprint' as PageType } },
-    { params: { slug: pageRoutes.en.privacy },  props: { page: 'privacy' as PageType } },
-    { params: { slug: pageRoutes.en.contact },  props: { page: 'contact' as PageType } },
+    { params: { slug: pageRoutes.en.about },   props: { page: 'about'   as PageType, contactEntry: null } },
+    { params: { slug: pageRoutes.en.imprint },  props: { page: 'imprint' as PageType, contactEntry: null } },
+    { params: { slug: pageRoutes.en.privacy },  props: { page: 'privacy' as PageType, contactEntry: null } },
+    { params: { slug: pageRoutes.en.contact },  props: { page: 'contact' as PageType, contactEntry } },
   ];
 }
 
-const { page } = Astro.props;
+const { page, contactEntry } = Astro.props;
 const lang = 'en' as const;
 
 const pageTitles: Record<PageType, string> = {
@@ -91,11 +98,19 @@ const pageTitles: Record<PageType, string> = {
       </a>
       <div class="ct-inner">
         <h1 class="ct-heading">Contact</h1>
-        <p class="ct-sub">Let's work together.</p>
-        <a class="ct-email" href="mailto:kontakt@example.com">kontakt@example.com</a>
-        <div class="ct-links">
-          <a href="https://instagram.com" target="_blank" rel="noopener" class="ct-link">Instagram ↗</a>
-        </div>
+        {contactEntry?.data.subtitle && (
+          <p class="ct-sub">{contactEntry.data.subtitle}</p>
+        )}
+        {contactEntry?.data.email && (
+          <a class="ct-email" href={`mailto:${contactEntry.data.email}`}>{contactEntry.data.email}</a>
+        )}
+        {contactEntry && contactEntry.data.links.length > 0 && (
+          <div class="ct-links">
+            {contactEntry.data.links.map((link: { label: string; url: string }) => (
+              <a href={link.url} target="_blank" rel="noopener" class="ct-link">{link.label} ↗</a>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )}

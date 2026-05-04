@@ -103,6 +103,53 @@ collections:
             widget: "markdown"
             hint: "Dieser Text erscheint neben dem Foto. 3–5 kurze Absätze empfohlen."
 
+      - name: "contact_de"
+        label: "Kontaktseite (Deutsch)"
+        file: "src/content/contact/de.md"
+        editor:
+          preview: false
+        fields:
+          - name: "subtitle"
+            label: "Untertitel (unter dem Heading)"
+            widget: "string"
+            default: "Lass uns zusammenarbeiten."
+            hint: "z.B. 'Lass uns zusammenarbeiten.' oder 'Ich freue mich auf deine Nachricht.'"
+          - name: "email"
+            label: "E-Mail-Adresse"
+            widget: "string"
+            hint: "Wird als anklickbarer Link angezeigt"
+          - name: "links"
+            label: "Links (Social Media, Website, …)"
+            widget: "list"
+            required: false
+            hint: "Jeder Eintrag erscheint als Link mit ↗ am Ende"
+            summary: "{{fields.label}}"
+            fields:
+              - { name: "label", label: "Bezeichnung", widget: "string", hint: "z.B. Instagram, LinkedIn, Behance" }
+              - { name: "url",   label: "URL",          widget: "string", hint: "Vollständige URL inkl. https://" }
+
+      - name: "contact_en"
+        label: "Contact page (English)"
+        file: "src/content/contact/en.md"
+        editor:
+          preview: false
+        fields:
+          - name: "subtitle"
+            label: "Subtitle (below heading)"
+            widget: "string"
+            default: "Let's work together."
+          - name: "email"
+            label: "Email address"
+            widget: "string"
+          - name: "links"
+            label: "Links (social media, website, …)"
+            widget: "list"
+            required: false
+            summary: "{{fields.label}}"
+            fields:
+              - { name: "label", label: "Label", widget: "string" }
+              - { name: "url",   label: "URL",   widget: "string" }
+
   # ──────────────────────────────────────────
   # PROJEKTE
   # ──────────────────────────────────────────
