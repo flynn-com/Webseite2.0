@@ -1284,10 +1284,17 @@ a:hover { text-decoration-thickness: 2px; }
 .am-body p { margin: 0; }
 .am-body p + p { margin-top: 0.75rem; }
 
-/* ── Responsive: Tablet ── */
-@media (max-width: 900px) {
-  .am-layout { grid-template-columns: 1fr 1fr; }
-  .am-name { font-size: clamp(3rem, 10vw, 6rem); }
+/* ── Responsive: Tablet / iPad (Desktop-Layout, kleiner mit Luft) ── */
+@media (min-width: 601px) and (max-width: 1100px) {
+  .am-page {
+    padding-left:  clamp(48px, 9vw, 100px);
+    padding-right: clamp(48px, 9vw, 100px);
+  }
+  .am-layout {
+    grid-template-columns: minmax(0, 380px) 1fr;
+    max-width: 860px;
+  }
+  .am-name { font-size: clamp(2.8rem, 8.5vw, 6.5rem); }
 }
 
 /* ── Responsive: Mobile (Figma: iPhone 16 & 17 Pro Max – 430px) ── */
