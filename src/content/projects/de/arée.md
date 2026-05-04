@@ -9,17 +9,17 @@ description: "Räume aus ungesehenen Blickwinkeln "
 location: München
 gallery:
   - image: /uploads/projekte/arée/®flynn-arée-38.avif
-    focal: "top center"
+    focal: 49% 52%
   - image: /uploads/projekte/arée/®flynn-arée-6.avif
-    focal: "bottom center"
+    focal: bottom center
   - image: /uploads/projekte/arée/®flynn-arée-26.avif
-    focal: "50% 50%"
+    focal: 50% 60%
   - image: /uploads/projekte/arée/®flynn-arée-35.avif
-    focal: "50% 50%"
+    focal: 52% 48%
   - image: /uploads/projekte/arée/®flynn-arée-60.avif
-    focal: "50% 50%"
+    focal: 50% 34%
   - image: /uploads/projekte/arée/®flynn-arée-20.avif
-    focal: "50% 50%"
+    focal: 50% 50%
 youtube: []
 videos: []
 tags:
