@@ -143,13 +143,61 @@ var GalleryFocal = createClass({
   },
 
   componentDidMount: function () {
-    // Bild-URLs regelmäßig auflösen (für bereits gespeicherte Bilder)
+    this._ctrlID = 'gf-' + Math.random().toString(36).substr(2, 9);
     var self = this;
     this._poll = setInterval(function () { self.resolveImages(); }, 800);
     this.resolveImages();
   },
 
   componentWillUnmount: function () { clearInterval(this._poll); },
+
+  componentDidUpdate: function (prevProps) {
+    // Pfade aus der Decap-Mediathek lesen, nachdem der Nutzer Bilder ausgewählt hat
+    var mp = this.props.mediaPaths;
+    var pm = prevProps.mediaPaths;
+    if (!mp) return;
+
+    var pick = function (map, key) {
+      if (!map) return undefined;
+      return typeof map.get === 'function' ? map.get(key) : map[key];
+    };
+    var result = pick(mp, this._ctrlID);
+    var prev   = pick(pm, this._ctrlID);
+    if (!result || result === prev) return;
+
+    // result: String | Array | Immutable.List | Immutable.Map
+    var raw;
+    if (typeof result === 'string') {
+      raw = [result];
+    } else if (Array.isArray(result)) {
+      raw = result;
+    } else if (typeof result.toJS === 'function') {
+      var js = result.toJS();
+      raw = Array.isArray(js) ? js : [js];
+    } else {
+      raw = [result];
+    }
+
+    // Pfad aus jedem Element extrahieren (String oder Objekt mit .path/.url)
+    var paths = raw.map(function (p) {
+      if (typeof p === 'string') return p;
+      var get = function (o, k) { return typeof o.get === 'function' ? o.get(k) : o[k]; };
+      return get(p, 'path') || get(p, 'url') || '';
+    }).filter(function (p) {
+      // Nur echte Repo-Pfade — blob: URLs bedeuten, dass Decap die Datei noch nicht hochgeladen hat
+      return p && !p.startsWith('blob:');
+    });
+
+    if (!paths.length) return;
+
+    var newItems = paths.map(function (p) {
+      return { image: p, focal: '50% 50%', _url: null };
+    });
+    var all = this.state.items.concat(newItems);
+    this.setState({ items: all });
+    this.emit(all);
+    this.resolveImages(all);
+  },
 
   parseValue: function (value) {
     if (!value) return [];
@@ -184,7 +232,17 @@ var GalleryFocal = createClass({
   },
 
   handleAdd: function () {
-    this._fi && this._fi.click();
+    if (typeof this.props.openMediaLibrary === 'function') {
+      this.props.openMediaLibrary({
+        controlID: this._ctrlID,
+        forImage: true,
+        allowMultiple: true,
+        field: this.props.field,
+      });
+    } else {
+      // Fallback when openMediaLibrary is unavailable
+      this._fi && this._fi.click();
+    }
   },
 
   handleFileInput: function (e) {
