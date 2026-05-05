@@ -202,8 +202,8 @@ collections:
     create: true
     slug: "{{slug}}"
     preview_path: "projekte/{{slug}}"
-    media_folder: "/public/uploads/projekte"
-    public_folder: "/uploads/projekte"
+    media_folder: "public/uploads/projekte/{{slug}}"
+    public_folder: "/uploads/projekte/{{slug}}"
     editor:
       preview: true
     fields:
@@ -279,8 +279,8 @@ collections:
     create: true
     slug: "{{slug}}"
     preview_path: "en/projects/{{slug}}"
-    media_folder: "/public/uploads/projekte"
-    public_folder: "/uploads/projekte"
+    media_folder: "public/uploads/projekte/{{slug}}"
+    public_folder: "/uploads/projekte/{{slug}}"
     editor:
       preview: true
     fields:
