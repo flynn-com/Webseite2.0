@@ -143,8 +143,6 @@ var GalleryFocal = createClass({
   },
 
   componentDidMount: function () {
-    // Eindeutige ID für die Media-Library-Kommunikation
-    this._ctrlID = 'gf-' + Math.random().toString(36).substr(2, 9);
     // Bild-URLs regelmäßig auflösen (für bereits gespeicherte Bilder)
     var self = this;
     this._poll = setInterval(function () { self.resolveImages(); }, 800);
@@ -152,32 +150,6 @@ var GalleryFocal = createClass({
   },
 
   componentWillUnmount: function () { clearInterval(this._poll); },
-
-  componentDidUpdate: function (prevProps) {
-    // Neue Auswahl aus der Decap-Media-Library abfangen
-    var mp = this.props.mediaPaths;
-    var pm = prevProps.mediaPaths;
-    if (!mp) return;
-    var get = function(map, key) { return map && (typeof map.get === 'function' ? map.get(key) : map[key]); };
-    var result = get(mp, this._ctrlID);
-    var prev   = get(pm, this._ctrlID);
-    if (!result || result === prev) return;
-
-    // Ergebnis kann einzelner Pfad ODER Array sein
-    var paths = Array.isArray(result) ? result
-      : (result && typeof result.toJS === 'function') ? result.toJS()
-      : [result];
-
-    var newItems = paths.map(function (p) {
-      var img = (typeof p === 'string') ? p : (p && (p.path || p.url || ''));
-      return { image: img, focal: '50% 50%', _url: null };
-    });
-
-    var all = this.state.items.concat(newItems);
-    this.setState({ items: all });
-    this.emit(all);
-    this.resolveImages(all);
-  },
 
   parseValue: function (value) {
     if (!value) return [];
@@ -204,32 +176,41 @@ var GalleryFocal = createClass({
   },
 
   emit: function (items) {
-    var clean = items.map(function (it) {
-      return { image: it.image, focal: it.focal || '50% 50%' };
-    });
+    // Niemals blob:-URLs ins Markdown schreiben — nur echte Pfade (/uploads/...)
+    var clean = items
+      .filter(function (it) { return it.image && !it.image.startsWith('blob:'); })
+      .map(function (it) { return { image: it.image, focal: it.focal || '50% 50%' }; });
     this.props.onChange(clean);
   },
 
   handleAdd: function () {
-    if (typeof this.props.openMediaLibrary === 'function') {
-      this.props.openMediaLibrary(
-        { controlID: this._ctrlID, forImage: true, allowMultiple: true }
-      );
-    } else {
-      // Fallback: direktes Datei-Input
-      this._fi && this._fi.click();
-    }
+    this._fi && this._fi.click();
   },
 
   handleFileInput: function (e) {
-    // Fallback-Pfad: blob-URLs (funktionieren für Vorschau, werden beim Speichern nicht hochgeladen)
     var self  = this;
     var files = Array.from(e.target.files);
-    var items = files.map(function (f) {
-      var url = URL.createObjectURL(f);
-      return { image: url, focal: '50% 50%', _url: url };
+    if (!files.length) return;
+
+    // Slug aus dem aktuellen Eintrag lesen → bestimmt den Upload-Ordner
+    var slug = fromEntry(self.props.entry, ['data', 'slug']) || 'project';
+    var dir  = '/uploads/projekte/' + slug + '/';
+
+    var newItems = files.map(function (f) {
+      var blobUrl    = URL.createObjectURL(f);
+      var targetPath = dir + f.name;
+
+      // Datei in Decap als Staged Asset registrieren → wird beim Speichern hochgeladen
+      try {
+        if (typeof self.props.addAsset === 'function') {
+          self.props.addAsset({ url: blobUrl, path: targetPath, fileObj: f });
+        }
+      } catch (err) { /* ignorieren falls addAsset nicht verfügbar */ }
+
+      return { image: targetPath, focal: '50% 50%', _url: blobUrl };
     });
-    var all = self.state.items.concat(items);
+
+    var all = self.state.items.concat(newItems);
     self.setState({ items: all });
     self.emit(all);
     e.target.value = '';
