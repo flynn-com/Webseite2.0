@@ -8,6 +8,11 @@ var h = window.h;
 // ─────────────────────────────────────────────────
 function resolveImg(getAsset, src) {
   if (!src) return null;
+  // Für /uploads/-Pfade immer direkt die Live-URL verwenden —
+  // getAsset kann veraltete Blob-URLs aus früheren Sessions zurückgeben
+  if (typeof src === 'string' && src.startsWith('/uploads/')) {
+    return window.location.origin + src;
+  }
   try {
     var asset = getAsset(src);
     var url   = asset ? asset.toString() : src;
