@@ -8,26 +8,16 @@ cover_focal: 50% 32%
 description: Editorial- und Kampagnen-Shooting - 2025 MIND Kollektion der Marke Nyhro.
 location: Stuttgart
 gallery:
-  - image: /uploads/projekte/®flynn-nyhro-21.avif
-    focal: 50% 34%
-  - image: /uploads/projekte/®Flynn-Nyhro-29.AVIF
-    focal: 50% 41%
-  - image: /uploads/projekte/®Flynn-Nyhro-31.AVIF
-    focal: 53% 47%
-  - image: /uploads/projekte/®Flynn-Nyhro-2.AVIF
-    focal: 47% 18%
+  - image: /uploads/projekte/®Flynn-Nyhro-21.AVIF
+    focal: 50% 29%
+  - image: /uploads/projekte/®Flynn-Nyhro-14.AVIF
+    focal: 56% 23%
+  - image: /uploads/projekte/®Flynn-Nyhro-19.AVIF
+    focal: 51% 32%
   - image: /uploads/projekte/®Flynn-Nyhro-23.AVIF
     focal: 50% 50%
-  - image: /uploads/projekte/®flynn-nyhro-10.avif
-    focal: 50% 28%
-  - image: /uploads/projekte/®Flynn-Nyhro-26.AVIF
-    focal: 52% 35%
-  - image: /uploads/projekte/®Flynn-Nyhro-16.AVIF
-    focal: 52% 76%
-  - image: /uploads/projekte/®Flynn-Nyhro-5.AVIF
-    focal: 50% 50%
-  - image: /uploads/projekte/®Flynn-Nyhro-28.AVIF
-    focal: 52% 37%
+  - image: /uploads/projekte/®Flynn-Nyhro-31.AVIF
+    focal: 51% 40%
 featured: true
 draft: false
 ---
