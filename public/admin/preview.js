@@ -143,61 +143,12 @@ var GalleryFocal = createClass({
   },
 
   componentDidMount: function () {
-    this._ctrlID = 'gf-' + Math.random().toString(36).substr(2, 9);
     var self = this;
     this._poll = setInterval(function () { self.resolveImages(); }, 800);
     this.resolveImages();
   },
 
   componentWillUnmount: function () { clearInterval(this._poll); },
-
-  componentDidUpdate: function (prevProps) {
-    // Pfade aus der Decap-Mediathek lesen, nachdem der Nutzer Bilder ausgewählt hat
-    var mp = this.props.mediaPaths;
-    var pm = prevProps.mediaPaths;
-    if (!mp) return;
-
-    var pick = function (map, key) {
-      if (!map) return undefined;
-      return typeof map.get === 'function' ? map.get(key) : map[key];
-    };
-    var result = pick(mp, this._ctrlID);
-    var prev   = pick(pm, this._ctrlID);
-    if (!result || result === prev) return;
-
-    // result: String | Array | Immutable.List | Immutable.Map
-    var raw;
-    if (typeof result === 'string') {
-      raw = [result];
-    } else if (Array.isArray(result)) {
-      raw = result;
-    } else if (typeof result.toJS === 'function') {
-      var js = result.toJS();
-      raw = Array.isArray(js) ? js : [js];
-    } else {
-      raw = [result];
-    }
-
-    // Pfad aus jedem Element extrahieren (String oder Objekt mit .path/.url)
-    var paths = raw.map(function (p) {
-      if (typeof p === 'string') return p;
-      var get = function (o, k) { return typeof o.get === 'function' ? o.get(k) : o[k]; };
-      return get(p, 'path') || get(p, 'url') || '';
-    }).filter(function (p) {
-      // Nur echte Repo-Pfade — blob: URLs bedeuten, dass Decap die Datei noch nicht hochgeladen hat
-      return p && !p.startsWith('blob:');
-    });
-
-    if (!paths.length) return;
-
-    var newItems = paths.map(function (p) {
-      return { image: p, focal: '50% 50%', _url: null };
-    });
-    var all = this.state.items.concat(newItems);
-    this.setState({ items: all });
-    this.emit(all);
-    this.resolveImages(all);
-  },
 
   parseValue: function (value) {
     if (!value) return [];
@@ -224,7 +175,7 @@ var GalleryFocal = createClass({
   },
 
   emit: function (items) {
-    // Niemals blob:-URLs ins Markdown schreiben — nur echte Pfade (/uploads/...)
+    // Niemals blob:-URLs ins Markdown schreiben — nur echte Repo-Pfade
     var clean = items
       .filter(function (it) { return it.image && !it.image.startsWith('blob:'); })
       .map(function (it) { return { image: it.image, focal: it.focal || '50% 50%' }; });
@@ -232,45 +183,88 @@ var GalleryFocal = createClass({
   },
 
   handleAdd: function () {
-    if (typeof this.props.openMediaLibrary === 'function') {
-      this.props.openMediaLibrary({
-        controlID: this._ctrlID,
-        forImage: true,
-        allowMultiple: true,
-      });
-    } else {
-      // Fallback when openMediaLibrary is unavailable
-      this._fi && this._fi.click();
+    this._fi && this._fi.click();
+  },
+
+  // Liest den public_path aus einem Decap-Asset-Objekt (verschiedene Shapes in Decap 3.x)
+  _assetPublicPath: function (asset) {
+    if (!asset) return null;
+    if (typeof asset.public_path === 'string') return asset.public_path;
+    if (typeof asset.path === 'string' && asset.path.startsWith('/')) return asset.path;
+    // Immutable Map
+    if (typeof asset.get === 'function') {
+      return asset.get('public_path') || asset.get('path') || null;
     }
+    return null;
   },
 
   handleFileInput: function (e) {
     var self  = this;
     var files = Array.from(e.target.files);
+    e.target.value = '';
     if (!files.length) return;
 
-    // Slug aus dem aktuellen Eintrag lesen → bestimmt den Upload-Ordner
-    var slug = fromEntry(self.props.entry, ['data', 'slug']) || 'project';
-    var dir  = '/uploads/projekte/' + slug + '/';
+    files.forEach(function (file) {
+      var blobUrl  = URL.createObjectURL(file);
+      var tempPath = '/uploads/projekte/' + file.name;
 
-    var newItems = files.map(function (f) {
-      var blobUrl    = URL.createObjectURL(f);
-      var targetPath = dir + f.name;
+      // Sofort als Platzhalter einfügen (blob URL für Vorschau, echter Pfad für Markdown)
+      self.setState(function (prev) {
+        var next = prev.items.concat([{ image: tempPath, focal: '50% 50%', _url: blobUrl, _pending: true }]);
+        return { items: next };
+      });
 
-      // Datei in Decap als Staged Asset registrieren → wird beim Speichern hochgeladen
-      try {
-        if (typeof self.props.addAsset === 'function') {
-          self.props.addAsset({ url: blobUrl, path: targetPath, fileObj: f });
-        }
-      } catch (err) { /* ignorieren falls addAsset nicht verfügbar */ }
+      function confirmUpload(realPath, displayUrl) {
+        // _pending-Marker entfernen, finalen Pfad setzen
+        self.setState(function (prev) {
+          var next = prev.items.map(function (it) {
+            if (it._pending && it.image === tempPath) {
+              return { image: realPath, focal: it.focal, _url: displayUrl || blobUrl };
+            }
+            return it;
+          });
+          self.emit(next);
+          return { items: next };
+        });
+      }
 
-      return { image: targetPath, focal: '50% 50%', _url: blobUrl };
+      // ── Weg 1: persistMedia → lädt Datei sofort nach GitHub hoch ──────────
+      if (typeof self.props.persistMedia === 'function') {
+        self.props.persistMedia(file).then(function (asset) {
+          var realPath = self._assetPublicPath(asset) || tempPath;
+          var realUrl  = (asset && (asset.url || asset.displayURL)) || blobUrl;
+          confirmUpload(realPath, realUrl);
+        }).catch(function () {
+          // persistMedia fehlgeschlagen → Weg 2
+          self._stageViaAddAsset(file, tempPath, blobUrl, confirmUpload);
+        });
+        return;
+      }
+
+      // ── Weg 2: addAsset mit vollständigem AssetProxy → Upload beim Speichern ──
+      self._stageViaAddAsset(file, tempPath, blobUrl, confirmUpload);
     });
+  },
 
-    var all = self.state.items.concat(newItems);
-    self.setState({ items: all });
-    self.emit(all);
-    e.target.value = '';
+  // Staged die Datei über addAsset (Upload findet beim Entry-Save statt)
+  _stageViaAddAsset: function (file, path, blobUrl, confirmUpload) {
+    if (typeof this.props.addAsset === 'function') {
+      this.props.addAsset({
+        url: blobUrl,
+        path: 'public' + path,          // physischer Repo-Pfad: public/uploads/projekte/...
+        fileObj: file,
+        toString: function () { return blobUrl; },
+        toBase64: function () {
+          return new Promise(function (resolve, reject) {
+            var reader = new FileReader();
+            reader.onload  = function () { resolve(reader.result.replace(/^data:[^;]+;base64,/, '')); };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        },
+      });
+    }
+    confirmUpload(path, blobUrl);
   },
 
   handleFocal: function (idx, e) {
