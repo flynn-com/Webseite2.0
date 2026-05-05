@@ -52,34 +52,43 @@ function uploadFileToGitHub(file) {
       var publicPath = '/uploads/projekte/' + file.name;
       var apiUrl     = 'https://api.github.com/repos/flynn-com/Webseite2.0/contents/' + repoPath;
 
-      // Prüfen ob Datei schon existiert (für sha beim Update nötig)
-      fetch(apiUrl, {
-        headers: { 'Authorization': 'token ' + window._ghToken, 'Accept': 'application/vnd.github+json' }
-      })
-        .then(function (r) { return r.status === 200 ? r.json() : null; })
-        .then(function (existing) {
-          var body = {
-            message: 'upload: ' + file.name,
-            content: base64,
-            branch: 'main',
-          };
-          if (existing && existing.sha) body.sha = existing.sha;
+      function doUpload(sha, attempt) {
+        var body = { message: 'upload: ' + file.name, content: base64, branch: 'main' };
+        if (sha) body.sha = sha;
 
-          return fetch(apiUrl, {
-            method: 'PUT',
-            headers: {
-              'Authorization': 'token ' + window._ghToken,
-              'Content-Type': 'application/json',
-              'Accept': 'application/vnd.github+json',
-            },
-            body: JSON.stringify(body),
-          });
+        fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': 'token ' + window._ghToken,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github+json',
+          },
+          body: JSON.stringify(body),
         })
-        .then(function (r) {
-          if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub ' + r.status + ': ' + t); });
-          resolve(publicPath);
+          .then(function (r) {
+            if (r.status === 409 && attempt < 3) {
+              // SHA ist veraltet → aktuellen SHA abrufen und nochmal versuchen
+              return fetchCurrentSha().then(function (freshSha) {
+                return doUpload(freshSha, attempt + 1);
+              });
+            }
+            if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub ' + r.status + ': ' + t); });
+            resolve(publicPath);
+          })
+          .catch(reject);
+      }
+
+      function fetchCurrentSha() {
+        // Cache-busting via timestamp damit GitHub keinen alten Stand zurückgibt
+        return fetch(apiUrl + '?t=' + Date.now(), {
+          headers: { 'Authorization': 'token ' + window._ghToken, 'Accept': 'application/vnd.github+json' }
         })
-        .catch(reject);
+          .then(function (r) { return r.status === 200 ? r.json() : null; })
+          .then(function (data) { return data && data.sha ? data.sha : null; });
+      }
+
+      // Zuerst aktuellen SHA holen, dann hochladen
+      fetchCurrentSha().then(function (sha) { doUpload(sha, 0); }).catch(reject);
     };
     reader.readAsDataURL(file);
   });
