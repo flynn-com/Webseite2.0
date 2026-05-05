@@ -15,6 +15,8 @@ gallery:
     focal: 52% 60%
   - image: /uploads/projekte/distefano/®Flynn- Olivenöl-17.AVIF
     focal: 50% 50%
+  - image: /uploads/projekte/distefano/®Flynn- Olivenöl-18.AVIF
+    focal: 50% 56%
 featured: true
 draft: false
 ---
