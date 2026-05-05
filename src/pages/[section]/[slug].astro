@@ -73,9 +73,11 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 
   {entry.data.cover && (
     <div class="pd2-hero">
-      <img src={withBase(entry.data.cover)} alt={entry.data.title}
-        style={`object-position:${entry.data.cover_focal}`}
-        fetchpriority="high" decoding="async" />
+      <button class="pd2-img pd2-hero__btn" type="button" data-src={withBase(entry.data.cover)} aria-label="Titelbild vergrößern">
+        <img src={withBase(entry.data.cover)} alt={entry.data.title}
+          style={`object-position:${entry.data.cover_focal}`}
+          fetchpriority="high" decoding="async" />
+      </button>
     </div>
   )}
 
@@ -143,6 +145,8 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 
 <div class="pd2-lightbox" id="pdLightbox" aria-hidden="true">
   <button class="pd2-lightbox__close" id="pdLightboxClose" aria-label="Schließen">✕</button>
+  <button class="pd2-lightbox__nav pd2-lightbox__prev" id="pdLightboxPrev" aria-label="Vorheriges Bild">&#10094;</button>
+  <button class="pd2-lightbox__nav pd2-lightbox__next" id="pdLightboxNext" aria-label="Nächstes Bild">&#10095;</button>
   <img class="pd2-lightbox__img" id="pdLightboxImg" src="" alt="" />
 </div>
 </BaseLayout>
@@ -151,21 +155,51 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
   const lightbox = document.getElementById('pdLightbox') as HTMLElement;
   const lbImg    = document.getElementById('pdLightboxImg') as HTMLImageElement;
   const lbClose  = document.getElementById('pdLightboxClose') as HTMLButtonElement;
+  const lbPrev   = document.getElementById('pdLightboxPrev') as HTMLButtonElement;
+  const lbNext   = document.getElementById('pdLightboxNext') as HTMLButtonElement;
 
-  document.querySelectorAll<HTMLButtonElement>('button.pd2-img[data-src]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      lbImg.src = btn.dataset.src ?? '';
-      lightbox.setAttribute('aria-hidden', 'false');
-      lightbox.classList.add('is-open');
-    });
-  });
+  // Alle anklickbaren Bilder in DOM-Reihenfolge (Hero zuerst, dann Galerie)
+  const imgBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('button.pd2-img[data-src]'));
+  let currentIdx = 0;
+
+  function openLightbox(idx: number) {
+    currentIdx = idx;
+    lbImg.src = imgBtns[idx]?.dataset.src ?? '';
+    lightbox.setAttribute('aria-hidden', 'false');
+    lightbox.classList.add('is-open');
+    // Pfeile nur zeigen wenn mehr als 1 Bild
+    const showNav = imgBtns.length > 1;
+    lbPrev.style.display = showNav ? '' : 'none';
+    lbNext.style.display = showNav ? '' : 'none';
+  }
 
   function closeLightbox() {
     lightbox.setAttribute('aria-hidden', 'true');
     lightbox.classList.remove('is-open');
   }
 
+  function showPrev() {
+    currentIdx = (currentIdx - 1 + imgBtns.length) % imgBtns.length;
+    lbImg.src = imgBtns[currentIdx]?.dataset.src ?? '';
+  }
+
+  function showNext() {
+    currentIdx = (currentIdx + 1) % imgBtns.length;
+    lbImg.src = imgBtns[currentIdx]?.dataset.src ?? '';
+  }
+
+  imgBtns.forEach((btn, i) => {
+    btn.addEventListener('click', () => openLightbox(i));
+  });
+
+  lbPrev.addEventListener('click', (e) => { e.stopPropagation(); showPrev(); });
+  lbNext.addEventListener('click', (e) => { e.stopPropagation(); showNext(); });
   lbClose.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('is-open')) return;
+    if (e.key === 'ArrowLeft')  showPrev();
+    if (e.key === 'ArrowRight') showNext();
+    if (e.key === 'Escape')     closeLightbox();
+  });
 </script>
