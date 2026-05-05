@@ -13,6 +13,8 @@ gallery:
     focal: 50% 52%
   - image: __pending__17780172549800.45808436707241007
     focal: 52% 60%
+  - image: /uploads/projekte/distefano/®Flynn- Olivenöl-17.AVIF
+    focal: 50% 50%
 featured: true
 draft: false
 ---
