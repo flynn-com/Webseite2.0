@@ -4,6 +4,88 @@
 var h = window.h;
 
 // ─────────────────────────────────────────────────
+// GitHub-Token-Interceptor
+// Fängt alle fetch()-Aufrufe an api.github.com ab
+// und speichert den Authorization-Token für eigene Uploads.
+// ─────────────────────────────────────────────────
+(function () {
+  var _orig = window.fetch;
+  window.fetch = function (url, opts) {
+    try {
+      var urlStr = typeof url === 'string' ? url
+                 : (url && typeof url.url === 'string' ? url.url : '');
+      if (urlStr.indexOf('api.github.com') !== -1 && !window._ghToken) {
+        var hdrs = (opts && opts.headers) || {};
+        var auth = '';
+        if (typeof hdrs.get === 'function') {
+          auth = hdrs.get('Authorization') || hdrs.get('authorization') || '';
+        } else {
+          auth = hdrs['Authorization'] || hdrs['authorization'] || '';
+        }
+        if (!auth && url && typeof url.headers === 'object') {
+          var rh = url.headers;
+          auth = (typeof rh.get === 'function')
+            ? (rh.get('Authorization') || rh.get('authorization') || '')
+            : (rh['Authorization'] || rh['authorization'] || '');
+        }
+        if (auth.indexOf('token ') === 0)  window._ghToken = auth.slice(6);
+        else if (auth.indexOf('Bearer ') === 0) window._ghToken = auth.slice(7);
+      }
+    } catch (_) {}
+    return _orig.apply(this, arguments);
+  };
+})();
+
+// ─────────────────────────────────────────────────
+// Direkt-Upload via GitHub Contents API
+// ─────────────────────────────────────────────────
+function uploadFileToGitHub(file) {
+  return new Promise(function (resolve, reject) {
+    var token = window._ghToken;
+    if (!token) { reject(new Error('Kein GitHub-Token verfügbar. Bitte erst speichern/öffnen.')); return; }
+
+    var reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload  = function () {
+      var base64     = reader.result.replace(/^data:[^;]+;base64,/, '');
+      var repoPath   = 'public/uploads/projekte/' + file.name;
+      var publicPath = '/uploads/projekte/' + file.name;
+      var apiUrl     = 'https://api.github.com/repos/flynn-com/Webseite2.0/contents/' + repoPath;
+
+      // Prüfen ob Datei schon existiert (für sha beim Update nötig)
+      fetch(apiUrl, {
+        headers: { 'Authorization': 'token ' + window._ghToken, 'Accept': 'application/vnd.github+json' }
+      })
+        .then(function (r) { return r.status === 200 ? r.json() : null; })
+        .then(function (existing) {
+          var body = {
+            message: 'upload: ' + file.name,
+            content: base64,
+            branch: 'main',
+          };
+          if (existing && existing.sha) body.sha = existing.sha;
+
+          return fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+              'Authorization': 'token ' + window._ghToken,
+              'Content-Type': 'application/json',
+              'Accept': 'application/vnd.github+json',
+            },
+            body: JSON.stringify(body),
+          });
+        })
+        .then(function (r) {
+          if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub ' + r.status + ': ' + t); });
+          resolve(publicPath);
+        })
+        .catch(reject);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ─────────────────────────────────────────────────
 // Hilfsfunktionen
 // ─────────────────────────────────────────────────
 function resolveImg(getAsset, src) {
@@ -186,18 +268,6 @@ var GalleryFocal = createClass({
     this._fi && this._fi.click();
   },
 
-  // Liest den public_path aus einem Decap-Asset-Objekt (verschiedene Shapes in Decap 3.x)
-  _assetPublicPath: function (asset) {
-    if (!asset) return null;
-    if (typeof asset.public_path === 'string') return asset.public_path;
-    if (typeof asset.path === 'string' && asset.path.startsWith('/')) return asset.path;
-    // Immutable Map
-    if (typeof asset.get === 'function') {
-      return asset.get('public_path') || asset.get('path') || null;
-    }
-    return null;
-  },
-
   handleFileInput: function (e) {
     var self  = this;
     var files = Array.from(e.target.files);
@@ -208,63 +278,43 @@ var GalleryFocal = createClass({
       var blobUrl  = URL.createObjectURL(file);
       var tempPath = '/uploads/projekte/' + file.name;
 
-      // Sofort als Platzhalter einfügen (blob URL für Vorschau, echter Pfad für Markdown)
+      // Sofort als Platzhalter mit Blob-URL für Vorschau einfügen
       self.setState(function (prev) {
-        var next = prev.items.concat([{ image: tempPath, focal: '50% 50%', _url: blobUrl, _pending: true }]);
-        return { items: next };
+        return { items: prev.items.concat([{
+          image: tempPath, focal: '50% 50%', _url: blobUrl, _pending: true
+        }]) };
       });
 
-      function confirmUpload(realPath, displayUrl) {
-        // _pending-Marker entfernen, finalen Pfad setzen
-        self.setState(function (prev) {
-          var next = prev.items.map(function (it) {
-            if (it._pending && it.image === tempPath) {
-              return { image: realPath, focal: it.focal, _url: displayUrl || blobUrl };
-            }
-            return it;
+      // Direkt via GitHub API hochladen (kein Decap-Prop nötig)
+      uploadFileToGitHub(file)
+        .then(function (realPath) {
+          self.setState(function (prev) {
+            var next = prev.items.map(function (it) {
+              if (it._pending && it.image === tempPath) {
+                return { image: realPath, focal: it.focal, _url: blobUrl };
+              }
+              return it;
+            });
+            self.emit(next);
+            return { items: next };
           });
-          self.emit(next);
-          return { items: next };
+        })
+        .catch(function (err) {
+          console.error('[gallery-focal] Upload fehlgeschlagen:', err);
+          // Platzhalter entfernen wenn Upload scheitert
+          self.setState(function (prev) {
+            var next = prev.items.filter(function (it) {
+              return !(it._pending && it.image === tempPath);
+            });
+            self.emit(next);
+            return { items: next };
+          });
+          alert('Upload fehlgeschlagen: ' + err.message +
+            '\nFalls du gerade noch nicht in GitHub eingeloggt bist, ' +
+            'bitte erst eine andere Aktion im CMS auslösen (z.B. Speichern) ' +
+            'und dann erneut versuchen.');
         });
-      }
-
-      // ── Weg 1: persistMedia → lädt Datei sofort nach GitHub hoch ──────────
-      if (typeof self.props.persistMedia === 'function') {
-        self.props.persistMedia(file).then(function (asset) {
-          var realPath = self._assetPublicPath(asset) || tempPath;
-          var realUrl  = (asset && (asset.url || asset.displayURL)) || blobUrl;
-          confirmUpload(realPath, realUrl);
-        }).catch(function () {
-          // persistMedia fehlgeschlagen → Weg 2
-          self._stageViaAddAsset(file, tempPath, blobUrl, confirmUpload);
-        });
-        return;
-      }
-
-      // ── Weg 2: addAsset mit vollständigem AssetProxy → Upload beim Speichern ──
-      self._stageViaAddAsset(file, tempPath, blobUrl, confirmUpload);
     });
-  },
-
-  // Staged die Datei über addAsset (Upload findet beim Entry-Save statt)
-  _stageViaAddAsset: function (file, path, blobUrl, confirmUpload) {
-    if (typeof this.props.addAsset === 'function') {
-      this.props.addAsset({
-        url: blobUrl,
-        path: 'public' + path,          // physischer Repo-Pfad: public/uploads/projekte/...
-        fileObj: file,
-        toString: function () { return blobUrl; },
-        toBase64: function () {
-          return new Promise(function (resolve, reject) {
-            var reader = new FileReader();
-            reader.onload  = function () { resolve(reader.result.replace(/^data:[^;]+;base64,/, '')); };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-        },
-      });
-    }
-    confirmUpload(path, blobUrl);
   },
 
   handleFocal: function (idx, e) {
