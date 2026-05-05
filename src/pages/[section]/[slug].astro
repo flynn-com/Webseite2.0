@@ -74,7 +74,8 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
   {entry.data.cover && (
     <div class="pd2-hero">
       <img src={withBase(entry.data.cover)} alt={entry.data.title}
-        style={`object-position:${entry.data.cover_focal}`} />
+        style={`object-position:${entry.data.cover_focal}`}
+        fetchpriority="high" decoding="async" />
     </div>
   )}
 

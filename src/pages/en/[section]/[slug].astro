@@ -35,7 +35,7 @@ const fmt = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', d
 
     {entry.data.cover && (
       <div class="project-detail__cover">
-        <img src={withBase(entry.data.cover)} alt="" />
+        <img src={withBase(entry.data.cover)} alt="" fetchpriority="high" decoding="async" />
       </div>
     )}
 
