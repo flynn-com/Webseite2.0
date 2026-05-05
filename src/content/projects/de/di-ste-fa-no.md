@@ -8,7 +8,7 @@ cover_focal: 50% 50%
 location: Italien
 gallery:
   - image: /uploads/projekte/distefano/®Flynn- Olivenöl-2.AVIF
-    focal: 50% 50%
+    focal: 50% 60%
   - image: /uploads/projekte/distefano/®Flynn- Olivenöl-8.AVIF
     focal: 50% 50%
   - image: /uploads/projekte/distefano/®Flynn- Olivenöl-15.AVIF
