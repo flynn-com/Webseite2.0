@@ -139,7 +139,7 @@ CMS.registerWidget('focal-picker', FocalPicker);
 var GalleryFocal = createClass({
 
   getInitialState: function () {
-    return { items: this.parseValue(this.props.value) };
+    return { items: this.parseValue(this.props.value), dragIdx: null, overIdx: null };
   },
 
   componentDidMount: function () {
@@ -233,6 +233,39 @@ var GalleryFocal = createClass({
     this.emit(items);
   },
 
+  // ── Drag-and-Drop Reihenfolge ──
+  handleDragStart: function (idx, e) {
+    this.setState({ dragIdx: idx, overIdx: null });
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(idx));
+  },
+
+  handleDragOver: function (idx, e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (this.state.overIdx !== idx) this.setState({ overIdx: idx });
+  },
+
+  handleDragLeave: function (idx) {
+    if (this.state.overIdx === idx) this.setState({ overIdx: null });
+  },
+
+  handleDrop: function (targetIdx, e) {
+    e.preventDefault();
+    var srcIdx = this.state.dragIdx;
+    this.setState({ dragIdx: null, overIdx: null });
+    if (srcIdx === null || srcIdx === targetIdx) return;
+    var items = this.state.items.slice();
+    var moved = items.splice(srcIdx, 1)[0];
+    items.splice(targetIdx, 0, moved);
+    this.setState({ items: items });
+    this.emit(items);
+  },
+
+  handleDragEnd: function () {
+    this.setState({ dragIdx: null, overIdx: null });
+  },
+
   render: function () {
     var self  = this;
     var items = this.state.items;
@@ -260,7 +293,7 @@ var GalleryFocal = createClass({
         onChange: this.handleFileInput,
       }),
 
-      // ── Bilder-Grid ──
+      // ── Bilder-Grid mit Drag-and-Drop ──
       items.length > 0
         ? h('div', {
             style: {
@@ -270,16 +303,45 @@ var GalleryFocal = createClass({
             }
           },
           items.map(function (item, i) {
-            var pos = parsePos(item.focal);
+            var pos      = parsePos(item.focal);
+            var isDragging = self.state.dragIdx === i;
+            var isOver     = self.state.overIdx === i && self.state.dragIdx !== i;
+
             return h('div', {
               key: i,
+              onDragOver:  function (e) { self.handleDragOver(i, e); },
+              onDragLeave: function ()  { self.handleDragLeave(i); },
+              onDrop:      function (e) { self.handleDrop(i, e); },
               style: {
-                border: '1px solid #ddd', borderRadius: '8px',
-                overflow: 'hidden', background: '#f0f0f0',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                border: '2px solid ' + (isOver ? '#3b82f6' : '#ddd'),
+                borderRadius: '8px',
+                overflow: 'hidden',
+                background: '#f0f0f0',
+                boxShadow: isOver
+                  ? '0 0 0 3px rgba(59,130,246,0.25)'
+                  : '0 1px 4px rgba(0,0,0,0.08)',
+                opacity: isDragging ? 0.35 : 1,
+                transform: isOver ? 'scale(1.02)' : 'scale(1)',
+                transition: 'opacity 0.15s, border-color 0.1s, box-shadow 0.1s, transform 0.1s',
               }
             },
-              // Bild-Bereich mit Fokuspunkt-Picker
+
+              // ── Drag-Handle oben ──
+              h('div', {
+                draggable: true,
+                onDragStart: function (e) { self.handleDragStart(i, e); },
+                onDragEnd:   function ()  { self.handleDragEnd(); },
+                title: 'Ziehen um Reihenfolge zu ändern',
+                style: {
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  height: '26px', background: '#e2e8f0',
+                  cursor: isDragging ? 'grabbing' : 'grab',
+                  userSelect: 'none', borderBottom: '1px solid #ddd',
+                  fontSize: '15px', color: '#94a3b8', letterSpacing: '3px',
+                }
+              }, '⠿ ⠿'),
+
+              // ── Bild-Bereich mit Fokuspunkt-Picker ──
               h('div', {
                 onClick: function (e) { self.handleFocal(i, e); },
                 title: 'Klicken um Fokuspunkt zu setzen',
@@ -305,7 +367,6 @@ var GalleryFocal = createClass({
                         height: '100%', color: '#aaa', fontSize: '0.75rem',
                       }
                     }, 'Lädt…'),
-                // Fokuspunkt-Dot (nur wenn Bild geladen)
                 item._url ? h('div', { style: {
                   position: 'absolute', left: pos.x + '%', top: pos.y + '%',
                   transform: 'translate(-50%, -50%)',
@@ -315,7 +376,8 @@ var GalleryFocal = createClass({
                   pointerEvents: 'none',
                 }}) : null
               ),
-              // Untere Leiste: Fokuspunkt-Wert + Entfernen-Button
+
+              // ── Untere Leiste: Fokuspunkt-Wert + Entfernen-Button ──
               h('div', {
                 style: {
                   padding: '5px 8px', display: 'flex',
