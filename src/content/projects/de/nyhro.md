@@ -12,8 +12,8 @@ gallery:
     focal: 50% 34%
   - image: /uploads/projekte/®flynn-nyhro-10.avif
     focal: 50% 28%
-  - image: /uploads/projekte/®Flynn-Nyhro-23.AVIF
-    focal: 57% 39%
+  - image: /uploads/projekte/®Flynn-Nyhro-31.AVIF
+    focal: 53% 44%
 featured: true
 draft: false
 ---
