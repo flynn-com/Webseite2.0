@@ -37,43 +37,6 @@ var h = window.h;
 })();
 
 // ─────────────────────────────────────────────────
-// Client-seitige Bildkomprimierung
-// Skaliert auf max. MAX_PX (längste Seite), gibt WebP zurück.
-// ─────────────────────────────────────────────────
-var MAX_PX   = 2400;
-var WQ       = 0.85; // WebP Qualität 0–1
-
-function compressImage(file) {
-  return new Promise(function (resolve) {
-    var blobUrl = URL.createObjectURL(file);
-    var img = new Image();
-    img.onerror = function () {
-      // Kann nicht dekodiert werden → Original unverändert weitergeben
-      URL.revokeObjectURL(blobUrl);
-      resolve(file);
-    };
-    img.onload = function () {
-      var w = img.naturalWidth, h = img.naturalHeight;
-      var scale = Math.min(1, MAX_PX / Math.max(w, h));
-      var cw = Math.round(w * scale), ch = Math.round(h * scale);
-
-      var canvas = document.createElement('canvas');
-      canvas.width = cw; canvas.height = ch;
-      canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
-      URL.revokeObjectURL(blobUrl);
-
-      canvas.toBlob(function (blob) {
-        if (!blob) { resolve(file); return; }
-        // Dateiname: Endung durch .webp ersetzen (oder anfügen)
-        var base = file.name.replace(/\.[^.]+$/, '');
-        resolve(new File([blob], base + '.webp', { type: 'image/webp' }));
-      }, 'image/webp', WQ);
-    };
-    img.src = blobUrl;
-  });
-}
-
-// ─────────────────────────────────────────────────
 // Direkt-Upload via GitHub Contents API
 // ─────────────────────────────────────────────────
 function uploadFileToGitHub(file) {
@@ -321,53 +284,40 @@ var GalleryFocal = createClass({
     if (!files.length) return;
 
     files.forEach(function (file) {
-      // Sofort Original-Vorschau zeigen (Blob-URL) — kein Warten auf Komprimierung
-      var origBlob    = URL.createObjectURL(file);
-      var origPath    = '/uploads/projekte/' + file.name;
+      var blobUrl  = URL.createObjectURL(file);
+      var tempPath = '/uploads/projekte/' + file.name;
 
+      // Sofort als Platzhalter mit Blob-URL für Vorschau einfügen
       self.setState(function (prev) {
         return { items: prev.items.concat([{
-          image: origPath, focal: '50% 50%', _url: origBlob, _pending: true,
+          image: tempPath, focal: '50% 50%', _url: blobUrl, _pending: true,
         }]) };
       });
 
-      // Komprimieren (Canvas → WebP 2400px), dann hochladen
-      compressImage(file).then(function (compressed) {
-        var compBlob = URL.createObjectURL(compressed);
-        var compPath = '/uploads/projekte/' + compressed.name;
-
-        // Platzhalter auf komprimierten Namen & URL aktualisieren
-        self.setState(function (prev) {
-          return { items: prev.items.map(function (it) {
-            if (it._pending && it.image === origPath)
-              return Object.assign({}, it, { image: compPath, _url: compBlob });
-            return it;
-          }) };
-        });
-        URL.revokeObjectURL(origBlob);
-
-        return uploadFileToGitHub(compressed).then(function (realPath) {
+      // Direkt via GitHub API hochladen
+      uploadFileToGitHub(file)
+        .then(function (realPath) {
           self.setState(function (prev) {
             var next = prev.items.map(function (it) {
-              if (it._pending && it.image === compPath)
-                return { image: realPath, focal: it.focal, _url: compBlob };
+              if (it._pending && it.image === tempPath)
+                return { image: realPath, focal: it.focal, _url: blobUrl };
               return it;
             });
             self.emit(next);
             return { items: next };
           });
-        });
-      }).catch(function (err) {
-        console.error('[gallery-focal] Upload fehlgeschlagen:', err);
-        self.setState(function (prev) {
-          var next = prev.items.filter(function (it) {
-            return !(it._pending && (it.image === origPath || it.image === '/uploads/projekte/' + file.name.replace(/\.[^.]+$/, '') + '.webp'));
+        })
+        .catch(function (err) {
+          console.error('[gallery-focal] Upload fehlgeschlagen:', err);
+          self.setState(function (prev) {
+            var next = prev.items.filter(function (it) {
+              return !(it._pending && it.image === tempPath);
+            });
+            self.emit(next);
+            return { items: next };
           });
-          self.emit(next);
-          return { items: next };
+          alert('Upload fehlgeschlagen: ' + err.message);
         });
-        alert('Upload fehlgeschlagen: ' + err.message);
-      });
     });
   },
 
