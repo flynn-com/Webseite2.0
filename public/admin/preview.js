@@ -4,45 +4,32 @@
 var h = window.h;
 
 // ─────────────────────────────────────────────────
-// GitHub-Token-Interceptor
-// Fängt alle fetch()-Aufrufe an api.github.com ab
-// und speichert den Authorization-Token für eigene Uploads.
+// GitHub-Token ermitteln
+// Interceptor läuft bereits in index.html (vor Decap).
+// Hier: localStorage als zusätzlicher Fallback.
 // ─────────────────────────────────────────────────
-(function () {
-  var _orig = window.fetch;
-  window.fetch = function (url, opts) {
-    try {
-      var urlStr = typeof url === 'string' ? url
-                 : (url && typeof url.url === 'string' ? url.url : '');
-      if (urlStr.indexOf('api.github.com') !== -1 && !window._ghToken) {
-        var hdrs = (opts && opts.headers) || {};
-        var auth = '';
-        if (typeof hdrs.get === 'function') {
-          auth = hdrs.get('Authorization') || hdrs.get('authorization') || '';
-        } else {
-          auth = hdrs['Authorization'] || hdrs['authorization'] || '';
-        }
-        if (!auth && url && typeof url.headers === 'object') {
-          var rh = url.headers;
-          auth = (typeof rh.get === 'function')
-            ? (rh.get('Authorization') || rh.get('authorization') || '')
-            : (rh['Authorization'] || rh['authorization'] || '');
-        }
-        if (auth.indexOf('token ') === 0)  window._ghToken = auth.slice(6);
-        else if (auth.indexOf('Bearer ') === 0) window._ghToken = auth.slice(7);
+function getGHToken() {
+  if (window._ghToken) return window._ghToken;
+  try {
+    var keys = ['decap-cms-user', 'netlify-cms-user'];
+    for (var i = 0; i < keys.length; i++) {
+      var raw = localStorage.getItem(keys[i]);
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data && data.token) { window._ghToken = data.token; return data.token; }
       }
-    } catch (_) {}
-    return _orig.apply(this, arguments);
-  };
-})();
+    }
+  } catch (_) {}
+  return null;
+}
 
 // ─────────────────────────────────────────────────
 // Direkt-Upload via GitHub Contents API
 // ─────────────────────────────────────────────────
 function uploadFileToGitHub(file) {
   return new Promise(function (resolve, reject) {
-    var token = window._ghToken;
-    if (!token) { reject(new Error('Kein GitHub-Token verfügbar. Bitte erst speichern/öffnen.')); return; }
+    var token = getGHToken();
+    if (!token) { reject(new Error('Kein GitHub-Token. Bitte einloggen und kurz warten.')); return; }
 
     var reader = new FileReader();
     reader.onerror = reject;
@@ -52,25 +39,29 @@ function uploadFileToGitHub(file) {
       var publicPath = '/uploads/projekte/' + file.name;
       var apiUrl     = 'https://api.github.com/repos/flynn-com/Webseite2.0/contents/' + repoPath;
 
+      function fetchCurrentSha() {
+        return fetch(apiUrl + '?t=' + Date.now(), {
+          headers: { 'Authorization': 'token ' + getGHToken(), 'Accept': 'application/vnd.github+json' }
+        })
+          .then(function (r) { return r.status === 200 ? r.json() : null; })
+          .then(function (data) { return data && data.sha ? data.sha : null; });
+      }
+
       function doUpload(sha, attempt) {
         var body = { message: 'upload: ' + file.name, content: base64, branch: 'main' };
         if (sha) body.sha = sha;
-
         fetch(apiUrl, {
           method: 'PUT',
           headers: {
-            'Authorization': 'token ' + window._ghToken,
+            'Authorization': 'token ' + getGHToken(),
             'Content-Type': 'application/json',
             'Accept': 'application/vnd.github+json',
           },
           body: JSON.stringify(body),
         })
           .then(function (r) {
-            if (r.status === 409 && attempt < 3) {
-              // SHA ist veraltet → aktuellen SHA abrufen und nochmal versuchen
-              return fetchCurrentSha().then(function (freshSha) {
-                return doUpload(freshSha, attempt + 1);
-              });
+            if (r.status === 409 && attempt < 4) {
+              return fetchCurrentSha().then(function (sha2) { doUpload(sha2, attempt + 1); });
             }
             if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub ' + r.status + ': ' + t); });
             resolve(publicPath);
@@ -78,16 +69,6 @@ function uploadFileToGitHub(file) {
           .catch(reject);
       }
 
-      function fetchCurrentSha() {
-        // Cache-busting via timestamp damit GitHub keinen alten Stand zurückgibt
-        return fetch(apiUrl + '?t=' + Date.now(), {
-          headers: { 'Authorization': 'token ' + window._ghToken, 'Accept': 'application/vnd.github+json' }
-        })
-          .then(function (r) { return r.status === 200 ? r.json() : null; })
-          .then(function (data) { return data && data.sha ? data.sha : null; });
-      }
-
-      // Zuerst aktuellen SHA holen, dann hochladen
       fetchCurrentSha().then(function (sha) { doUpload(sha, 0); }).catch(reject);
     };
     reader.readAsDataURL(file);
@@ -266,9 +247,9 @@ var GalleryFocal = createClass({
   },
 
   emit: function (items) {
-    // Niemals blob:-URLs ins Markdown schreiben — nur echte Repo-Pfade
+    // Nur abgeschlossene Uploads speichern — keine blob:-URLs, keine _pending-Items
     var clean = items
-      .filter(function (it) { return it.image && !it.image.startsWith('blob:'); })
+      .filter(function (it) { return it.image && !it.image.startsWith('blob:') && !it._pending; })
       .map(function (it) { return { image: it.image, focal: it.focal || '50% 50%' }; });
     this.props.onChange(clean);
   },
@@ -283,42 +264,58 @@ var GalleryFocal = createClass({
     e.target.value = '';
     if (!files.length) return;
 
-    files.forEach(function (file) {
-      var blobUrl  = URL.createObjectURL(file);
-      var tempPath = '/uploads/projekte/' + file.name;
+    // Alle Dateien sofort als Platzhalter einfügen (Vorschau via Blob-URL)
+    var placeholders = files.map(function (file) {
+      return {
+        image: '/uploads/projekte/' + file.name,
+        focal: '50% 50%',
+        _url:  URL.createObjectURL(file),
+        _pending: true,
+        _file: file,
+      };
+    });
 
-      // Sofort als Platzhalter mit Blob-URL für Vorschau einfügen
-      self.setState(function (prev) {
-        return { items: prev.items.concat([{
-          image: tempPath, focal: '50% 50%', _url: blobUrl, _pending: true,
-        }]) };
-      });
+    self.setState(function (prev) {
+      return { items: prev.items.concat(placeholders), _uploadIdx: 0, _uploadTotal: files.length };
+    });
 
-      // Direkt via GitHub API hochladen
-      uploadFileToGitHub(file)
+    // Sequenzieller Upload — eine Datei nach der anderen
+    function uploadNext(idx) {
+      if (idx >= placeholders.length) {
+        self.setState({ _uploadIdx: null, _uploadTotal: null });
+        return;
+      }
+      var ph = placeholders[idx];
+      self.setState({ _uploadIdx: idx + 1 });
+
+      uploadFileToGitHub(ph._file)
         .then(function (realPath) {
           self.setState(function (prev) {
             var next = prev.items.map(function (it) {
-              if (it._pending && it.image === tempPath)
-                return { image: realPath, focal: it.focal, _url: blobUrl };
+              if (it._pending && it._file === ph._file)
+                return { image: realPath, focal: it.focal, _url: ph._url };
               return it;
             });
             self.emit(next);
             return { items: next };
           });
+          uploadNext(idx + 1);
         })
         .catch(function (err) {
           console.error('[gallery-focal] Upload fehlgeschlagen:', err);
+          // Fehlgeschlagenen Platzhalter entfernen
           self.setState(function (prev) {
             var next = prev.items.filter(function (it) {
-              return !(it._pending && it.image === tempPath);
+              return !(it._pending && it._file === ph._file);
             });
             self.emit(next);
             return { items: next };
           });
-          alert('Upload fehlgeschlagen: ' + err.message);
+          uploadNext(idx + 1);
         });
-    });
+    }
+
+    uploadNext(0);
   },
 
   handleFocal: function (idx, e) {
@@ -372,10 +369,30 @@ var GalleryFocal = createClass({
   },
 
   render: function () {
-    var self  = this;
-    var items = this.state.items;
+    var self        = this;
+    var items       = this.state.items;
+    var uploadIdx   = this.state._uploadIdx;
+    var uploadTotal = this.state._uploadTotal;
+    var isUploading = uploadIdx != null && uploadTotal != null;
 
     return h('div', { style: { fontFamily: 'sans-serif' } },
+
+      // ── Upload-Fortschritt ──
+      isUploading
+        ? h('div', {
+            style: {
+              marginBottom: '10px', padding: '8px 14px',
+              background: '#eff6ff', border: '1px solid #93c5fd',
+              borderRadius: '6px', fontSize: '0.82rem', color: '#1d4ed8',
+              display: 'flex', alignItems: 'center', gap: '8px',
+            }
+          },
+          h('span', null, '⏳'),
+          h('span', null, 'Wird hochgeladen … ' + uploadIdx + ' / ' + uploadTotal),
+          h('span', { style: { color: '#60a5fa', fontSize: '0.75rem' } },
+            '(Bitte noch nicht speichern)')
+        )
+        : null,
 
       // ── Hinzufügen-Button ──
       h('button', {

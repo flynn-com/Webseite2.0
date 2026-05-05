@@ -5,6 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
     <title>Content-Manager &ndash; Flynn Bertsch</title>
+    <!-- GitHub-Token-Interceptor — muss VOR dem Decap-Script stehen -->
+    <script>
+      (function () {
+        var _orig = window.fetch;
+        window.fetch = function (url, opts) {
+          try {
+            var urlStr = typeof url === 'string' ? url
+                       : (url && typeof url.url === 'string' ? url.url : '');
+            if (!window._ghToken && urlStr.indexOf('api.github.com') !== -1) {
+              var hdrs = (opts && opts.headers) || {};
+              var auth = typeof hdrs.get === 'function'
+                ? (hdrs.get('Authorization') || hdrs.get('authorization') || '')
+                : (hdrs['Authorization'] || hdrs['authorization'] || '');
+              if (!auth && url && url.headers) {
+                var rh = url.headers;
+                auth = typeof rh.get === 'function'
+                  ? (rh.get('Authorization') || rh.get('authorization') || '')
+                  : (rh['Authorization'] || rh['authorization'] || '');
+              }
+              if (auth.indexOf('token ') === 0)  window._ghToken = auth.slice(6);
+              else if (auth.indexOf('Bearer ') === 0) window._ghToken = auth.slice(7);
+            }
+          } catch (_) {}
+          return _orig.apply(this, arguments);
+        };
+      })();
+    </script>
   </head>
   <body>
     <!-- Decap CMS 3.x -->
