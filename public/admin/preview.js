@@ -132,6 +132,69 @@ var FocalPicker = createClass({
 CMS.registerWidget('focal-picker', FocalPicker);
 
 
+// ─────────────────────────────────────────────────
+// GitHub-Token — liest aus localStorage (dort speichert Decap nach Login)
+// ─────────────────────────────────────────────────
+function getGHToken() {
+  try {
+    var keys = ['decap-cms-user', 'netlify-cms-user'];
+    for (var i = 0; i < keys.length; i++) {
+      var raw = localStorage.getItem(keys[i]);
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data && data.token) return data.token;
+      }
+    }
+  } catch (_) {}
+  return null;
+}
+
+// ─────────────────────────────────────────────────
+// Direkt-Upload via GitHub Contents API
+// ─────────────────────────────────────────────────
+function uploadToGitHub(file, slug) {
+  return new Promise(function (resolve, reject) {
+    var token = getGHToken();
+    if (!token) { reject(new Error('Nicht eingeloggt — bitte Seite neu laden und erneut anmelden.')); return; }
+
+    var folder     = slug ? ('projekte/' + slug) : 'projekte';
+    var repoPath   = 'public/uploads/' + folder + '/' + file.name;
+    var publicPath = '/uploads/' + folder + '/' + file.name;
+    var apiUrl     = 'https://api.github.com/repos/flynn-com/Webseite2.0/contents/' + repoPath;
+    var authHdr    = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github+json' };
+
+    var reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload  = function () {
+      var b64 = reader.result.replace(/^data:[^;]+;base64,/, '');
+
+      function getSha() {
+        return fetch(apiUrl + '?t=' + Date.now(), { headers: authHdr })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) { return d && d.sha ? d.sha : null; });
+      }
+
+      function put(sha, attempt) {
+        var body = { message: 'upload: ' + file.name, content: b64, branch: 'main' };
+        if (sha) body.sha = sha;
+        fetch(apiUrl, {
+          method: 'PUT',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, authHdr),
+          body: JSON.stringify(body),
+        }).then(function (r) {
+          if (r.status === 409 && attempt < 4) return getSha().then(function (s) { put(s, attempt + 1); });
+          if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub ' + r.status + ': ' + t); });
+          resolve(publicPath);
+        }).catch(reject);
+      }
+
+      getSha().then(function (sha) { put(sha, 0); }).catch(reject);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+
 // ═══════════════════════════════════════════════════
 // GALLERY-FOCAL — Galerie mit Mehrfachauswahl
 // Upload via Decaps eingebautem Medien-Dialog.
@@ -193,50 +256,42 @@ var GalleryFocal = createClass({
     e.target.value = '';
     if (!files.length) return;
 
-    files.forEach(function (file) {
-      var blobUrl  = URL.createObjectURL(file);
-      var uid      = '__pending__' + Date.now() + Math.random();
+    // Slug des aktuellen Projekts → bestimmt den Unterordner
+    var slug = fromEntry(this.props.entry, ['data', 'slug']) || '';
 
-      // Sofort Vorschau einfügen
-      self.setState(function (prev) {
-        return { items: prev.items.concat([{ image: uid, focal: '50% 50%', _url: blobUrl, _pending: true }]) };
-      });
-
-      // Decaps persistMedia — lädt sofort auf GitHub hoch (gleicher Weg wie das Image-Widget)
-      if (typeof self.props.persistMedia !== 'function') {
-        alert('persistMedia nicht verfügbar — bitte Seite neu laden.');
-        return;
-      }
-
-      self.props.persistMedia(file).then(function (asset) {
-        // Pfad aus dem Asset-Objekt lesen (Decap 3.x gibt verschiedene Shapes zurück)
-        var path = null;
-        if (asset) {
-          if (typeof asset.get === 'function')
-            path = asset.get('public_path') || asset.get('path');
-          else
-            path = asset.public_path || asset.path || null;
-        }
-        if (!path) { throw new Error('Kein Pfad im Asset zurückgegeben'); }
-
-        self.setState(function (prev) {
-          var next = prev.items.map(function (it) {
-            if (it._pending && it.image === uid)
-              return { image: path, focal: it.focal, _url: blobUrl };
-            return it;
-          });
-          self.emit(next);
-          return { items: next };
-        });
-      }).catch(function (err) {
-        console.error('[gallery-focal] Upload fehlgeschlagen:', err);
-        self.setState(function (prev) {
-          var next = prev.items.filter(function (it) { return !(it._pending && it.image === uid); });
-          return { items: next };
-        });
-        alert('Upload fehlgeschlagen: ' + err.message);
-      });
+    // Platzhalter sofort einfügen
+    var placeholders = files.map(function (f) {
+      return { image: '__pending__' + Date.now() + Math.random(), focal: '50% 50%', _url: URL.createObjectURL(f), _pending: true, _file: f };
     });
+    self.setState(function (prev) { return { items: prev.items.concat(placeholders) }; });
+
+    // Sequenzieller Upload — eine Datei nach der anderen
+    function next(i) {
+      if (i >= placeholders.length) return;
+      var ph = placeholders[i];
+      uploadToGitHub(ph._file, slug)
+        .then(function (realPath) {
+          self.setState(function (prev) {
+            var items = prev.items.map(function (it) {
+              return (it._pending && it.image === ph.image)
+                ? { image: realPath, focal: it.focal, _url: ph._url }
+                : it;
+            });
+            self.emit(items);
+            return { items: items };
+          });
+          next(i + 1);
+        })
+        .catch(function (err) {
+          console.error('[gallery-focal] Upload fehlgeschlagen:', err);
+          self.setState(function (prev) {
+            return { items: prev.items.filter(function (it) { return !(it._pending && it.image === ph.image); }) };
+          });
+          alert('Upload fehlgeschlagen:\n' + err.message);
+          next(i + 1);
+        });
+    }
+    next(0);
   },
 
   handleFocal: function (idx, e) {
