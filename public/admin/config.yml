@@ -11,9 +11,9 @@ backend:
 
 publish_mode: simple
 
-# Medien global — Unterordner pro Projekt via {{slug}}
-media_folder: "public/uploads/projekte/{{slug}}"
-public_folder: "/uploads/projekte/{{slug}}"
+# Medien global — alle Projekt-Uploads in einem Ordner
+media_folder: "public/uploads/projekte"
+public_folder: "/uploads/projekte"
 
 # Anzeige im CMS
 site_url: "https://flynnbertsch.com"
@@ -202,9 +202,8 @@ collections:
     create: true
     slug: "{{slug}}"
     preview_path: "projekte/{{slug}}"
-    # Medienordner pro Projekt: public/uploads/projekte/<slug>/
-    media_folder: "/public/uploads/projekte/{{slug}}"
-    public_folder: "/uploads/projekte/{{slug}}"
+    media_folder: "/public/uploads/projekte"
+    public_folder: "/uploads/projekte"
     editor:
       preview: true
     fields:
@@ -271,8 +270,8 @@ collections:
     create: true
     slug: "{{slug}}"
     preview_path: "en/projects/{{slug}}"
-    media_folder: "/public/uploads/projekte/{{slug}}"
-    public_folder: "/uploads/projekte/{{slug}}"
+    media_folder: "/public/uploads/projekte"
+    public_folder: "/uploads/projekte"
     editor:
       preview: true
     fields:

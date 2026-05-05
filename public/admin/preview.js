@@ -237,7 +237,6 @@ var GalleryFocal = createClass({
         controlID: this._ctrlID,
         forImage: true,
         allowMultiple: true,
-        field: this.props.field,
       });
     } else {
       // Fallback when openMediaLibrary is unavailable
