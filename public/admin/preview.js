@@ -151,36 +151,6 @@ var GalleryFocal = createClass({
 
   componentWillUnmount: function () { clearInterval(this._poll); },
 
-  // Wenn der Medien-Dialog ein oder mehrere Bilder zurückgibt
-  componentDidUpdate: function (prevProps) {
-    var id = this.props.forID;
-    if (!id) return;
-    var cur  = this.getMediaPaths(this.props.mediaPaths, id);
-    var prev = this.getMediaPaths(prevProps.mediaPaths, id);
-    if (!cur || cur === prev) return;
-
-    var paths = Array.isArray(cur) ? cur
-              : (typeof cur.toJS === 'function') ? [].concat(cur.toJS())
-              : [cur];
-
-    var self     = this;
-    var existing = this.state.items.map(function (it) { return it.image; });
-    var added    = paths.filter(function (p) {
-      return p && typeof p === 'string' && existing.indexOf(p) === -1;
-    }).map(function (p) { return { image: p, focal: '50% 50%', _url: null }; });
-
-    if (!added.length) return;
-    this.setState(function (prev) {
-      var next = prev.items.concat(added);
-      self.emit(next);
-      return { items: next };
-    }, function () { self.resolveImages(); });
-  },
-
-  getMediaPaths: function (mediaPaths, id) {
-    if (!mediaPaths) return null;
-    return typeof mediaPaths.get === 'function' ? mediaPaths.get(id) : mediaPaths[id];
-  },
 
   parseValue: function (value) {
     if (!value) return [];
@@ -214,13 +184,59 @@ var GalleryFocal = createClass({
   },
 
   handleAdd: function () {
-    if (typeof this.props.openMediaLibrary === 'function') {
-      this.props.openMediaLibrary({
-        controlID: this.props.forID,
-        forImage: true,
-        allowMultiple: true,
+    this._fi && this._fi.click();
+  },
+
+  handleFileInput: function (e) {
+    var self  = this;
+    var files = Array.from(e.target.files);
+    e.target.value = '';
+    if (!files.length) return;
+
+    files.forEach(function (file) {
+      var blobUrl  = URL.createObjectURL(file);
+      var uid      = '__pending__' + Date.now() + Math.random();
+
+      // Sofort Vorschau einfügen
+      self.setState(function (prev) {
+        return { items: prev.items.concat([{ image: uid, focal: '50% 50%', _url: blobUrl, _pending: true }]) };
       });
-    }
+
+      // Decaps persistMedia — lädt sofort auf GitHub hoch (gleicher Weg wie das Image-Widget)
+      if (typeof self.props.persistMedia !== 'function') {
+        alert('persistMedia nicht verfügbar — bitte Seite neu laden.');
+        return;
+      }
+
+      self.props.persistMedia(file).then(function (asset) {
+        // Pfad aus dem Asset-Objekt lesen (Decap 3.x gibt verschiedene Shapes zurück)
+        var path = null;
+        if (asset) {
+          if (typeof asset.get === 'function')
+            path = asset.get('public_path') || asset.get('path');
+          else
+            path = asset.public_path || asset.path || null;
+        }
+        if (!path) { throw new Error('Kein Pfad im Asset zurückgegeben'); }
+
+        self.setState(function (prev) {
+          var next = prev.items.map(function (it) {
+            if (it._pending && it.image === uid)
+              return { image: path, focal: it.focal, _url: blobUrl };
+            return it;
+          });
+          self.emit(next);
+          return { items: next };
+        });
+      }).catch(function (err) {
+        console.error('[gallery-focal] Upload fehlgeschlagen:', err);
+        self.setState(function (prev) {
+          var next = prev.items.filter(function (it) { return !(it._pending && it.image === uid); });
+          return { items: next };
+        });
+        alert('Upload fehlgeschlagen: ' + err.message);
+      });
+    });
   },
 
   handleFocal: function (idx, e) {
@@ -278,7 +294,7 @@ var GalleryFocal = createClass({
 
     return h('div', { style: { fontFamily: 'sans-serif' } },
 
-      // ── Hinzufügen-Button ──
+      // ── Hinzufügen-Button + versteckter File-Input ──
       h('button', {
         type: 'button', onClick: this.handleAdd,
         style: {
@@ -289,6 +305,14 @@ var GalleryFocal = createClass({
           fontWeight: '600', letterSpacing: '0.02em',
         }
       }, '＋ Bilder hinzufügen'),
+
+      h('input', {
+        type: 'file', multiple: true,
+        accept: 'image/*,.avif,.webp',
+        style: { display: 'none' },
+        ref: function (el) { self._fi = el; },
+        onChange: this.handleFileInput,
+      }),
 
       // ── Bilder-Grid mit Drag-and-Drop ──
       items.length > 0
