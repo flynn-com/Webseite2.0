@@ -233,18 +233,9 @@ collections:
       - { name: "location", label: "Ort / Stadt", widget: "string", required: false, hint: "z.B. München, Stuttgart — erscheint im Glas-Panel" }
       - name: "gallery"
         label: "Weitere Bilder"
-        widget: "list"
+        widget: "gallery-focal"
         required: false
-        hint: "Bilder einzeln hinzufügen · Reihenfolge per Drag-and-Drop ändern"
-        fields:
-          - { name: "image", label: "Bild", widget: "image" }
-          - name: "focal"
-            label: "Fokuspunkt"
-            widget: "focal-picker"
-            required: false
-            default: "50% 50%"
-            image_field: "image"
-            hint: "Klicke auf das Bild um den Fokuspunkt zu setzen"
+        hint: "Bilder hinzufügen · Reihenfolge per Drag-and-Drop · Fokuspunkt per Klick"
       - name: "youtube"
         label: "YouTube-Links"
         widget: "list"
@@ -310,18 +301,9 @@ collections:
       - { name: "location", label: "Location / City", widget: "string", required: false, hint: "e.g. Munich, Stuttgart — shown in the glass panel" }
       - name: "gallery"
         label: "Additional images"
-        widget: "list"
+        widget: "gallery-focal"
         required: false
-        hint: "Add images one by one · drag to reorder"
-        fields:
-          - { name: "image", label: "Image", widget: "image" }
-          - name: "focal"
-            label: "Focal point"
-            widget: "focal-picker"
-            required: false
-            default: "50% 50%"
-            image_field: "image"
-            hint: "Click on the image to set the focal point"
+        hint: "Add images · drag to reorder · click to set focal point"
       - name: "youtube"
         label: "YouTube links"
         widget: "list"

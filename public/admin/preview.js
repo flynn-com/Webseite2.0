@@ -132,6 +132,271 @@ var FocalPicker = createClass({
 CMS.registerWidget('focal-picker', FocalPicker);
 
 
+// ═══════════════════════════════════════════════════
+// GALLERY-FOCAL — Galerie mit Mehrfachauswahl
+// Upload via Decaps eingebautem Medien-Dialog.
+// Speichert: [{image: "/uploads/...", focal: "45% 30%"}, …]
+// ═══════════════════════════════════════════════════
+var GalleryFocal = createClass({
+
+  getInitialState: function () {
+    return { items: this.parseValue(this.props.value), dragIdx: null, overIdx: null };
+  },
+
+  componentDidMount: function () {
+    var self = this;
+    this._poll = setInterval(function () { self.resolveImages(); }, 800);
+    this.resolveImages();
+  },
+
+  componentWillUnmount: function () { clearInterval(this._poll); },
+
+  // Wenn der Medien-Dialog ein oder mehrere Bilder zurückgibt
+  componentDidUpdate: function (prevProps) {
+    var id = this.props.forID;
+    if (!id) return;
+    var cur  = this.getMediaPaths(this.props.mediaPaths, id);
+    var prev = this.getMediaPaths(prevProps.mediaPaths, id);
+    if (!cur || cur === prev) return;
+
+    var paths = Array.isArray(cur) ? cur
+              : (typeof cur.toJS === 'function') ? [].concat(cur.toJS())
+              : [cur];
+
+    var self     = this;
+    var existing = this.state.items.map(function (it) { return it.image; });
+    var added    = paths.filter(function (p) {
+      return p && typeof p === 'string' && existing.indexOf(p) === -1;
+    }).map(function (p) { return { image: p, focal: '50% 50%', _url: null }; });
+
+    if (!added.length) return;
+    this.setState(function (prev) {
+      var next = prev.items.concat(added);
+      self.emit(next);
+      return { items: next };
+    }, function () { self.resolveImages(); });
+  },
+
+  getMediaPaths: function (mediaPaths, id) {
+    if (!mediaPaths) return null;
+    return typeof mediaPaths.get === 'function' ? mediaPaths.get(id) : mediaPaths[id];
+  },
+
+  parseValue: function (value) {
+    if (!value) return [];
+    var arr = (typeof value.toJS === 'function') ? value.toJS()
+            : Array.isArray(value) ? value : [];
+    return arr.map(function (item) {
+      if (typeof item === 'string') return { image: item, focal: '50% 50%', _url: null };
+      return { image: item.image || '', focal: item.focal || '50% 50%', _url: null };
+    });
+  },
+
+  resolveImages: function () {
+    var getAsset = this.props.getAsset;
+    var items    = this.state.items;
+    var changed  = false;
+    var next = items.map(function (item) {
+      if (item.image && !item._url) {
+        var url = resolveImg(getAsset, item.image);
+        if (url) { changed = true; return Object.assign({}, item, { _url: url }); }
+      }
+      return item;
+    });
+    if (changed) this.setState({ items: next });
+  },
+
+  emit: function (items) {
+    var clean = items
+      .filter(function (it) { return it.image && !it.image.startsWith('blob:'); })
+      .map(function (it) { return { image: it.image, focal: it.focal || '50% 50%' }; });
+    this.props.onChange(clean);
+  },
+
+  handleAdd: function () {
+    if (typeof this.props.openMediaLibrary === 'function') {
+      this.props.openMediaLibrary({
+        controlID: this.props.forID,
+        forImage: true,
+        allowMultiple: true,
+      });
+    }
+  },
+
+  handleFocal: function (idx, e) {
+    var rect  = e.currentTarget.getBoundingClientRect();
+    var x     = Math.round((e.clientX - rect.left) / rect.width  * 100);
+    var y     = Math.round((e.clientY - rect.top)  / rect.height * 100);
+    var items = this.state.items.map(function (it, i) {
+      return i === idx ? Object.assign({}, it, { focal: x + '% ' + y + '%' }) : it;
+    });
+    this.setState({ items: items });
+    this.emit(items);
+  },
+
+  handleRemove: function (idx) {
+    var items = this.state.items.filter(function (_, i) { return i !== idx; });
+    this.setState({ items: items });
+    this.emit(items);
+  },
+
+  handleDragStart: function (idx, e) {
+    this.setState({ dragIdx: idx, overIdx: null });
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(idx));
+  },
+
+  handleDragOver: function (idx, e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (this.state.overIdx !== idx) this.setState({ overIdx: idx });
+  },
+
+  handleDragLeave: function (idx) {
+    if (this.state.overIdx === idx) this.setState({ overIdx: null });
+  },
+
+  handleDrop: function (targetIdx, e) {
+    e.preventDefault();
+    var srcIdx = this.state.dragIdx;
+    this.setState({ dragIdx: null, overIdx: null });
+    if (srcIdx === null || srcIdx === targetIdx) return;
+    var items = this.state.items.slice();
+    var moved = items.splice(srcIdx, 1)[0];
+    items.splice(targetIdx, 0, moved);
+    this.setState({ items: items });
+    this.emit(items);
+  },
+
+  handleDragEnd: function () {
+    this.setState({ dragIdx: null, overIdx: null });
+  },
+
+  render: function () {
+    var self  = this;
+    var items = this.state.items;
+
+    return h('div', { style: { fontFamily: 'sans-serif' } },
+
+      // ── Hinzufügen-Button ──
+      h('button', {
+        type: 'button', onClick: this.handleAdd,
+        style: {
+          display: 'inline-flex', alignItems: 'center', gap: '6px',
+          padding: '8px 18px', marginBottom: '14px',
+          background: '#3b82f6', color: '#fff', border: 'none',
+          borderRadius: '6px', cursor: 'pointer', fontSize: '0.875rem',
+          fontWeight: '600', letterSpacing: '0.02em',
+        }
+      }, '＋ Bilder hinzufügen'),
+
+      // ── Bilder-Grid mit Drag-and-Drop ──
+      items.length > 0
+        ? h('div', {
+            style: {
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gap: '10px',
+            }
+          },
+          items.map(function (item, i) {
+            var pos        = parsePos(item.focal);
+            var isDragging = self.state.dragIdx === i;
+            var isOver     = self.state.overIdx === i && self.state.dragIdx !== i;
+
+            return h('div', {
+              key: i,
+              onDragOver:  function (e) { self.handleDragOver(i, e); },
+              onDragLeave: function ()  { self.handleDragLeave(i); },
+              onDrop:      function (e) { self.handleDrop(i, e); },
+              style: {
+                border: '2px solid ' + (isOver ? '#3b82f6' : '#ddd'),
+                borderRadius: '8px', overflow: 'hidden', background: '#f0f0f0',
+                boxShadow: isOver ? '0 0 0 3px rgba(59,130,246,0.25)' : '0 1px 4px rgba(0,0,0,0.08)',
+                opacity: isDragging ? 0.35 : 1,
+                transform: isOver ? 'scale(1.02)' : 'scale(1)',
+                transition: 'opacity 0.15s, border-color 0.1s, box-shadow 0.1s, transform 0.1s',
+              }
+            },
+              // ── Drag-Handle ──
+              h('div', {
+                draggable: true,
+                onDragStart: function (e) { self.handleDragStart(i, e); },
+                onDragEnd:   function ()  { self.handleDragEnd(); },
+                title: 'Ziehen um Reihenfolge zu ändern',
+                style: {
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  height: '26px', background: '#e2e8f0', cursor: isDragging ? 'grabbing' : 'grab',
+                  userSelect: 'none', borderBottom: '1px solid #ddd',
+                  fontSize: '15px', color: '#94a3b8', letterSpacing: '3px',
+                }
+              }, '⠿ ⠿'),
+
+              // ── Bild mit Fokuspunkt-Picker ──
+              h('div', {
+                onClick: function (e) { self.handleFocal(i, e); },
+                title: 'Klicken um Fokuspunkt zu setzen',
+                style: {
+                  position: 'relative', cursor: 'crosshair',
+                  width: '100%', height: '150px', overflow: 'hidden', background: '#d0d0d0',
+                }
+              },
+                item._url
+                  ? h('img', {
+                      src: item._url, draggable: false,
+                      style: {
+                        width: '100%', height: '100%',
+                        objectFit: 'cover', objectPosition: item.focal || '50% 50%',
+                        pointerEvents: 'none',
+                      }
+                    })
+                  : h('div', {
+                      style: {
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        height: '100%', color: '#aaa', fontSize: '0.75rem',
+                      }
+                    }, 'Lädt…'),
+                item._url ? h('div', { style: {
+                  position: 'absolute', left: pos.x + '%', top: pos.y + '%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '14px', height: '14px', borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.95)', border: '2px solid #111',
+                  boxShadow: '0 0 0 1px rgba(255,255,255,0.5), 0 1px 5px rgba(0,0,0,0.4)',
+                  pointerEvents: 'none',
+                }}) : null
+              ),
+
+              // ── Untere Leiste ──
+              h('div', {
+                style: {
+                  padding: '5px 8px', display: 'flex',
+                  justifyContent: 'space-between', alignItems: 'center',
+                  fontSize: '0.68rem', color: '#666',
+                  borderTop: '1px solid #e0e0e0', background: '#fafafa',
+                }
+              },
+                h('span', null, '📍 ' + (item.focal || '50% 50%')),
+                h('button', {
+                  type: 'button',
+                  onClick: function () { self.handleRemove(i); },
+                  style: {
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: '#ef4444', fontSize: '0.75rem', padding: '2px 4px', lineHeight: 1,
+                  }
+                }, '✕')
+              )
+            );
+          })
+        )
+        : h('p', { style: { color: '#bbb', fontSize: '0.85rem', margin: '0' } },
+            'Noch keine Bilder — klicke auf den Button.')
+    );
+  }
+});
+
+CMS.registerWidget('gallery-focal', GalleryFocal);
+
+
 // ─────────────────────────────────────────────────
 // GALERIE-HILFSFUNKTION für Projekt-Vorschau
 // ─────────────────────────────────────────────────
