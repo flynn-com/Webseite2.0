@@ -1002,6 +1002,33 @@ document.getElementById('btn-save-local').addEventListener('click', () => {
 // Publish to GitHub
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Preview ───────────────────────────────────────────────────────────────────
+
+document.getElementById('btn-preview').addEventListener('click', () => {
+  const state = readEditorState();
+  _editorState = state;
+
+  // Write full state + blob cache into sessionStorage for the preview page
+  const previewData = Object.assign({}, state);
+  // Resolve all image paths through blob cache so preview shows local uploads
+  if (previewData.cover) previewData.cover = resolveImg(previewData.cover);
+  if (previewData.gallery) {
+    previewData.gallery = previewData.gallery.map(g => ({
+      ...g, image: resolveImg(g.image)
+    }));
+  }
+
+  sessionStorage.setItem('admin_preview', JSON.stringify(previewData));
+  window.open('preview.html', '_blank');
+});
+
+// Listen for "publish" message coming back from preview window
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'admin_publish') {
+    publishProject();
+  }
+});
+
 document.getElementById('btn-publish').addEventListener('click', () => publishProject());
 
 async function publishProject() {
