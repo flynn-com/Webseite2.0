@@ -3,8 +3,8 @@ title: Arée
 slug: Arée
 category: fotografie
 order: 1
-cover: /uploads/projekte/arée/®flynn-arée-15.avif
-cover_focal: "50% 50%"
+cover: /uploads/projekte/Arée/cover.avif
+cover_focal: "50% 56%"
 description: Räume aus ungesehenen Blickwinkeln
 location: München
 gallery:
@@ -21,9 +21,6 @@ gallery:
     image: /uploads/projekte/arée/®flynn-arée-35.avif
     focal: "52% 48%"
   -
-    image: /uploads/projekte/Arée/_flynn-ar_e-1.avif
-    focal: "50% 50%"
-  -
     image: /uploads/projekte/arée/®flynn-arée-20.avif
     focal: "50% 50%"
 youtube: []
@@ -32,6 +29,7 @@ videos_portrait: []
 tags:
   - Innenarchitektur
 ---
+
 
 
 Die neu gestaltete Immobilie, welche von dem Architekturbüros Arée eingerichtet wurde, wurde in einer Fotoreihe abgebildet. Dabei lag der Fokus darauf, das Raumkonzept und die Einrichtung durch gezielte Perspektiven in Szene zu setzen.
