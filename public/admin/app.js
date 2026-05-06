@@ -1104,15 +1104,29 @@ document.getElementById('btn-delete-project').addEventListener('click', () => {
   const p = _projects.find(p => p.slug === _currentProject);
   if (!p) return;
   document.getElementById('delete-modal-text').textContent =
-    `Projekt "${p.title}" (${p.slug}.md) von GitHub löschen? Mediendateien bleiben erhalten.`;
+    `Projekt "${p.title}" wirklich löschen? Die Markdown-Datei UND alle Mediendateien (Bilder/Videos) werden dauerhaft von GitHub entfernt.`;
   document.getElementById('delete-modal').classList.add('open');
   _deleteCallback = async () => {
+    const log = (msg) => toast(msg, 'info');
+
+    // 1. Mediendateien löschen
+    const mediaFolder = `public/uploads/projekte/${p.slug}`;
+    const mediaFiles  = await ghGetTree(mediaFolder);
+    for (const f of mediaFiles) {
+      if (f.type === 'file') {
+        const r = await ghDeleteFile(f.path, `delete media: ${f.name}`);
+        if (!r.ok) { toast(`Fehler beim Löschen von ${f.name}`, 'error'); }
+      }
+    }
+
+    // 2. Markdown-Datei löschen
     const mdPath = `src/content/projects/de/${p.slug}.md`;
     const r = await ghDeleteFile(mdPath, `delete: ${p.slug}`);
     if (!r.ok) { toast('Löschen fehlgeschlagen: ' + r.data.error, 'error'); return; }
+
     delete _localDrafts[p.slug];
     localStorage.removeItem(`draft_${p.slug}`);
-    toast('Projekt gelöscht', 'success');
+    toast(`"${p.title}" vollständig gelöscht`, 'success');
     showView('projects');
     loadProjects();
   };
@@ -1120,7 +1134,12 @@ document.getElementById('btn-delete-project').addEventListener('click', () => {
 
 document.getElementById('btn-delete-confirm').addEventListener('click', async () => {
   document.getElementById('delete-modal').classList.remove('open');
-  if (_deleteCallback) { await _deleteCallback(); _deleteCallback = null; }
+  if (_deleteCallback) {
+    showLoading('Projekt wird gelöscht…');
+    await _deleteCallback();
+    hideLoading();
+    _deleteCallback = null;
+  }
 });
 document.getElementById('btn-delete-cancel').addEventListener('click', () => {
   document.getElementById('delete-modal').classList.remove('open');
