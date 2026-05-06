@@ -47,9 +47,10 @@ while (imgCursor < galleryImages.length) {
 const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 
 const hasBody = !!entry.body?.trim();
-// Body text goes into the first port3 row's left slot if one exists, otherwise falls back above the gallery
-const bodyGoesInGallery = hasBody && galleryRows.some(r => r.type === 'port3');
-let bodyPlaced = false;
+const hasDesc = !!entry.data.description?.trim();
+// Kurzbeschreibung goes into the first port3 row's left slot if one exists
+const descGoesInGallery = hasDesc && galleryRows.some(r => r.type === 'port3');
+let descPlaced = false;
 ---
 
 <BaseLayout lang={lang} title={`${entry.data.title} – Flynn Bertsch`} description={entry.data.description}>
@@ -71,12 +72,11 @@ let bodyPlaced = false;
     </div>
   </div>
 
-  {/* Fließtext oben nur als Fallback (kein port3-Slot vorhanden) oder wenn es nur eine Beschreibung gibt */}
-  {bodyGoesInGallery ? null : hasBody ? (
-    <div class="pd2-prose"><Content /></div>
-  ) : entry.data.description ? (
+  {/* Fließtext immer oben; Kurzbeschreibung nur als Fallback wenn kein port3-Slot */}
+  {hasBody && <div class="pd2-prose"><Content /></div>}
+  {!descGoesInGallery && !hasBody && hasDesc && (
     <div class="pd2-prose"><p>{entry.data.description}</p></div>
-  ) : null}
+  )}
 
   {entry.data.cover && (
     <div class="pd2-hero">
@@ -91,14 +91,14 @@ let bodyPlaced = false;
   {galleryRows.length > 0 && (
     <div class="pd2-gallery">
       {galleryRows.map((row) => {
-        const injectText = row.type === 'port3' && bodyGoesInGallery && !bodyPlaced;
-        if (injectText) bodyPlaced = true;
+        const injectText = row.type === 'port3' && descGoesInGallery && !descPlaced;
+        if (injectText) descPlaced = true;
         return (
           <div class={`pd2-row pd2-row--${row.type}`}>
             {injectText ? (
               <>
                 <div class="pd2-text-slot">
-                  <Content />
+                  <p>{entry.data.description}</p>
                 </div>
                 {row.images.slice(1).map((item) => (
                   <button class="pd2-img" data-src={withBase(item.image)} type="button">
