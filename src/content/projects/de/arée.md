@@ -9,23 +9,26 @@ description: Räume aus ungesehenen Blickwinkeln
 location: München
 gallery:
   -
-    image: /uploads/projekte/arée/_flynn-ar_e-8.avif
-    focal: "50% 50%"
+    image: /uploads/projekte/arée/_flynn-ar_e-38.avif
+    focal: "50% 40%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-28.avif
     focal: "50% 50%"
   -
-    image: /uploads/projekte/arée/_flynn-ar_e-35.avif
+    image: /uploads/projekte/arée/_flynn-ar_e-25.avif
     focal: "50% 50%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-10.avif
     focal: "50% 50%"
   -
-    image: /uploads/projekte/arée/_flynn-ar_e-20.avif
+    image: /uploads/projekte/arée/_flynn-ar_e-57.avif
     focal: "50% 50%"
   -
-    image: /uploads/projekte/arée/_flynn-ar_e-38.avif
-    focal: "50% 40%"
+    image: /uploads/projekte/arée/_flynn-ar_e-35.avif
+    focal: "50% 50%"
+  -
+    image: /uploads/projekte/arée/_flynn-ar_e-20.avif
+    focal: "50% 50%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-19.avif
     focal: "50% 50%"
@@ -34,9 +37,6 @@ gallery:
     focal: "50% 50%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-49.avif
-    focal: "50% 50%"
-  -
-    image: /uploads/projekte/arée/_flynn-ar_e-57.avif
     focal: "50% 50%"
 youtube: []
 videos: []
