@@ -207,6 +207,8 @@ function unquote(s) {
   if (s === 'true')  return true;
   if (s === 'false') return false;
   if (s === 'null' || s === '~') return null;
+  if (s === '[]' || s === '[ ]') return []; // inline empty YAML array
+  if (s === '{}' || s === '{ }') return {}; // inline empty YAML object
   if (!isNaN(s) && s !== '') return Number(s);
   return s;
 }
@@ -458,12 +460,12 @@ function openEditor(slug, localOnly = false) {
     const p = _projects.find(p => p.slug === slug);
     state = p ? JSON.parse(JSON.stringify(p)) : { slug, title: '', order: 99, category: 'fotografie', gallery: [], youtube: [], videos: [], videos_portrait: [], tags: [], draft: false, visible: false, featured: false, _body: '' };
   }
-  // Ensure required arrays exist (safeguard against malformed frontmatter)
-  state.gallery          = state.gallery          || [];
-  state.youtube          = state.youtube          || [];
-  state.videos           = state.videos           || [];
-  state.videos_portrait  = state.videos_portrait  || [];
-  state.tags             = state.tags             || [];
+  // Ensure required arrays exist (safeguard against malformed/inline-[] frontmatter)
+  state.gallery          = Array.isArray(state.gallery)          ? state.gallery          : [];
+  state.youtube          = Array.isArray(state.youtube)          ? state.youtube          : [];
+  state.videos           = Array.isArray(state.videos)           ? state.videos           : [];
+  state.videos_portrait  = Array.isArray(state.videos_portrait)  ? state.videos_portrait  : [];
+  state.tags             = Array.isArray(state.tags)             ? state.tags             : [];
   _editorState = state;
 
   try {
@@ -508,19 +510,19 @@ function populateEditor(s) {
   document.getElementById('cover-focal-display').textContent = s.cover_focal || 'center';
 
   // Gallery
-  renderGallery(s.gallery || []);
+  renderGallery(Array.isArray(s.gallery) ? s.gallery : []);
 
   // Videos
-  renderVideoList('video-list-landscape', s.videos || []);
-  renderVideoList('video-list-portrait',  s.videos_portrait || []);
-  renderYoutubeList(s.youtube || []);
+  renderVideoList('video-list-landscape', Array.isArray(s.videos)          ? s.videos          : []);
+  renderVideoList('video-list-portrait',  Array.isArray(s.videos_portrait) ? s.videos_portrait : []);
+  renderYoutubeList(Array.isArray(s.youtube) ? s.youtube : []);
 
   // Texte
   document.getElementById('ed-location').value    = s.location || '';
   document.getElementById('ed-date').value        = s.date ? (typeof s.date === 'string' ? s.date.slice(0,10) : '') : '';
   document.getElementById('ed-description').value = s.description || '';
   document.getElementById('ed-body').value        = s._body || '';
-  renderTags(s.tags || []);
+  renderTags(Array.isArray(s.tags) ? s.tags : []);
 
   // Sichtbarkeit
   document.getElementById('ed-visible').checked  = !!s.visible;
