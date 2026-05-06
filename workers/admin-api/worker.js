@@ -67,6 +67,11 @@ export default {
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Encode each path segment so non-ASCII chars (é, ®, etc.) work with GitHub API
+function ghPath(path) {
+  return path.split('/').map(encodeURIComponent).join('/');
+}
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -234,7 +239,7 @@ function ghHeaders(env) {
 
 async function ghGetCurrentSha(path, env) {
   const res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/${path}?ref=${BRANCH}&t=${Date.now()}`,
+    `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}?ref=${BRANCH}&t=${Date.now()}`,
     { headers: ghHeaders(env) }
   );
   if (!res.ok) return null;
@@ -248,7 +253,7 @@ async function ghGetFile(request, env) {
   if (!path) return json({ error: 'path erforderlich' }, 400);
 
   const res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/${path}?ref=${BRANCH}&t=${Date.now()}`,
+    `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}?ref=${BRANCH}&t=${Date.now()}`,
     { headers: ghHeaders(env) }
   );
 
@@ -278,7 +283,7 @@ async function ghPutFile(request, env) {
   if (sha) body.sha = sha;
 
   let res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/${path}`,
+    `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}`,
     { method: 'PUT', headers: { ...ghHeaders(env), 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
   );
 
@@ -286,7 +291,7 @@ async function ghPutFile(request, env) {
   if (res.status === 409) {
     body.sha = await ghGetCurrentSha(path, env);
     res = await fetch(
-      `https://api.github.com/repos/${REPO}/contents/${path}`,
+      `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}`,
       { method: 'PUT', headers: { ...ghHeaders(env), 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
     );
   }
@@ -303,7 +308,7 @@ async function ghDeleteFile(request, env) {
   if (!sha) return json({ ok: true }); // File doesn't exist
 
   const res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/${path}`,
+    `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}`,
     {
       method:  'DELETE',
       headers: { ...ghHeaders(env), 'Content-Type': 'application/json' },
@@ -321,7 +326,7 @@ async function ghGetTree(request, env) {
   if (!path) return json({ error: 'path erforderlich' }, 400);
 
   const res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/${path}?ref=${BRANCH}&t=${Date.now()}`,
+    `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}?ref=${BRANCH}&t=${Date.now()}`,
     { headers: ghHeaders(env) }
   );
 
@@ -345,14 +350,14 @@ async function ghUpload(request, env) {
   if (sha) body.sha = sha;
 
   let res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/${path}`,
+    `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}`,
     { method: 'PUT', headers: { ...ghHeaders(env), 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
   );
 
   if (res.status === 409) {
     body.sha = await ghGetCurrentSha(path, env);
     res = await fetch(
-      `https://api.github.com/repos/${REPO}/contents/${path}`,
+      `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}`,
       { method: 'PUT', headers: { ...ghHeaders(env), 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
     );
   }
