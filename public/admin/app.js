@@ -635,6 +635,13 @@ function renderGallery(items) {
     };
     img.src = resolveImg(item.image); // set src AFTER onerror is wired up
 
+    // Focal point crosshair — always visible on the thumbnail
+    const crosshair = document.createElement('div');
+    crosshair.className = 'focal-crosshair gallery-focal-crosshair';
+    const fParts = (item.focal || '50% 50%').match(/([\d.]+)%\s*([\d.]+)%/);
+    crosshair.style.left = (fParts ? fParts[1] : '50') + '%';
+    crosshair.style.top  = (fParts ? fParts[2] : '50') + '%';
+
     const overlay = document.createElement('div');
     overlay.className = 'gallery-item-overlay';
     overlay.innerHTML = `
@@ -648,6 +655,7 @@ function renderGallery(items) {
       </div>`;
 
     div.appendChild(img);
+    div.appendChild(crosshair);
     div.appendChild(overlay);
     grid.appendChild(div);
 
@@ -686,6 +694,9 @@ function renderGallery(items) {
         openFocalModal(resolveImg(item.image), item.focal || '50% 50%', (x, y) => {
           gallery[idx].focal = `${x}% ${y}%`;
           _editorState.gallery = gallery;
+          // Update crosshair position in place without re-rendering
+          const crosshairEl = grid.querySelector(`.gallery-item[data-idx="${idx}"] .gallery-focal-crosshair`);
+          if (crosshairEl) { crosshairEl.style.left = x + '%'; crosshairEl.style.top = y + '%'; }
           markUnsaved();
         });
       }

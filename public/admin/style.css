@@ -625,6 +625,7 @@ body {
   display: none;
 }
 .cover-upload-zone.has-image .focal-crosshair { display: block; }
+.gallery-focal-crosshair { display: block; width: 14px; height: 14px; }
 
 .focal-label {
   font-size: .75rem;
