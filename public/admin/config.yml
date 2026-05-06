@@ -9,7 +9,7 @@ backend:
   base_url: https://portfolio-oauth.flynn-fdc.workers.dev
   auth_endpoint: /auth
 
-publish_mode: simple
+publish_mode: editorial_workflow
 
 # Medien global — alle Projekt-Uploads in einem Ordner
 media_folder: "public/uploads/projekte"
