@@ -6,7 +6,7 @@ import Hero from '../components/Hero.astro';
 import { t, pathForLang } from '../i18n/ui';
 
 const lang = 'de' as const;
-const allProjects = await getCollection('projects-de', ({ data }) => !data.draft);
+const allProjects = await getCollection('projects-de', ({ data }) => !data.draft && data.visible);
 const projectsToShow = allProjects
   .filter((p) => p.data.featured)
   .sort((a, b) => a.data.order - b.data.order)

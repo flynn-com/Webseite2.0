@@ -20,4 +20,5 @@ gallery:
     focal: 51% 40%
 featured: true
 draft: false
+visible: true
 ---

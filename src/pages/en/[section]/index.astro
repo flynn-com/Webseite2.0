@@ -10,7 +10,7 @@ export async function getStaticPaths() {
 }
 
 const lang = 'en' as const;
-const projects = (await getCollection('projects-en', ({ data }) => !data.draft))
+const projects = (await getCollection('projects-en', ({ data }) => !data.draft && data.visible))
   .sort((a, b) => a.data.order - b.data.order);
 
 const total = projects.length;
