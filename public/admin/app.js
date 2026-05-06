@@ -1089,8 +1089,19 @@ async function publishProject() {
   const state = readEditorState();
   _editorState = state;
 
-  if (!state.slug) { toast('Slug fehlt!', 'error'); return; }
+  if (!state.slug)  { toast('Slug fehlt!', 'error');  return; }
   if (!state.title) { toast('Titel fehlt!', 'error'); return; }
+  if (!state.cover) { toast('Bitte zuerst ein Titelbild hochladen!', 'error'); return; }
+
+  // Warn if project will be invisible on the public site
+  if (!state.visible && !state.draft) {
+    const proceed = confirm(
+      '⚠️ "Auf Webseite sichtbar" ist deaktiviert.\n\n' +
+      'Das Projekt wird auf GitHub gespeichert, erscheint aber NICHT auf der öffentlichen Website.\n\n' +
+      'Trotzdem veröffentlichen?'
+    );
+    if (!proceed) return;
+  }
 
   // Show publish modal
   const modal = document.getElementById('publish-modal');
@@ -1261,7 +1272,7 @@ document.getElementById('btn-modal-create').addEventListener('click', () => {
     title, slug, category: 'fotografie', order: 99,
     cover: '', cover_focal: 'center',
     gallery: [], youtube: [], videos: [], videos_portrait: [],
-    tags: [], featured: false, draft: false, visible: false, _body: '',
+    tags: [], featured: false, draft: false, visible: true, _body: '',
   };
   _currentProject = slug;
   populateEditor(_editorState);
