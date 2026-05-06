@@ -3,12 +3,19 @@
 
 var h = window.h;
 
+// Blob-Cache: merkt sich blob-URLs für neu hochgeladene Bilder
+// Schlüssel = /uploads/...-Pfad, Wert = blob:// URL
+// So kann die Vorschau Bilder sofort zeigen, bevor GitHub Pages neu gebaut hat
+var _blobCache = {};
+
 // ─────────────────────────────────────────────────
 // Hilfsfunktionen
 // ─────────────────────────────────────────────────
 function resolveImg(getAsset, src) {
   if (!src) return null;
   if (typeof src === 'string' && src.startsWith('/uploads/')) {
+    // Blob-Cache hat Vorrang (neu hochgeladene Bilder dieser Session)
+    if (_blobCache[src]) return _blobCache[src];
     return window.location.origin + src;
   }
   try {
@@ -248,6 +255,8 @@ var GalleryFocal = createClass({
       if (i >= phs.length) return;
       var ph = phs[i];
       ghUpload(ph._f, slug).then(function (path) {
+        // Blob-URL im Cache speichern → Vorschau zeigt Bild sofort
+        _blobCache[path] = ph._url;
         self.setState(function (prev) {
           var its = prev.items.map(function (it) {
             return it._pending && it.image === ph.image
@@ -436,8 +445,33 @@ var ProjectPreview = createClass({
     var rows = buildGalleryRows(galleryAll);
     var orderStr = String(order).padStart(2, '0');
 
+    // YouTube
+    var ytRaw = fromEntry(entry, ['data', 'youtube']);
+    var ytList = ytRaw
+      ? (typeof ytRaw.toJS === 'function' ? ytRaw.toJS() : Array.isArray(ytRaw) ? ytRaw : [])
+      : [];
+
+    // Eigene Videos (Querformat)
+    var vidsRaw = fromEntry(entry, ['data', 'videos']);
+    var vidsList = vidsRaw
+      ? (typeof vidsRaw.toJS === 'function' ? vidsRaw.toJS() : Array.isArray(vidsRaw) ? vidsRaw : [])
+      : [];
+
+    // Eigene Videos (Hochkant)
+    var vidsPortRaw = fromEntry(entry, ['data', 'videos_portrait']);
+    var vidsPortList = vidsPortRaw
+      ? (typeof vidsPortRaw.toJS === 'function' ? vidsPortRaw.toJS() : Array.isArray(vidsPortRaw) ? vidsPortRaw : [])
+      : [];
+
+    function ytId(url) {
+      try {
+        var m = String(url).match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+        return m ? m[1] : null;
+      } catch (_) { return null; }
+    }
+
     return h('div', { className: 'pd2-page' },
-      h('p', { className: 'preview-hint' }, '👁 Live-Vorschau — so sieht die fertige Projektseite aus.'),
+      h('p', { className: 'preview-hint' }, '👁 Live-Vorschau — so sieht die fertige Projektseite aus. Neue Bilder erscheinen sofort (auch vor Veröffentlichung).'),
       h('a', { className: 'pd2-nav', href: '#' },
         h('span', { className: 'pd2-nav__icon' }, '◄'),
         h('span', null, 'Projekte')
@@ -453,11 +487,15 @@ var ProjectPreview = createClass({
         )
       ),
       description ? h('div', { className: 'pd2-prose' }, h('p', null, description)) : null,
+
+      // Hero / Titelbild
       h('div', { className: 'pd2-hero' + (cover ? '' : ' pd2-hero--empty') },
         cover
           ? h('img', { src: cover, alt: title, style: { objectPosition: coverFocal } })
           : h('span', null, 'Kein Titelbild ausgewählt')
       ),
+
+      // Galerie-Bilder
       rows.length > 0
         ? h('div', { className: 'pd2-gallery' },
             rows.map(function (row, ri) {
@@ -471,6 +509,58 @@ var ProjectPreview = createClass({
                       : h('div', { className: 'preview-empty' }, '…')
                   );
                 })
+              );
+            })
+          )
+        : null,
+
+      // Lokale Videos Querformat
+      vidsList.length > 0
+        ? h('div', { className: 'pd2-gallery', style: { marginTop: '10px' } },
+            vidsList.map(function (v, i) {
+              var src = (v && v.file) ? resolveImg(getAsset, v.file) : (typeof v === 'string' ? resolveImg(getAsset, v) : null);
+              return h('div', { key: i, className: 'pd2-video' },
+                src
+                  ? h('video', { src: src, controls: true, playsInline: true,
+                      style: { width: '100%', borderRadius: '4px', background: '#000' } })
+                  : h('div', { className: 'preview-empty', style: { height: '120px' } }, '🎬 Video')
+              );
+            })
+          )
+        : null,
+
+      // Lokale Videos Hochkant
+      vidsPortList.length > 0
+        ? h('div', { className: 'pd2-row pd2-row--port3', style: { marginTop: '10px' } },
+            vidsPortList.map(function (v, i) {
+              var src = (v && v.file) ? resolveImg(getAsset, v.file) : (typeof v === 'string' ? resolveImg(getAsset, v) : null);
+              return h('div', { key: i, className: 'pd2-video pd2-video--portrait' },
+                src
+                  ? h('video', { src: src, controls: true, playsInline: true,
+                      style: { width: '100%', borderRadius: '4px', background: '#000' } })
+                  : h('div', { className: 'preview-empty', style: { height: '200px' } }, '🎬 Hochkant-Video')
+              );
+            })
+          )
+        : null,
+
+      // YouTube-Embeds
+      ytList.length > 0
+        ? h('div', { className: 'pd2-gallery', style: { marginTop: '10px' } },
+            ytList.map(function (item, i) {
+              var url = (item && item.url) ? item.url : (typeof item === 'string' ? item : null);
+              var id  = url ? ytId(url) : null;
+              return h('div', { key: i, className: 'pd2-video',
+                  style: { position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden' } },
+                id
+                  ? h('iframe', {
+                      src: 'https://www.youtube-nocookie.com/embed/' + id,
+                      style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' },
+                      allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+                      allowFullScreen: true
+                    })
+                  : h('div', { className: 'preview-empty', style: { height: '120px' } },
+                      '▶ YouTube: ' + (url || '—'))
               );
             })
           )

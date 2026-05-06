@@ -151,6 +151,21 @@ img, video { max-width: 100%; display: block; }
   display: block;
 }
 
+/* ── Video ── */
+.pd2-video {
+  width: 100%;
+  background: #000;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.pd2-video video {
+  width: 100%;
+  display: block;
+}
+.pd2-video--portrait {
+  aspect-ratio: 9 / 16;
+}
+
 /* ── Leer-Platzhalter ── */
 .preview-empty {
   width: 100%;
