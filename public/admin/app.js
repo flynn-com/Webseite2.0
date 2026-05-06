@@ -169,13 +169,20 @@ function parseFrontmatter(yaml, out) {
       while (i < lines.length && lines[i].match(/^  -/)) {
         const item = lines[i].replace(/^  -\s*/, '').trim();
         // Check if next lines are indented key:val (object in array)
-        if (lines[i + 1] && lines[i + 1].match(/^    \w/)) {
+        // Also treat the dash line itself as an object if it contains a colon
+        // e.g. "  - image: /path/img.avif" followed by "    focal: 50% 50%"
+        const hasInlineProp = item.includes(':');
+        if (hasInlineProp || (lines[i + 1] && lines[i + 1].match(/^    \w/))) {
           // Object item
           const obj = {};
-          // item may have inline value (ignored, first prop follows)
+          // Parse the inline property on the dash line, e.g. "image: /uploads/..."
+          if (item) {
+            const inlineKv = item.match(/^([\w_-]+):\s*(.*)/);
+            if (inlineKv) obj[inlineKv[1]] = unquote(inlineKv[2].trim());
+          }
           i++;
           while (i < lines.length && lines[i].match(/^    \w/)) {
-            const m = lines[i].match(/^    (\w+):\s*(.*)/);
+            const m = lines[i].match(/^    ([\w_-]+):\s*(.*)/);
             if (m) obj[m[1]] = unquote(m[2].trim());
             i++;
           }
@@ -451,9 +458,21 @@ function openEditor(slug, localOnly = false) {
     const p = _projects.find(p => p.slug === slug);
     state = p ? JSON.parse(JSON.stringify(p)) : { slug, title: '', order: 99, category: 'fotografie', gallery: [], youtube: [], videos: [], videos_portrait: [], tags: [], draft: false, visible: false, featured: false, _body: '' };
   }
+  // Ensure required arrays exist (safeguard against malformed frontmatter)
+  state.gallery          = state.gallery          || [];
+  state.youtube          = state.youtube          || [];
+  state.videos           = state.videos           || [];
+  state.videos_portrait  = state.videos_portrait  || [];
+  state.tags             = state.tags             || [];
   _editorState = state;
 
-  populateEditor(state);
+  try {
+    populateEditor(state);
+  } catch (err) {
+    console.error('populateEditor error:', err);
+    toast('Editor-Fehler: ' + err.message, 'error');
+    return;
+  }
   showView('editor');
   document.getElementById('btn-delete-project').style.display =
     _projects.find(p => p.slug === slug) ? '' : 'none';
