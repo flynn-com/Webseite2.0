@@ -258,6 +258,25 @@
 </div>
 
 <script>
+// ── Resolve image path → displayable URL ─────────────────────────────────────
+// For locally uploaded images (paths like /uploads/projekte/…) the admin page
+// stores data URLs in window.opener._blobCache and blob URLs in
+// window.opener._displayCache. We prefer displayCache (AVIF-safe blob URLs)
+// but fall back to blobCache (data URLs), then to the actual network path.
+function resolveImg(src) {
+  if (!src) return '';
+  if (src.startsWith('data:') || src.startsWith('blob:')) return src;
+  try {
+    if (window.opener && !window.opener.closed) {
+      const dc = window.opener._displayCache;
+      const bc = window.opener._blobCache;
+      if (dc && dc[src]) return dc[src];
+      if (bc && bc[src]) return bc[src];
+    }
+  } catch (e) { /* cross-origin — ignore */ }
+  return src;
+}
+
 // ── Read project data from sessionStorage ────────────────────────────────────
 const raw = sessionStorage.getItem('admin_preview');
 if (!raw) {
@@ -304,10 +323,10 @@ function renderPreview(p) {
     rowIndex++;
   }
 
-  // Collect all lightbox images (cover first, then gallery)
+  // Collect all lightbox images (cover first, then gallery) — resolve local uploads
   const allImgSrcs = [];
-  if (p.cover) allImgSrcs.push(p.cover);
-  gallery.forEach(g => allImgSrcs.push(g.image));
+  if (p.cover) allImgSrcs.push(resolveImg(p.cover));
+  gallery.forEach(g => allImgSrcs.push(resolveImg(g.image)));
 
   let html = `<div class="pd2-page">`;
 
@@ -337,7 +356,7 @@ function renderPreview(p) {
     const coverIdx = 0;
     html += `<div class="pd2-hero">
       <button class="pd2-img pd2-hero__btn" type="button" data-lightbox="${coverIdx}">
-        <img src="${esc(p.cover)}" alt="${esc(p.title || '')}" style="object-position:${esc(p.cover_focal || 'center')}">
+        <img src="${esc(resolveImg(p.cover))}" alt="${esc(p.title || '')}" style="object-position:${esc(p.cover_focal || 'center')}">
       </button>
     </div>`;
   }
@@ -348,9 +367,10 @@ function renderPreview(p) {
     galleryRows.forEach(row => {
       html += `<div class="pd2-row pd2-row--${row.type}">`;
       row.images.forEach(item => {
-        const lbIdx = allImgSrcs.indexOf(item.image);
+        const resolved = resolveImg(item.image);
+        const lbIdx = allImgSrcs.indexOf(resolved);
         html += `<button class="pd2-img" type="button" data-lightbox="${lbIdx}">
-          <img src="${esc(item.image)}" alt="" loading="lazy" style="object-position:${esc(item.focal || '50% 50%')}">
+          <img src="${esc(resolved)}" alt="" loading="lazy" style="object-position:${esc(item.focal || '50% 50%')}">
         </button>`;
       });
       html += `</div>`;

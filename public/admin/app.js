@@ -12,7 +12,8 @@ let _projects = [];          // loaded from GitHub
 let _currentProject = null;  // slug string or null (null = new project)
 let _editorState = {};       // live editor state
 let _localDrafts = {};       // slug → editorState saved locally
-let _blobCache = {};         // path → data-URL for new uploads (AVIF-safe)
+let _blobCache = {};         // path → data-URL  (for preview page access via window.opener)
+let _displayCache = {};      // path → blob-URL  (for in-page display; AVIF-safe)
 let _focalCallback = null;   // function(x, y) called when focal modal confirms
 let _deleteCallback = null;  // function() called when delete confirms
 
@@ -268,14 +269,17 @@ function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      // reader.result = "data:image/avif;base64,XXXX..."
-      const dataUrl = reader.result;
+      const dataUrl = reader.result; // "data:application/octet-stream;base64,..." or correct type
       const b64 = dataUrl.split(',')[1];
       const ext = file.name.split('.').pop().toLowerCase();
-      // Ensure correct MIME even if browser reports octet-stream
+      // Ensure correct MIME even if browser reports octet-stream (common for AVIF on Windows)
       const mime = (file.type && !file.type.includes('octet-stream'))
         ? file.type : (MIME_MAP[ext] || 'image/' + ext);
-      resolve({ b64, dataUrl: `data:${mime};base64,${b64}`, mime });
+      const correctedDataUrl = `data:${mime};base64,${b64}`;
+      // Blob URL for in-page display — treated like a network URL by the browser,
+      // works for AVIF even when data: URLs don't render in older Chrome/Windows.
+      const blobUrl = URL.createObjectURL(file);
+      resolve({ b64, dataUrl: correctedDataUrl, blobUrl, mime });
     };
     reader.onerror = reject;
     reader.readAsDataURL(file);
@@ -288,9 +292,12 @@ function fileToBase64(file) {
 
 function resolveImg(src) {
   if (!src) return '';
-  if (_blobCache[src]) return _blobCache[src];
+  if (_displayCache[src]) return _displayCache[src]; // blob URL — AVIF-safe, best for display
+  if (_blobCache[src])    return _blobCache[src];    // data URL fallback
   if (src.startsWith('data:') || src.startsWith('blob:')) return src;
-  return window.location.origin + src;
+  // Encode non-ASCII chars (e.g. ® in filenames) so the URL is valid
+  const encoded = src.replace(/[^\x00-\x7F]/g, ch => encodeURIComponent(ch));
+  return window.location.origin + encoded;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -793,13 +800,14 @@ document.getElementById('cover-zone').addEventListener('click', (e) => {
 document.getElementById('cover-file').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  const { b64, dataUrl } = await fileToBase64(file);
+  const { b64, dataUrl, blobUrl } = await fileToBase64(file);
   const slug = document.getElementById('ed-slug').value || 'neu';
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `public/uploads/projekte/${slug}/cover.${ext}`;
   const pub  = `/uploads/projekte/${slug}/cover.${ext}`;
 
-  _blobCache[pub] = dataUrl;
+  _blobCache[pub]    = dataUrl;  // data URL for preview page (window.opener._blobCache)
+  _displayCache[pub] = blobUrl;  // blob URL for in-page display (AVIF-safe)
   _editorState._pendingCover = { file, b64, path, pub };
 
   document.getElementById('ed-cover').value = pub;
@@ -807,7 +815,7 @@ document.getElementById('cover-file').addEventListener('change', async (e) => {
   document.getElementById('cover-focal-display').textContent = '50% 50%';
 
   const img = document.getElementById('cover-preview');
-  img.src = dataUrl;
+  img.src = blobUrl;
   img.style.display = '';
   const hint = document.querySelector('#cover-zone .upload-hint');
   if (hint) hint.style.display = 'none';
@@ -836,14 +844,15 @@ document.getElementById('btn-cover-reset').addEventListener('click', () => {
 
 async function handleGalleryFiles(files) {
   for (const file of files) {
-    const { b64, dataUrl } = await fileToBase64(file);
+    const { b64, dataUrl, blobUrl } = await fileToBase64(file);
     const slug = document.getElementById('ed-slug').value || 'neu';
     const ext  = file.name.split('.').pop().toLowerCase();
     const name = file.name.replace(/\.[^.]+$/, '').replace(/[^a-z0-9-_]/gi, '_').toLowerCase();
     const path = `public/uploads/projekte/${slug}/${name}.${ext}`;
     const pub  = `/uploads/projekte/${slug}/${name}.${ext}`;
 
-    _blobCache[pub] = dataUrl;
+    _blobCache[pub]    = dataUrl;  // data URL for preview page
+    _displayCache[pub] = blobUrl;  // blob URL for in-page display (AVIF-safe)
 
     if (!_editorState.gallery) _editorState.gallery = [];
     if (!_editorState._pendingMedia) _editorState._pendingMedia = [];
@@ -1026,17 +1035,23 @@ document.getElementById('btn-preview').addEventListener('click', () => {
   const state = readEditorState();
   _editorState = state;
 
-  // Write full state + blob cache into sessionStorage for the preview page
-  const previewData = Object.assign({}, state);
-  // Resolve all image paths through blob cache so preview shows local uploads
-  if (previewData.cover) previewData.cover = resolveImg(previewData.cover);
-  if (previewData.gallery) {
-    previewData.gallery = previewData.gallery.map(g => ({
-      ...g, image: resolveImg(g.image)
-    }));
+  // Store only serialisable metadata (no image data) in sessionStorage.
+  // The preview page resolves image paths via window.opener._blobCache (data URLs)
+  // and window.opener._displayCache — so we never hit the 5 MB quota limit.
+  const previewData = JSON.parse(JSON.stringify(state)); // strip non-serialisable refs
+  try {
+    sessionStorage.setItem('admin_preview', JSON.stringify(previewData));
+  } catch (err) {
+    // If sessionStorage is full, store only essential fields
+    const slim = {
+      title: state.title, slug: state.slug, order: state.order,
+      cover: state.cover, cover_focal: state.cover_focal,
+      gallery: state.gallery, description: state.description,
+      location: state.location, _body: state._body,
+      videos: state.videos, videos_portrait: state.videos_portrait, youtube: state.youtube,
+    };
+    sessionStorage.setItem('admin_preview', JSON.stringify(slim));
   }
-
-  sessionStorage.setItem('admin_preview', JSON.stringify(previewData));
   window.open('preview.html', '_blank');
 });
 
@@ -1343,16 +1358,17 @@ document.getElementById('about-photo-zone').addEventListener('click', (e) => {
 document.getElementById('about-photo-file').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  const { b64, dataUrl } = await fileToBase64(file);
+  const { b64, dataUrl, blobUrl } = await fileToBase64(file);
   const ext = file.name.split('.').pop().toLowerCase();
   const path = `public/uploads/about/foto.${ext}`;
   const pub  = `/uploads/about/foto.${ext}`;
-  _blobCache[pub] = dataUrl;
+  _blobCache[pub]    = dataUrl;  // data URL for preview page
+  _displayCache[pub] = blobUrl;  // blob URL for in-page display (AVIF-safe)
   document.getElementById('about-photo').value = pub;
   document.getElementById('about-photo-focal').value = '50% 50%';
   document.getElementById('about-focal-display').textContent = '50% 50%';
   const img = document.getElementById('about-photo-preview');
-  img.src = dataUrl;
+  img.src = blobUrl;
   img.style.display = '';
   document.getElementById('about-photo-zone').classList.add('has-image');
   updateFocalCrosshair('about-focal-crosshair', '50% 50%');
