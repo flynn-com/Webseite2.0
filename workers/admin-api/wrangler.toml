@@ -6,7 +6,7 @@ compatibility_date = "2024-01-01"
 # Nach `wrangler kv:namespace create ADMIN_KV` die zurückgegebene ID eintragen:
 [[kv_namespaces]]
 binding = "ADMIN_KV"
-id      = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+id      = "83cdf3882590411b87bb3529e89858b4"
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 # Der Worker läuft auf einer eigenen subdomain (workers.dev)
