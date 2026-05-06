@@ -171,6 +171,16 @@ function ghUpload(file, slug) {
     reader.onload = function () {
       var b64 = reader.result.replace(/^data:[^;]+;base64,/, '');
 
+      // Data-URL mit korrektem MIME-Typ sofort cachen → Vorschau funktioniert auch für
+      // AVIF-Dateien, bevor GitHub Pages neu gebaut hat (Blob-URLs haben oft falschen Typ).
+      var extMap = { avif: 'image/avif', webp: 'image/webp', jpg: 'image/jpeg',
+                     jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', svg: 'image/svg+xml' };
+      var ext  = file.name.split('.').pop().toLowerCase();
+      var mime = (file.type && !file.type.includes('octet-stream'))
+                 ? file.type
+                 : (extMap[ext] || 'image/' + ext);
+      _blobCache[pub] = 'data:' + mime + ';base64,' + b64;
+
       function sha() {
         return fetch(api + '?t=' + Date.now(), { headers: hdrs })
           .then(function (r) { return r.ok ? r.json() : null; })
@@ -220,7 +230,9 @@ var GalleryFocal = createClass({
     var items = this.state.items; var changed = false;
     var next = items.map(function (it) {
       if (it.image && !it._url) {
-        var u = it.image.startsWith('/uploads/') ? window.location.origin + it.image : null;
+        // Blob-Cache hat Vorrang (data:-URL mit korrektem MIME-Typ, auch für AVIF)
+        var u = _blobCache[it.image]
+             || (it.image.startsWith('/uploads/') ? window.location.origin + it.image : null);
         if (u) { changed = true; return Object.assign({}, it, { _url: u }); }
       }
       return it;
@@ -255,12 +267,14 @@ var GalleryFocal = createClass({
       if (i >= phs.length) return;
       var ph = phs[i];
       ghUpload(ph._f, slug).then(function (path) {
-        // Blob-URL im Cache speichern → Vorschau zeigt Bild sofort
-        _blobCache[path] = ph._url;
+        // _blobCache[path] wurde bereits in ghUpload.reader.onload befüllt (data:-URL mit
+        // korrektem MIME-Typ). Als _url nehmen wir die data:-URL damit auch AVIF korrekt
+        // in der Vorschau erscheint — selbst wenn der Blob-Typ vom OS falsch war.
+        var cachedUrl = _blobCache[path] || ph._url;
         self.setState(function (prev) {
           var its = prev.items.map(function (it) {
             return it._pending && it.image === ph.image
-              ? { image: path, focal: it.focal, _url: ph._url }
+              ? { image: path, focal: it.focal, _url: cachedUrl }
               : it;
           });
           self.emit(its);
