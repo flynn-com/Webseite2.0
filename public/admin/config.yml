@@ -205,7 +205,7 @@ collections:
     media_folder: "public/uploads/projekte/{{slug}}"
     public_folder: "/uploads/projekte/{{slug}}"
     editor:
-      preview: true
+      preview: false
 
     # ── SCHRITT 1: Grunddaten (zuerst ausfüllen & speichern!) ──────────────────
     fields:
@@ -313,7 +313,7 @@ collections:
     media_folder: "public/uploads/projekte/{{slug}}"
     public_folder: "/uploads/projekte/{{slug}}"
     editor:
-      preview: true
+      preview: false
 
     # ── STEP 1: Basic data (fill in & save first!) ────────────────────────────
     fields:
