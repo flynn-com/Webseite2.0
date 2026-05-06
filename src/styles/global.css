@@ -1092,6 +1092,22 @@ a:hover { text-decoration-thickness: 2px; }
   margin-inline: auto;
 }
 
+/* ── Fließtext im Galerie-Slot (linke Zelle einer port3-Reihe) ── */
+.pd2-text-slot {
+  display: flex;
+  align-items: center;       /* vertikal zentriert zwischen oberer und unterer Reihe */
+  aspect-ratio: 2 / 3;       /* gleiche Höhe wie die Hochformat-Bilder daneben */
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  line-height: 1.6;
+}
+.pd2-text-slot p { margin: 0; }
+.pd2-text-slot p + p { margin-top: 0.6rem; }
+
 /* ── Fließtext / Beschreibung (über dem Hero) ── */
 .pd2-prose {
   max-width: 44%;

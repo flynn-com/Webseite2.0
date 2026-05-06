@@ -45,6 +45,11 @@ while (imgCursor < galleryImages.length) {
 }
 
 const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
+
+const hasBody = !!entry.body?.trim();
+// Body text goes into the first port3 row's left slot if one exists, otherwise falls back above the gallery
+const bodyGoesInGallery = hasBody && galleryRows.some(r => r.type === 'port3');
+let bodyPlaced = false;
 ---
 
 <BaseLayout lang={lang} title={`${entry.data.title} – Flynn Bertsch`} description={entry.data.description}>
@@ -66,7 +71,8 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
     </div>
   </div>
 
-  {entry.body?.trim() ? (
+  {/* Fließtext oben nur als Fallback (kein port3-Slot vorhanden) oder wenn es nur eine Beschreibung gibt */}
+  {bodyGoesInGallery ? null : hasBody ? (
     <div class="pd2-prose"><Content /></div>
   ) : entry.data.description ? (
     <div class="pd2-prose"><p>{entry.data.description}</p></div>
@@ -84,16 +90,34 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 
   {galleryRows.length > 0 && (
     <div class="pd2-gallery">
-      {galleryRows.map((row) => (
-        <div class={`pd2-row pd2-row--${row.type}`}>
-          {row.images.map((item) => (
-            <button class="pd2-img" data-src={withBase(item.image)} type="button">
-              <img src={withBase(item.image)} alt="" loading="lazy"
-                style={`object-position:${item.focal ?? '50% 50%'}`} />
-            </button>
-          ))}
-        </div>
-      ))}
+      {galleryRows.map((row) => {
+        const injectText = row.type === 'port3' && bodyGoesInGallery && !bodyPlaced;
+        if (injectText) bodyPlaced = true;
+        return (
+          <div class={`pd2-row pd2-row--${row.type}`}>
+            {injectText ? (
+              <>
+                <div class="pd2-text-slot">
+                  <Content />
+                </div>
+                {row.images.slice(1).map((item) => (
+                  <button class="pd2-img" data-src={withBase(item.image)} type="button">
+                    <img src={withBase(item.image)} alt="" loading="lazy"
+                      style={`object-position:${item.focal ?? '50% 50%'}`} />
+                  </button>
+                ))}
+              </>
+            ) : (
+              row.images.map((item) => (
+                <button class="pd2-img" data-src={withBase(item.image)} type="button">
+                  <img src={withBase(item.image)} alt="" loading="lazy"
+                    style={`object-position:${item.focal ?? '50% 50%'}`} />
+                </button>
+              ))
+            )}
+          </div>
+        );
+      })}
     </div>
   )}
 
