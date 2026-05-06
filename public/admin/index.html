@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flynn Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- LOGIN VIEW                                                               -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div id="view-login" class="view active">
+  <div id="login-panel" class="login-box">
+    <h1>Admin Login</h1>
+    <p class="subtitle">Flynn Bertsch Portfolio</p>
+
+    <div id="login-error" class="msg msg-error"></div>
+
+    <div class="form-group">
+      <label for="login-user">Benutzername</label>
+      <input type="text" id="login-user" autocomplete="username" placeholder="Benutzername">
+    </div>
+    <div class="form-group">
+      <label for="login-pass">Passwort</label>
+      <input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••">
+    </div>
+
+    <button class="btn btn-primary btn-full btn-lg" id="btn-login" style="margin-top:8px;">
+      Einloggen
+    </button>
+
+    <div id="reset-hint" style="margin-top:16px;text-align:center;display:none;">
+      <button class="link-btn" id="btn-show-reset">Passwort vergessen?</button>
+    </div>
+  </div>
+
+  <!-- Reset Request Panel -->
+  <div id="reset-request-panel" class="login-box" style="display:none;">
+    <h1>Passwort zurücksetzen</h1>
+    <p class="subtitle">Wir senden dir einen Reset-Link per E-Mail.</p>
+
+    <div id="reset-request-msg" class="msg"></div>
+
+    <button class="btn btn-primary btn-full" id="btn-send-reset">Reset-Link senden</button>
+    <div style="margin-top:14px;text-align:center;">
+      <button class="link-btn" id="btn-back-login">Zurück zum Login</button>
+    </div>
+  </div>
+
+  <!-- Reset Confirm Panel -->
+  <div id="reset-confirm-panel" class="login-box" style="display:none;">
+    <h1>Neues Passwort</h1>
+    <p class="subtitle">Gib dein neues Passwort ein.</p>
+
+    <div id="reset-confirm-msg" class="msg"></div>
+
+    <div class="form-group">
+      <label for="reset-new-pass">Neues Passwort</label>
+      <input type="password" id="reset-new-pass" placeholder="Mindestens 8 Zeichen">
+    </div>
+    <div class="form-group">
+      <label for="reset-confirm-pass">Passwort bestätigen</label>
+      <input type="password" id="reset-confirm-pass" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary btn-full" id="btn-set-new-pass">Passwort speichern</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- APP SHELL (only shown when logged in)                                    -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div id="app-shell" style="display:none; width:100%;" class="app">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">Flynn Admin</div>
+    <div class="sidebar-nav">
+      <a href="#" data-view="projects" class="active">
+        <span class="icon">◻</span> Projekte
+      </a>
+      <a href="#" data-view="settings">
+        <span class="icon">⚙</span> Einstellungen
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <button id="btn-logout">Ausloggen</button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- ─── Projects List View ─────────────────────────────────────── -->
+    <div id="view-projects" class="view active">
+      <div class="view-header">
+        <h2 class="view-title">Projekte</h2>
+        <button class="btn btn-primary" id="btn-new-project">+ Neues Projekt</button>
+      </div>
+      <div id="projects-loading" style="color:var(--text3);font-size:.9rem;">Lade Projekte…</div>
+      <div id="project-grid" class="project-grid" style="display:none;"></div>
+      <div id="projects-empty" class="empty-state" style="display:none;">
+        <div class="icon">📂</div>
+        <p>Noch keine Projekte vorhanden.</p>
+        <button class="btn btn-primary" id="btn-new-project-2">Erstes Projekt anlegen</button>
+      </div>
+    </div>
+
+    <!-- ─── Project Editor View ────────────────────────────────────── -->
+    <div id="view-editor" class="view">
+      <div class="editor-topbar">
+        <button class="btn-back" id="btn-editor-back" title="Zurück zur Übersicht">◀</button>
+        <span class="editor-title-text" id="editor-project-title">Projekt bearbeiten</span>
+        <div class="editor-actions">
+          <span id="editor-status" style="font-size:.8rem;color:var(--text3);"></span>
+        </div>
+      </div>
+
+      <div class="accordion" id="editor-accordion">
+
+        <!-- ① Grunddaten -->
+        <div class="acc-item open" data-acc="grunddaten">
+          <div class="acc-header">
+            <div class="acc-num">1</div>
+            <span class="acc-header-label">Grunddaten</span>
+            <span class="acc-chevron">▾</span>
+          </div>
+          <div class="acc-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="ed-title">Projekttitel</label>
+                <input type="text" id="ed-title" placeholder="z. B. Nyhro">
+              </div>
+              <div class="form-group">
+                <label for="ed-slug">URL-Slug</label>
+                <input type="text" id="ed-slug" placeholder="z. B. nyhro">
+                <div class="hint">Nur Kleinbuchstaben, Zahlen, Bindestriche</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="ed-category">Kategorie</label>
+                <select id="ed-category">
+                  <option value="fotografie">Fotografie</option>
+                  <option value="video">Video</option>
+                  <option value="webdesign">Webdesign</option>
+                  <option value="design">Design</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="ed-order">Reihenfolge</label>
+                <input type="number" id="ed-order" value="99" min="1" max="999">
+                <div class="hint">Niedrige Zahl = weiter oben</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ② Titelbild -->
+        <div class="acc-item" data-acc="cover">
+          <div class="acc-header">
+            <div class="acc-num">2</div>
+            <span class="acc-header-label">Titelbild</span>
+            <span class="acc-chevron">▾</span>
+          </div>
+          <div class="acc-body">
+            <p style="font-size:.8rem;color:var(--text3);margin-bottom:12px;">
+              Klicke auf das Bild, um den Fokuspunkt festzulegen (wird als <code>cover_focal</code> gespeichert).
+            </p>
+            <div class="cover-upload-zone" id="cover-zone">
+              <div class="upload-hint">
+                <div style="font-size:1.8rem;margin-bottom:6px;">🖼</div>
+                Bild hier ablegen oder klicken<br>
+                <span style="font-size:.75rem;">(JPG, PNG, WEBP, AVIF …)</span>
+              </div>
+              <img id="cover-preview" src="" alt="" style="display:none;">
+              <div class="focal-crosshair" id="cover-focal-crosshair"></div>
+              <input type="file" id="cover-file" accept="image/*" style="display:none;">
+            </div>
+            <p class="focal-label">Fokuspunkt: <code id="cover-focal-display">center</code></p>
+            <input type="hidden" id="ed-cover" value="">
+            <input type="hidden" id="ed-cover-focal" value="center">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-secondary btn-sm" id="btn-cover-reset">Bild entfernen</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ③ Galerie -->
+        <div class="acc-item" data-acc="gallery">
+          <div class="acc-header">
+            <div class="acc-num">3</div>
+            <span class="acc-header-label">Galerie</span>
+            <span class="acc-chevron">▾</span>
+          </div>
+          <div class="acc-body">
+            <div class="gallery-grid" id="gallery-grid"></div>
+            <div class="gallery-drop-zone" id="gallery-drop-zone">
+              <div style="font-size:1.4rem;margin-bottom:6px;">+</div>
+              Bilder hierher ziehen oder klicken
+              <input type="file" id="gallery-file" accept="image/*" multiple style="display:none;">
+            </div>
+          </div>
+        </div>
+
+        <!-- ④ Videos -->
+        <div class="acc-item" data-acc="videos">
+          <div class="acc-header">
+            <div class="acc-num">4</div>
+            <span class="acc-header-label">Videos</span>
+            <span class="acc-chevron">▾</span>
+          </div>
+          <div class="acc-body">
+
+            <p style="font-size:.85rem;font-weight:600;margin-bottom:10px;">Querformat (16:9)</p>
+            <div class="video-list" id="video-list-landscape"></div>
+            <div class="gallery-drop-zone" id="video-drop-landscape" style="margin-bottom:24px;">
+              + Video (MP4) ablegen oder klicken
+              <input type="file" id="video-file-landscape" accept="video/mp4,video/*" multiple style="display:none;">
+            </div>
+
+            <p style="font-size:.85rem;font-weight:600;margin-bottom:10px;">Hochkant (9:16)</p>
+            <div class="video-list" id="video-list-portrait"></div>
+            <div class="gallery-drop-zone" id="video-drop-portrait" style="margin-bottom:24px;">
+              + Hochkant-Video (MP4) ablegen oder klicken
+              <input type="file" id="video-file-portrait" accept="video/mp4,video/*" multiple style="display:none;">
+            </div>
+
+            <p style="font-size:.85rem;font-weight:600;margin-bottom:10px;">YouTube-Links</p>
+            <div id="yt-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="yt-input" placeholder="https://www.youtube.com/watch?v=…" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:8px 12px;font-size:.875rem;">
+              <button class="btn btn-secondary" id="btn-yt-add">Hinzufügen</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑤ Texte -->
+        <div class="acc-item" data-acc="texte">
+          <div class="acc-header">
+            <div class="acc-num">5</div>
+            <span class="acc-header-label">Texte & Details</span>
+            <span class="acc-chevron">▾</span>
+          </div>
+          <div class="acc-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="ed-location">Ort / Stadt</label>
+                <input type="text" id="ed-location" placeholder="z. B. Berlin">
+              </div>
+              <div class="form-group">
+                <label for="ed-date">Datum</label>
+                <input type="date" id="ed-date">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="ed-description">Kurzbeschreibung</label>
+              <input type="text" id="ed-description" placeholder="Eine kurze Beschreibung des Projekts">
+            </div>
+            <div class="form-group">
+              <label for="ed-body">Fließtext (Markdown)</label>
+              <textarea id="ed-body" rows="8" placeholder="Beschreibungstext zum Projekt…"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Tags</label>
+              <div class="tag-list" id="tag-list"></div>
+              <div style="display:flex;gap:8px;">
+                <input type="text" id="tag-input" placeholder="Tag eingeben + Enter" style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:8px 12px;font-size:.875rem;flex:1;">
+                <button class="btn btn-secondary" id="btn-tag-add">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑥ Sichtbarkeit -->
+        <div class="acc-item" data-acc="visibility">
+          <div class="acc-header">
+            <div class="acc-num">6</div>
+            <span class="acc-header-label">Sichtbarkeit</span>
+            <span class="acc-chevron">▾</span>
+          </div>
+          <div class="acc-body">
+            <div class="toggle-row">
+              <div class="toggle-label">
+                <strong>Auf Webseite sichtbar</strong>
+                <span>Erscheint in Projektliste und Startseite</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="ed-visible">
+                <div class="toggle-track"></div>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-label">
+                <strong>Auf Startseite hervorgehoben</strong>
+                <span>Wird in der Featured-Sektion angezeigt</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="ed-featured">
+                <div class="toggle-track"></div>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-label">
+                <strong>Entwurf</strong>
+                <span>Wird nicht aufgebaut (auch Detail-URL nicht erreichbar)</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="ed-draft">
+                <div class="toggle-track"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end accordion -->
+
+      <!-- Sticky Action Bar -->
+      <div class="sticky-bar">
+        <span class="save-status" id="save-status"></span>
+        <button class="btn btn-secondary" id="btn-save-local">💾 Lokal speichern</button>
+        <button class="btn btn-danger btn-sm" id="btn-delete-project" style="margin-right:auto;display:none;">Löschen</button>
+        <button class="btn btn-primary" id="btn-publish">
+          <span id="publish-label">⬆ Auf GitHub veröffentlichen</span>
+          <span class="spinner" id="publish-spinner" style="display:none;"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── Settings View ──────────────────────────────────────────── -->
+    <div id="view-settings" class="view">
+      <div class="view-header">
+        <h2 class="view-title">Einstellungen</h2>
+      </div>
+
+      <div class="tabs" id="settings-tabs">
+        <button class="tab-btn active" data-tab="about">Über mich</button>
+        <button class="tab-btn" data-tab="contact">Kontakt</button>
+        <button class="tab-btn" data-tab="imprint">Impressum</button>
+        <button class="tab-btn" data-tab="privacy">Datenschutz</button>
+      </div>
+
+      <!-- Über mich -->
+      <div id="tab-about" class="tab-panel active">
+        <div class="form-group">
+          <label>Foto (Pfad auf GitHub, z. B. /uploads/about/foto.jpg)</label>
+          <input type="text" id="about-photo" placeholder="/uploads/about/foto.jpg">
+          <div class="hint">Oder Bild hochladen:</div>
+        </div>
+        <div class="cover-upload-zone" id="about-photo-zone" style="max-width:360px;aspect-ratio:3/4;">
+          <div class="upload-hint">🙋 Foto hier ablegen</div>
+          <img id="about-photo-preview" src="" alt="" style="display:none;">
+          <div class="focal-crosshair" id="about-focal-crosshair"></div>
+          <input type="file" id="about-photo-file" accept="image/*" style="display:none;">
+        </div>
+        <p class="focal-label" style="margin:8px 0 16px;">Fokuspunkt: <code id="about-focal-display">center</code></p>
+        <input type="hidden" id="about-photo-focal" value="center">
+        <div class="form-group">
+          <label for="about-subtitle">Untertitel / Tagline</label>
+          <input type="text" id="about-subtitle" placeholder="Fotograf · Videograf · Designer">
+        </div>
+        <div class="form-group">
+          <label>Skills (eine Zeile pro Skill)</label>
+          <textarea id="about-skills" rows="5" placeholder="Fotografie&#10;Videografie&#10;Webdesign&#10;Design"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="about-body">Über mich Text (Markdown)</label>
+          <textarea id="about-body" rows="10" placeholder="Erzähl etwas über dich…"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
+          <button class="btn btn-primary" id="btn-save-about">⬆ Speichern & Veröffentlichen</button>
+          <span id="about-status" style="font-size:.8rem;color:var(--text3);"></span>
+        </div>
+      </div>
+
+      <!-- Kontakt -->
+      <div id="tab-contact" class="tab-panel">
+        <div class="form-group">
+          <label for="contact-subtitle">Untertitel</label>
+          <input type="text" id="contact-subtitle" placeholder="Lass uns zusammenarbeiten">
+        </div>
+        <div class="form-group">
+          <label for="contact-email">E-Mail-Adresse</label>
+          <input type="email" id="contact-email" placeholder="hallo@flynnbertsch.com">
+        </div>
+        <div class="form-group">
+          <label>Links (Instagram, LinkedIn etc.)</label>
+          <div id="contact-links-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+          <button class="btn btn-secondary btn-sm" id="btn-add-link">+ Link hinzufügen</button>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:16px;">
+          <button class="btn btn-primary" id="btn-save-contact">⬆ Speichern & Veröffentlichen</button>
+          <span id="contact-status" style="font-size:.8rem;color:var(--text3);"></span>
+        </div>
+      </div>
+
+      <!-- Impressum -->
+      <div id="tab-imprint" class="tab-panel">
+        <div class="form-group">
+          <label for="imprint-body">Impressum (Markdown)</label>
+          <textarea id="imprint-body" rows="20" placeholder="## Impressum&#10;&#10;Angaben gemäß § 5 TMG…"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="btn btn-primary" id="btn-save-imprint">⬆ Speichern & Veröffentlichen</button>
+          <span id="imprint-status" style="font-size:.8rem;color:var(--text3);"></span>
+        </div>
+      </div>
+
+      <!-- Datenschutz -->
+      <div id="tab-privacy" class="tab-panel">
+        <div class="form-group">
+          <label for="privacy-body">Datenschutzerklärung (Markdown)</label>
+          <textarea id="privacy-body" rows="20" placeholder="## Datenschutzerklärung&#10;&#10;…"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="btn btn-primary" id="btn-save-privacy">⬆ Speichern & Veröffentlichen</button>
+          <span id="privacy-status" style="font-size:.8rem;color:var(--text3);"></span>
+        </div>
+      </div>
+
+    </div><!-- end settings view -->
+
+  </div><!-- end main -->
+</div><!-- end app-shell -->
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- MODALS                                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- New Project Modal -->
+<div id="new-project-modal" class="modal-overlay">
+  <div class="modal">
+    <h2>Neues Projekt</h2>
+    <p class="modal-subtitle">Titel und URL-Slug festlegen. Beides kann später geändert werden.</p>
+    <div id="new-project-error" class="msg msg-error"></div>
+    <div class="form-group">
+      <label for="new-title">Projekttitel</label>
+      <input type="text" id="new-title" placeholder="z. B. Nyhro Fotoshooting">
+    </div>
+    <div class="form-group">
+      <label for="new-slug">URL-Slug</label>
+      <input type="text" id="new-slug" placeholder="nyhro-fotoshooting">
+      <div class="hint">Wird automatisch aus dem Titel generiert</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btn-modal-cancel">Abbrechen</button>
+      <button class="btn btn-primary" id="btn-modal-create">Projekt anlegen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Focal Point Modal -->
+<div id="focal-modal" class="modal-overlay">
+  <div class="modal">
+    <h2>Fokuspunkt setzen</h2>
+    <p class="modal-subtitle">Klicke auf das Bild, um den Mittelpunkt festzulegen.</p>
+    <div class="focal-picker-wrap" id="focal-picker-wrap">
+      <img id="focal-picker-img" src="" alt="">
+      <div class="focal-picker-crosshair" id="focal-picker-crosshair" style="left:50%;top:50%;"></div>
+    </div>
+    <p class="focal-coords" id="focal-coords">50% 50%</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btn-focal-cancel">Abbrechen</button>
+      <button class="btn btn-primary" id="btn-focal-confirm">Bestätigen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div id="delete-modal" class="modal-overlay">
+  <div class="modal">
+    <h2>Projekt löschen?</h2>
+    <p class="modal-subtitle" id="delete-modal-text">Diese Aktion löscht die Markdown-Datei auf GitHub. Mediendateien bleiben erhalten.</p>
+    <div id="delete-error" class="msg msg-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btn-delete-cancel">Abbrechen</button>
+      <button class="btn btn-danger" id="btn-delete-confirm">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Publish Log Modal -->
+<div id="publish-modal" class="modal-overlay">
+  <div class="modal" style="max-width:560px;">
+    <h2 id="publish-modal-title">Veröffentlichen…</h2>
+    <div class="publish-log" id="publish-log"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-publish-done" style="display:none;">Fertig</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <span id="loading-text">Lade…</span>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

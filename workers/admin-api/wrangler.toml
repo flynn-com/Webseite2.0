@@ -1,0 +1,19 @@
+name = "admin-api"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# ── KV Namespace ──────────────────────────────────────────────────────────────
+# Nach `wrangler kv:namespace create ADMIN_KV` die zurückgegebene ID eintragen:
+[[kv_namespaces]]
+binding = "ADMIN_KV"
+id      = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# ── Routes ────────────────────────────────────────────────────────────────────
+# Der Worker läuft auf einer eigenen subdomain (workers.dev)
+# Optional: Custom Route auf flynnbertsch.com konfigurieren
+
+# ── Secrets (via `wrangler secret put <NAME>`) ────────────────────────────────
+# GITHUB_TOKEN     — GitHub Personal Access Token (Scope: repo)
+# RESEND_API_KEY   — Resend API Key
+# ADMIN_EMAIL      — E-Mail-Adresse für Passwort-Reset-Mails
+# ALLOWED_ORIGIN   — https://flynnbertsch.com
