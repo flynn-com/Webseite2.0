@@ -1,26 +1,27 @@
 ---
 title: Di ste fa no
-slug: distefano
+slug: di-ste-fa-no
 category: fotografie
-cover: /uploads/projekte/di-ste-fa-no/®flynn-olivenöl-1.avif
-cover_focal: 50% 41%
-gallery:
-  - image: /uploads/projekte/distefano/®Flynn- Olivenöl-2.AVIF
-    focal: 50% 50%
-  - image: /uploads/projekte/distefano/®Flynn- Olivenöl-5.AVIF
-    focal: 50% 50%
-  - image: /uploads/projekte/distefano/®Flynn- Olivenöl-8.AVIF
-    focal: 50% 50%
-  - image: /uploads/projekte/distefano/®Flynn- Olivenöl-14.AVIF
-    focal: 50% 50%
-  - image: /uploads/projekte/distefano/®Flynn- Olivenöl-17.AVIF
-    focal: 50% 50%
-  - image: /uploads/projekte/distefano/®Flynn- Olivenöl-25.AVIF
-    focal: 50% 50%
-  - image: /uploads/projekte/distefano/®Flynn- Olivenöl-31.AVIF
-    focal: 50% 50%
-location: Italien
-visible: false
-featured: true
 order: 3
+cover: /uploads/projekte/di-ste-fa-no/cover.avif
+cover_focal: "50% 50%"
+location: Italien
+gallery:
+  -
+    image: /uploads/projekte/di-ste-fa-no/_flynn-_oliven_l-6.avif
+    focal: "50% 50%"
+  -
+    image: /uploads/projekte/di-ste-fa-no/_flynn-_oliven_l-2.avif
+    focal: "50% 50%"
+  -
+    image: /uploads/projekte/di-ste-fa-no/_flynn-_oliven_l-17.avif
+    focal: "50% 50%"
+youtube: []
+videos: []
+videos_portrait: []
+tags: []
+featured: false
+draft: false
+visible: false
 ---
+
