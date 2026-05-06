@@ -465,12 +465,15 @@ function populateEditor(s) {
 
   // Cover
   const coverPreview = document.getElementById('cover-preview');
+  const coverHint    = document.querySelector('#cover-zone .upload-hint');
   if (s.cover) {
     coverPreview.src = resolveImg(s.cover);
     coverPreview.style.display = '';
+    if (coverHint) coverHint.style.display = 'none';
     document.getElementById('cover-zone').classList.add('has-image');
   } else {
     coverPreview.style.display = 'none';
+    if (coverHint) coverHint.style.display = '';
     document.getElementById('cover-zone').classList.remove('has-image');
   }
   document.getElementById('ed-cover').value       = s.cover || '';
@@ -538,9 +541,20 @@ function renderGallery(items) {
     div.dataset.idx = idx;
 
     const img = document.createElement('img');
-    img.src = resolveImg(item.image);
     img.alt = '';
-    img.loading = 'lazy';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+    img.onerror = () => {
+      img.style.display = 'none';
+      div.style.background = 'var(--surface3)';
+      if (!div.querySelector('.no-img-hint')) {
+        const hint = document.createElement('div');
+        hint.className = 'no-img-hint';
+        hint.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:.7rem;text-align:center;padding:4px;';
+        hint.textContent = 'Noch nicht auf GitHub';
+        div.appendChild(hint);
+      }
+    };
+    img.src = resolveImg(item.image); // set src AFTER onerror is wired up
 
     const overlay = document.createElement('div');
     overlay.className = 'gallery-item-overlay';
@@ -795,6 +809,8 @@ document.getElementById('cover-file').addEventListener('change', async (e) => {
   const img = document.getElementById('cover-preview');
   img.src = dataUrl;
   img.style.display = '';
+  const hint = document.querySelector('#cover-zone .upload-hint');
+  if (hint) hint.style.display = 'none';
   document.getElementById('cover-zone').classList.add('has-image');
   updateFocalCrosshair('cover-focal-crosshair', '50% 50%');
   markUnsaved();
@@ -806,6 +822,8 @@ document.getElementById('btn-cover-reset').addEventListener('click', () => {
   document.getElementById('ed-cover-focal').value = 'center';
   document.getElementById('cover-focal-display').textContent = 'center';
   document.getElementById('cover-preview').style.display = 'none';
+  const hint = document.querySelector('#cover-zone .upload-hint');
+  if (hint) hint.style.display = '';
   document.getElementById('cover-zone').classList.remove('has-image');
   delete _editorState._pendingCover;
   _editorState.cover = '';
