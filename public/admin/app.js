@@ -279,7 +279,7 @@ function serializeMarkdown(state) {
 
   const order = ['title','slug','category','date','order','cover','cover_focal',
                   'description','location','gallery','youtube','videos','videos_portrait',
-                  'tags','featured','draft','visible'];
+                  'tags'];
 
   for (const key of order) {
     if (!(key in state)) continue;
@@ -459,10 +459,6 @@ function renderProjectGrid() {
     card.className = 'project-card';
     card.dataset.slug = p.slug;
 
-    const statusBadge = p.visible
-      ? `<span class="badge badge-visible">sichtbar</span>`
-      : (p.draft ? `<span class="badge badge-draft">entwurf</span>` : `<span class="badge badge-hidden">versteckt</span>`);
-
     card.innerHTML = `
       <div class="project-card-cover">
         ${p.cover
@@ -473,7 +469,7 @@ function renderProjectGrid() {
         <div class="project-card-title">${p.title || '(ohne Titel)'}</div>
         <div class="project-card-meta">
           <span class="badge badge-category">${p.category || ''}</span>
-          ${statusBadge}
+          <span class="badge badge-visible">veröffentlicht</span>
         </div>
       </div>`;
 
@@ -483,7 +479,8 @@ function renderProjectGrid() {
 
   // Also add local drafts that don't exist on GitHub yet
   for (const [slug, draft] of Object.entries(_localDrafts)) {
-    if (_projects.find(p => p.slug === slug)) continue;
+    // Case-insensitive check — prevents duplicates when slug casing differs between local draft and GitHub file
+    if (_projects.find(p => p.slug.toLowerCase() === slug.toLowerCase())) continue;
     const card = document.createElement('div');
     card.className = 'project-card';
     card.dataset.slug = slug;
@@ -511,7 +508,7 @@ function openEditor(slug, localOnly = false) {
   let state = _localDrafts[slug] || null;
   if (!state) {
     const p = _projects.find(p => p.slug === slug);
-    state = p ? JSON.parse(JSON.stringify(p)) : { slug, title: '', order: 99, category: 'fotografie', gallery: [], youtube: [], videos: [], videos_portrait: [], tags: [], draft: false, visible: false, featured: false, _body: '' };
+    state = p ? JSON.parse(JSON.stringify(p)) : { slug, title: '', order: 99, category: 'fotografie', gallery: [], youtube: [], videos: [], videos_portrait: [], tags: [], _body: '' };
   }
   // Ensure required arrays exist (safeguard against malformed/inline-[] frontmatter)
   state.gallery          = Array.isArray(state.gallery)          ? state.gallery          : [];
@@ -583,10 +580,6 @@ function populateEditor(s) {
   document.getElementById('ed-body').value        = s._body || '';
   renderTags(Array.isArray(s.tags) ? s.tags : []);
 
-  // Sichtbarkeit
-  document.getElementById('ed-visible').checked  = !!s.visible;
-  document.getElementById('ed-featured').checked = !!s.featured;
-  document.getElementById('ed-draft').checked    = !!s.draft;
 
   // Warnung wenn Bild-Daten nach Seitenneuladen fehlen
   updatePendingWarning();
@@ -609,10 +602,6 @@ function readEditorState() {
   s.date         = document.getElementById('ed-date').value || undefined;
   s.description  = document.getElementById('ed-description').value.trim() || undefined;
   s._body        = document.getElementById('ed-body').value;
-  s.visible      = document.getElementById('ed-visible').checked;
-  s.featured     = document.getElementById('ed-featured').checked;
-  s.draft        = document.getElementById('ed-draft').checked;
-
   // Gallery / videos / tags are maintained directly in _editorState
   return s;
 }
@@ -1160,16 +1149,6 @@ async function publishProject() {
   if (!state.title) { toast('Titel fehlt!', 'error'); return; }
   if (!state.cover) { toast('Bitte zuerst ein Titelbild hochladen!', 'error'); return; }
 
-  // Warn if project will be invisible on the public site
-  if (!state.visible && !state.draft) {
-    const proceed = confirm(
-      '⚠️ "Auf Webseite sichtbar" ist deaktiviert.\n\n' +
-      'Das Projekt wird auf GitHub gespeichert, erscheint aber NICHT auf der öffentlichen Website.\n\n' +
-      'Trotzdem veröffentlichen?'
-    );
-    if (!proceed) return;
-  }
-
   // Block publish if images need re-upload (b64 lost after page reload)
   const missingFiles = getMissingUploadFiles(state);
   if (missingFiles.length > 0) {
@@ -1352,7 +1331,7 @@ document.getElementById('btn-modal-create').addEventListener('click', () => {
     title, slug, category: 'fotografie', order: 99,
     cover: '', cover_focal: 'center',
     gallery: [], youtube: [], videos: [], videos_portrait: [],
-    tags: [], featured: false, draft: false, visible: true, _body: '',
+    tags: [], _body: '',
   };
   _currentProject = slug;
   populateEditor(_editorState);

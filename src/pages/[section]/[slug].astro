@@ -7,7 +7,7 @@ import { t, pathForLang, projectDetailPath, withBase } from '../../i18n/ui';
 import pageRoutes from '../../data/page-routes.json';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('projects-de', ({ data }) => !data.draft);
+  const entries = await getCollection('projects-de');
   return entries.map((entry) => ({
     params: { section: pageRoutes.de.projects, slug: entry.data.slug },
     props: { entry },
@@ -19,7 +19,7 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const lang = 'de' as const;
 
-const allProjects = await getCollection('projects-de', ({ data }) => !data.draft)
+const allProjects = await getCollection('projects-de')
   .then(list => list.sort((a, b) => a.data.order - b.data.order));
 const totalProjects = allProjects.length;
 

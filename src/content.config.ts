@@ -39,11 +39,8 @@ const projectFields = z.object({
     z.array(z.string())
   ).default([]),
   tags: z.array(z.string()).default([]),
-  featured: z.boolean().default(false),
-  draft: z.boolean().default(false),
-  // visible: false = auf GitHub aber unsichtbar auf der Webseite (Admin-Review-Phase)
-  // visible: true  = erscheint in Projekt-Liste und Startseite
-  visible: z.boolean().default(false),
+  // featured: Projekt erscheint auf der Startseite (default true = alle neuen Projekte werden angezeigt)
+  featured: z.boolean().default(true),
 });
 
 const projectsDe = defineCollection({
