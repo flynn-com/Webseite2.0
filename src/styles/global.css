@@ -933,6 +933,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* ── Seite ── */
 .pd2-page {
+  position: relative;
   background: #fff;
   min-height: 100vh;
   padding: 0 clamp(28px, 2.54vw, 60px) clamp(60px, 8vw, 120px);

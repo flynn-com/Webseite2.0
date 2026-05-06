@@ -50,16 +50,11 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 <BaseLayout lang={lang} title={`${entry.data.title} – Flynn Bertsch`} description={entry.data.description}>
 <div class="pd2-page">
 
-  <div class="pd2-topbar">
-    <a class="pd2-nav" href={pathForLang(lang, 'projects')}>
-      <span class="pd2-nav__icon">◄</span>
-      <span>{t(lang, 'nav.projects')}</span>
-    </a>
-    <a class="pd2-nav" href={pathForLang(lang, 'contact')}>
-      <span>{t(lang, 'nav.contact')}</span>
-      <span class="pd2-nav__icon">►</span>
-    </a>
-  </div>
+  <a class="pd2-nav" href={pathForLang(lang, 'projects')}>
+    <span class="pd2-nav__icon">◄</span>
+    <span>{t(lang, 'nav.projects')}</span>
+  </a>
+  <a class="am-contact-btn" href={pathForLang(lang, 'contact')}>{t(lang, 'nav.contact')}</a>
 
   <div class="pd2-header">
     <h1 class="pd2-title">{entry.data.title}</h1>
