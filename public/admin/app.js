@@ -354,7 +354,8 @@ function fileToBase64(file) {
 function resolveImg(src) {
   if (!src) return '';
   if (_displayCache[src]) return _displayCache[src]; // blob URL — AVIF-safe, best for display
-  if (_blobCache[src])    return _blobCache[src];    // data URL fallback
+  // NOTE: _blobCache holds data-URLs which are UNRELIABLE for AVIF on Windows Chrome.
+  // Only use them in the preview window (window.opener), never for in-page <img> display.
   if (src.startsWith('data:') || src.startsWith('blob:')) return src;
   // Encode non-ASCII chars (e.g. ® in filenames) so the URL is valid
   const encoded = src.replace(/[^\x00-\x7F]/g, ch => encodeURIComponent(ch));
@@ -551,6 +552,12 @@ function populateEditor(s) {
     coverPreview.style.display = '';
     if (coverHint) coverHint.style.display = 'none';
     document.getElementById('cover-zone').classList.add('has-image');
+    coverPreview.onerror = () => {
+      coverPreview.style.display = 'none';
+      if (coverHint) coverHint.style.display = '';
+      document.getElementById('cover-zone').classList.remove('has-image');
+      coverPreview.onerror = null;
+    };
   } else {
     coverPreview.style.display = 'none';
     if (coverHint) coverHint.style.display = '';
@@ -885,6 +892,7 @@ document.getElementById('cover-file').addEventListener('change', async (e) => {
   _blobCache[pub]    = dataUrl;  // data URL for preview page (window.opener._blobCache)
   _displayCache[pub] = blobUrl;  // blob URL for in-page display (AVIF-safe)
   _editorState._pendingCover = { file, b64, path, pub };
+  _editorState.cover = pub;   // keep in-memory state in sync so re-renders show the image
   addToPendingPaths(slug, pub);
 
   document.getElementById('ed-cover').value = pub;
