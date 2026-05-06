@@ -4,7 +4,7 @@ slug: distefano
 category: fotografie
 order: 3
 cover: /uploads/projekte/distefano/cover.avif
-cover_focal: "51% 59%"
+cover_focal: "51% 47%"
 location: Italien
 gallery:
   -
