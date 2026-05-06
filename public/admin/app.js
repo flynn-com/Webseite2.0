@@ -628,7 +628,8 @@ function renderGallery(items) {
       if (!div.querySelector('.no-img-hint')) {
         const hint = document.createElement('div');
         hint.className = 'no-img-hint';
-        hint.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:.7rem;text-align:center;padding:4px;';
+        // pointer-events:none so clicks pass through to the overlay buttons beneath
+        hint.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:.7rem;text-align:center;padding:4px;pointer-events:none;';
         hint.textContent = 'Noch nicht auf GitHub';
         div.appendChild(hint);
       }
@@ -675,9 +676,24 @@ function renderGallery(items) {
       const gallery = _editorState.gallery || [];
 
       if (action === 'remove') {
+        const removed = gallery[idx];
         gallery.splice(idx, 1);
         _editorState.gallery = gallery;
+        // Remove from pending upload queue so deleted images aren't uploaded
+        if (_editorState._pendingMedia && removed) {
+          _editorState._pendingMedia = _editorState._pendingMedia.filter(m => m.pub !== removed.image);
+        }
+        // Remove from pending path tracking so the warning disappears correctly
+        if (removed) {
+          try {
+            const slug = _editorState.slug;
+            const paths = new Set(JSON.parse(localStorage.getItem(_pendingKey(slug)) || '[]'));
+            paths.delete(removed.image);
+            localStorage.setItem(_pendingKey(slug), JSON.stringify([...paths]));
+          } catch(e) {}
+        }
         renderGallery(gallery);
+        updatePendingWarning();
         markUnsaved();
       } else if (action === 'left' && idx > 0) {
         [gallery[idx - 1], gallery[idx]] = [gallery[idx], gallery[idx - 1]];
