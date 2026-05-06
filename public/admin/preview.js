@@ -135,6 +135,269 @@ var FocalPicker = createClass({
 CMS.registerWidget('focal-picker', FocalPicker);
 
 
+// ═══════════════════════════════════════════════════
+// GALLERY-FOCAL — Mehrfachauswahl + Fokuspunkt
+// Upload direkt via GitHub API (Token aus localStorage)
+// ═══════════════════════════════════════════════════
+
+function ghToken() {
+  try {
+    for (var k of ['decap-cms-user', 'netlify-cms-user']) {
+      var d = JSON.parse(localStorage.getItem(k) || 'null');
+      if (d && d.token) return d.token;
+    }
+  } catch (_) {}
+  return null;
+}
+
+function ghUpload(file, slug) {
+  return new Promise(function (resolve, reject) {
+    var tok = ghToken();
+    if (!tok) { reject(new Error('Nicht eingeloggt — bitte Seite neu laden.')); return; }
+    var folder = 'public/uploads/projekte/' + (slug || 'uploads');
+    var pub    = '/uploads/projekte/' + (slug || 'uploads') + '/' + file.name;
+    var api    = 'https://api.github.com/repos/flynn-com/Webseite2.0/contents/' + folder + '/' + file.name;
+    var hdrs   = { Authorization: 'token ' + tok, Accept: 'application/vnd.github+json' };
+
+    var reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = function () {
+      var b64 = reader.result.replace(/^data:[^;]+;base64,/, '');
+
+      function sha() {
+        return fetch(api + '?t=' + Date.now(), { headers: hdrs })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (j) { return j && j.sha || null; });
+      }
+
+      function put(s, n) {
+        var body = { message: 'upload: ' + file.name, content: b64, branch: 'main' };
+        if (s) body.sha = s;
+        fetch(api, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, hdrs), body: JSON.stringify(body) })
+          .then(function (r) {
+            if (r.status === 409 && n < 4) return sha().then(function (s2) { put(s2, n + 1); });
+            if (!r.ok) return r.text().then(function (t) { throw new Error('GitHub ' + r.status + ': ' + t); });
+            resolve(pub);
+          }).catch(reject);
+      }
+
+      sha().then(function (s) { put(s, 0); }).catch(reject);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+var GalleryFocal = createClass({
+  getInitialState: function () {
+    return { items: this.parse(this.props.value), drag: null, over: null };
+  },
+
+  componentDidMount: function () {
+    var self = this;
+    this._t = setInterval(function () { self.resolve(); }, 800);
+    this.resolve();
+  },
+  componentWillUnmount: function () { clearInterval(this._t); },
+
+  parse: function (val) {
+    if (!val) return [];
+    var a = typeof val.toJS === 'function' ? val.toJS() : Array.isArray(val) ? val : [];
+    return a.map(function (v) {
+      return typeof v === 'string'
+        ? { image: v, focal: '50% 50%', _url: null }
+        : { image: v.image || '', focal: v.focal || '50% 50%', _url: null };
+    });
+  },
+
+  resolve: function () {
+    var items = this.state.items; var changed = false;
+    var next = items.map(function (it) {
+      if (it.image && !it._url) {
+        var u = it.image.startsWith('/uploads/') ? window.location.origin + it.image : null;
+        if (u) { changed = true; return Object.assign({}, it, { _url: u }); }
+      }
+      return it;
+    });
+    if (changed) this.setState({ items: next });
+  },
+
+  emit: function (items) {
+    var clean = items
+      .filter(function (it) { return it.image && !it._pending; })
+      .map(function (it) { return { image: it.image, focal: it.focal || '50% 50%' }; });
+    this.props.onChange(clean);
+  },
+
+  handleAdd: function () { this._fi && this._fi.click(); },
+
+  handleFiles: function (e) {
+    var self  = this;
+    var files = Array.from(e.target.files);
+    e.target.value = '';
+    if (!files.length) return;
+
+    var slug = fromEntry(this.props.entry, ['data', 'slug']) || '';
+    if (!slug) { alert('Bitte zuerst den URL-Slug des Projekts ausfüllen, dann Bilder hochladen.'); return; }
+
+    var phs = files.map(function (f) {
+      return { image: '__p' + Math.random(), focal: '50% 50%', _url: URL.createObjectURL(f), _pending: true, _f: f };
+    });
+    self.setState(function (prev) { return { items: prev.items.concat(phs) }; });
+
+    (function next(i) {
+      if (i >= phs.length) return;
+      var ph = phs[i];
+      ghUpload(ph._f, slug).then(function (path) {
+        self.setState(function (prev) {
+          var its = prev.items.map(function (it) {
+            return it._pending && it.image === ph.image
+              ? { image: path, focal: it.focal, _url: ph._url }
+              : it;
+          });
+          self.emit(its);
+          return { items: its };
+        });
+        next(i + 1);
+      }).catch(function (err) {
+        alert('Upload fehlgeschlagen: ' + err.message);
+        self.setState(function (prev) {
+          return { items: prev.items.filter(function (it) { return !(it._pending && it.image === ph.image); }) };
+        });
+        next(i + 1);
+      });
+    }(0));
+  },
+
+  setFocal: function (idx, e) {
+    var r = e.currentTarget.getBoundingClientRect();
+    var x = Math.round((e.clientX - r.left) / r.width  * 100);
+    var y = Math.round((e.clientY - r.top)  / r.height * 100);
+    var its = this.state.items.map(function (it, i) {
+      return i === idx ? Object.assign({}, it, { focal: x + '% ' + y + '%' }) : it;
+    });
+    this.setState({ items: its });
+    this.emit(its);
+  },
+
+  remove: function (idx) {
+    var its = this.state.items.filter(function (_, i) { return i !== idx; });
+    this.setState({ items: its });
+    this.emit(its);
+  },
+
+  dragStart: function (idx, e) {
+    this.setState({ drag: idx, over: null });
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(idx));
+  },
+  dragOver: function (idx, e) {
+    e.preventDefault();
+    if (this.state.over !== idx) this.setState({ over: idx });
+  },
+  dragLeave: function (idx) {
+    if (this.state.over === idx) this.setState({ over: null });
+  },
+  drop: function (tgt, e) {
+    e.preventDefault();
+    var src = this.state.drag;
+    this.setState({ drag: null, over: null });
+    if (src === null || src === tgt) return;
+    var its = this.state.items.slice();
+    its.splice(tgt, 0, its.splice(src, 1)[0]);
+    this.setState({ items: its });
+    this.emit(its);
+  },
+  dragEnd: function () { this.setState({ drag: null, over: null }); },
+
+  render: function () {
+    var self = this, items = this.state.items;
+    return h('div', { style: { fontFamily: 'sans-serif' } },
+
+      h('button', {
+        type: 'button', onClick: this.handleAdd,
+        style: { display: 'inline-flex', alignItems: 'center', gap: '6px',
+          padding: '8px 18px', marginBottom: '14px', background: '#3b82f6',
+          color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer',
+          fontSize: '0.875rem', fontWeight: '600' }
+      }, '＋ Bilder hinzufügen'),
+
+      h('input', {
+        type: 'file', multiple: true, accept: 'image/*,.avif,.webp',
+        style: { display: 'none' },
+        ref: function (el) { self._fi = el; },
+        onChange: this.handleFiles,
+      }),
+
+      items.length === 0
+        ? h('p', { style: { color: '#bbb', fontSize: '0.85rem', margin: 0 } }, 'Noch keine Bilder.')
+        : h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '10px' } },
+            items.map(function (item, i) {
+              var pos = parsePos(item.focal);
+              var isDrag = self.state.drag === i;
+              var isOver = self.state.over === i && self.state.drag !== i;
+              return h('div', {
+                key: i,
+                onDragOver:  function (e) { self.dragOver(i, e); },
+                onDragLeave: function ()  { self.dragLeave(i); },
+                onDrop:      function (e) { self.drop(i, e); },
+                style: { border: '2px solid ' + (isOver ? '#3b82f6' : '#ddd'), borderRadius: '8px',
+                  overflow: 'hidden', background: '#f0f0f0', opacity: isDrag ? 0.35 : 1,
+                  boxShadow: isOver ? '0 0 0 3px rgba(59,130,246,0.25)' : '0 1px 4px rgba(0,0,0,0.08)',
+                  transform: isOver ? 'scale(1.02)' : 'none', transition: 'all 0.1s' }
+              },
+                h('div', {
+                  draggable: true,
+                  onDragStart: function (e) { self.dragStart(i, e); },
+                  onDragEnd:   function ()  { self.dragEnd(); },
+                  title: 'Ziehen zum Sortieren',
+                  style: { display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    height: '26px', background: '#e2e8f0', cursor: isDrag ? 'grabbing' : 'grab',
+                    userSelect: 'none', borderBottom: '1px solid #ddd',
+                    fontSize: '15px', color: '#94a3b8', letterSpacing: '3px' }
+                }, '⠿ ⠿'),
+
+                h('div', {
+                  onClick: function (e) { self.setFocal(i, e); },
+                  title: 'Fokuspunkt setzen',
+                  style: { position: 'relative', cursor: 'crosshair', width: '100%',
+                    height: '150px', overflow: 'hidden', background: '#d0d0d0' }
+                },
+                  item._url
+                    ? h('img', { src: item._url, draggable: false,
+                        style: { width: '100%', height: '100%', objectFit: 'cover',
+                          objectPosition: item.focal || '50% 50%', pointerEvents: 'none' } })
+                    : h('div', { style: { display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', height: '100%', color: '#aaa', fontSize: '0.75rem' } },
+                        item._pending ? '⏳ Lädt hoch…' : 'Lädt…'),
+                  item._url && !item._pending
+                    ? h('div', { style: { position: 'absolute', left: pos.x + '%', top: pos.y + '%',
+                        transform: 'translate(-50%,-50%)', width: '14px', height: '14px',
+                        borderRadius: '50%', background: 'rgba(255,255,255,0.95)',
+                        border: '2px solid #111', pointerEvents: 'none',
+                        boxShadow: '0 0 0 1px rgba(255,255,255,0.5),0 1px 5px rgba(0,0,0,0.4)' } })
+                    : null
+                ),
+
+                h('div', { style: { padding: '5px 8px', display: 'flex',
+                  justifyContent: 'space-between', alignItems: 'center',
+                  fontSize: '0.68rem', color: '#666', borderTop: '1px solid #e0e0e0', background: '#fafafa' } },
+                  h('span', null, item._pending ? '⏳ wird hochgeladen…' : '📍 ' + (item.focal || '50% 50%')),
+                  h('button', {
+                    type: 'button', onClick: function () { self.remove(i); },
+                    style: { background: 'none', border: 'none', cursor: 'pointer',
+                      color: '#ef4444', fontSize: '0.75rem', padding: '2px 4px', lineHeight: 1 }
+                  }, '✕')
+                )
+              );
+            })
+          )
+    );
+  }
+});
+
+CMS.registerWidget('gallery-focal', GalleryFocal);
+
+
 // ─────────────────────────────────────────────────
 // GALERIE-HILFSFUNKTION für Projekt-Vorschau
 // ─────────────────────────────────────────────────
