@@ -955,11 +955,19 @@ a:hover { text-decoration-thickness: 2px; }
   line-height: 1;
 }
 .pd2-nav:hover { opacity: 0.5; }
+.pd2-nav--light { color: #fff; }
 .pd2-nav__icon {
   font-size: 0.8em;
   display: inline-flex;
   align-items: center;
   line-height: 1;
+}
+
+/* ── Topbar (zurück + kontakt nebeneinander) ── */
+.pd2-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 /* ── Header: Titel | Nummer + Location ── */
