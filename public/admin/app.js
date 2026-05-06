@@ -31,6 +31,58 @@ function mimeFor(filename) {
   return MIME_MAP[ext] || 'application/octet-stream';
 }
 
+// ── Pending-Upload-Tracking ───────────────────────────────────────────────────
+// Tracks which image paths were freshly uploaded but might not be on GitHub yet.
+// Survives page reloads via localStorage so we can warn the user if b64 data
+// is lost and re-upload is required before publishing.
+
+function _pendingKey(slug) { return `pending_${slug}`; }
+
+function addToPendingPaths(slug, pub) {
+  if (!slug || slug === 'neu') return;
+  try {
+    const paths = new Set(JSON.parse(localStorage.getItem(_pendingKey(slug)) || '[]'));
+    paths.add(pub);
+    localStorage.setItem(_pendingKey(slug), JSON.stringify([...paths]));
+  } catch(e) {}
+}
+
+function getPendingPaths(slug) {
+  try { return new Set(JSON.parse(localStorage.getItem(_pendingKey(slug)) || '[]')); }
+  catch(e) { return new Set(); }
+}
+
+function clearPendingPaths(slug) {
+  localStorage.removeItem(_pendingKey(slug));
+}
+
+// Returns filenames of images that need re-upload (pending path but b64 gone)
+function getMissingUploadFiles(state) {
+  const pending = getPendingPaths(state.slug);
+  if (pending.size === 0) return [];
+  const mediaSet = new Set((state._pendingMedia || []).map(m => m.pub));
+  const missing  = [];
+  if (state.cover && pending.has(state.cover) && !state._pendingCover)
+    missing.push(state.cover.split('/').pop());
+  (state.gallery || []).forEach(item => {
+    if (pending.has(item.image) && !mediaSet.has(item.image))
+      missing.push(item.image.split('/').pop());
+  });
+  return missing;
+}
+
+function updatePendingWarning() {
+  const warning = document.getElementById('pending-upload-warning');
+  if (!warning) return;
+  const missing = getMissingUploadFiles(_editorState);
+  if (missing.length > 0) {
+    document.getElementById('pending-upload-list').textContent = missing.join(', ');
+    warning.style.display = '';
+  } else {
+    warning.style.display = 'none';
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Toast / Loading helpers
 // ─────────────────────────────────────────────────────────────────────────────
@@ -528,6 +580,9 @@ function populateEditor(s) {
   document.getElementById('ed-visible').checked  = !!s.visible;
   document.getElementById('ed-featured').checked = !!s.featured;
   document.getElementById('ed-draft').checked    = !!s.draft;
+
+  // Warnung wenn Bild-Daten nach Seitenneuladen fehlen
+  updatePendingWarning();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -830,6 +885,7 @@ document.getElementById('cover-file').addEventListener('change', async (e) => {
   _blobCache[pub]    = dataUrl;  // data URL for preview page (window.opener._blobCache)
   _displayCache[pub] = blobUrl;  // blob URL for in-page display (AVIF-safe)
   _editorState._pendingCover = { file, b64, path, pub };
+  addToPendingPaths(slug, pub);
 
   document.getElementById('ed-cover').value = pub;
   document.getElementById('ed-cover-focal').value = '50% 50%';
@@ -842,6 +898,7 @@ document.getElementById('cover-file').addEventListener('change', async (e) => {
   if (hint) hint.style.display = 'none';
   document.getElementById('cover-zone').classList.add('has-image');
   updateFocalCrosshair('cover-focal-crosshair', '50% 50%');
+  updatePendingWarning();
   markUnsaved();
   e.target.value = '';
 });
@@ -874,6 +931,7 @@ async function handleGalleryFiles(files) {
 
     _blobCache[pub]    = dataUrl;  // data URL for preview page
     _displayCache[pub] = blobUrl;  // blob URL for in-page display (AVIF-safe)
+    addToPendingPaths(slug, pub);
 
     if (!_editorState.gallery) _editorState.gallery = [];
     if (!_editorState._pendingMedia) _editorState._pendingMedia = [];
@@ -882,6 +940,7 @@ async function handleGalleryFiles(files) {
     _editorState._pendingMedia.push({ b64, path, pub, name: file.name });
   }
   renderGallery(_editorState.gallery);
+  updatePendingWarning();
   markUnsaved();
 }
 
@@ -1103,6 +1162,16 @@ async function publishProject() {
     if (!proceed) return;
   }
 
+  // Block publish if images need re-upload (b64 lost after page reload)
+  const missingFiles = getMissingUploadFiles(state);
+  if (missingFiles.length > 0) {
+    toast(
+      `Bilder nach Seitenneuladen neu auswählen: ${missingFiles.join(', ')}`,
+      'error'
+    );
+    return;
+  }
+
   // Show publish modal
   const modal = document.getElementById('publish-modal');
   const log   = document.getElementById('publish-log');
@@ -1170,6 +1239,8 @@ async function publishProject() {
     _editorState = state;
     delete _localDrafts[state.slug];
     localStorage.removeItem(`draft_${state.slug}`);
+    clearPendingPaths(state.slug);   // images now on GitHub — clear tracking
+    updatePendingWarning();
     updateSaveStatus('✓ Auf GitHub gespeichert');
 
     // Reload project list in background
@@ -1218,6 +1289,7 @@ document.getElementById('btn-delete-project').addEventListener('click', () => {
 
     delete _localDrafts[p.slug];
     localStorage.removeItem(`draft_${p.slug}`);
+    clearPendingPaths(p.slug);
     toast(`"${p.title}" vollständig gelöscht`, 'success');
     showView('projects');
     loadProjects();
