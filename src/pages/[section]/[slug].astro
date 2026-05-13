@@ -26,19 +26,26 @@ const totalProjects = allProjects.length;
 const galleryImages = entry.data.gallery;
 
 type GalleryItem = { image: string; focal: string };
-type GalleryRow = { type: 'land2' | 'port3' | 'land1'; images: GalleryItem[]; startIdx: number };
+type GalleryRow = { type: 'land2' | 'port3' | 'land1' | 'top1port2'; images: GalleryItem[]; startIdx: number };
 const galleryRows: GalleryRow[] = [];
 let imgCursor = 0;
 let rowIndex = 0;
 while (imgCursor < galleryImages.length) {
-  const isLandscape = rowIndex % 2 === 0;
-  if (isLandscape) {
+  const phase = rowIndex % 3;
+  if (phase === 0) {
+    // land2: 2 Querformat-Bilder (oder land1 wenn nur 1 übrig)
     const imgs = galleryImages.slice(imgCursor, imgCursor + 2);
     galleryRows.push({ type: imgs.length === 1 ? 'land1' : 'land2', images: imgs, startIdx: imgCursor });
     imgCursor += imgs.length;
-  } else {
+  } else if (phase === 1) {
+    // port3: 3 Hochformat-Bilder nebeneinander
     const imgs = galleryImages.slice(imgCursor, imgCursor + 3);
     galleryRows.push({ type: 'port3', images: imgs, startIdx: imgCursor });
+    imgCursor += imgs.length;
+  } else {
+    // top1port2: 1 Bild volle Breite oben + 2 Hochformat unten
+    const imgs = galleryImages.slice(imgCursor, imgCursor + 3);
+    galleryRows.push({ type: 'top1port2', images: imgs, startIdx: imgCursor });
     imgCursor += imgs.length;
   }
   rowIndex++;

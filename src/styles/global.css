@@ -1059,6 +1059,10 @@ a:hover { text-decoration-thickness: 2px; }
 /* 3 Hochformat-Bilder nebeneinander */
 .pd2-row--port3 { grid-template-columns: 1fr 1fr 1fr; }
 .pd2-row--port3 .pd2-img { aspect-ratio: 2 / 3; }
+/* 1 Querformat oben + 2 Hochformat symmetrisch unten */
+.pd2-row--top1port2 { grid-template-columns: 1fr 1fr; }
+.pd2-row--top1port2 > :first-child { grid-column: 1 / -1; aspect-ratio: 3 / 2; }
+.pd2-row--top1port2 > :nth-child(n+2) { aspect-ratio: 2 / 3; min-width: 0; }
 
 /* ── Einzel-Bild-Button ── */
 .pd2-img {
@@ -1220,6 +1224,10 @@ a:hover { text-decoration-thickness: 2px; }
     aspect-ratio: 3 / 4;
   }
   .pd2-row--port3 > :nth-child(n+2) { aspect-ratio: 1 / 1; min-width: 0; }
+
+  /* top1port2: auf Mobile bleibt Layout gleich (Querformat oben, 2 Hochformat unten) */
+  .pd2-row--top1port2 > :first-child { aspect-ratio: 4 / 3; }
+  .pd2-row--top1port2 > :nth-child(n+2) { aspect-ratio: 3 / 4; }
 
   /* Text-Slot volle Breite mit natürlicher Texthöhe */
   .pd2-text-slot { aspect-ratio: auto; padding-block: 2rem; }
