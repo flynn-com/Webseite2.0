@@ -1207,12 +1207,25 @@ a:hover { text-decoration-thickness: 2px; }
 @media (max-width: 767px) {
   .pd2-title, .pd2-counter { font-size: clamp(3rem, 15vw, 5rem); }
   .pd2-prose { max-width: 100%; }
-  .pd2-row--port3 { grid-template-columns: 1fr 1fr; }
   .pd2-more__grid { grid-template-columns: 1fr 1fr; }
+
+  /* land2: asymmetrischer 60/40-Split, beide Bilder hochformatig */
+  .pd2-row--land2 { grid-template-columns: 3fr 2fr; }
+  .pd2-row--land2 .pd2-img { aspect-ratio: 4 / 5; }
+
+  /* port3: erstes Bild volle Breite (3:4), darunter zwei Quadrate */
+  .pd2-row--port3 { grid-template-columns: 1fr 1fr; }
+  .pd2-row--port3 > :first-child {
+    grid-column: 1 / -1;
+    aspect-ratio: 3 / 4;
+  }
+  .pd2-row--port3 .pd2-img:not(:first-child) { aspect-ratio: 1 / 1; }
+
+  /* Text-Slot volle Breite mit natürlicher Texthöhe */
+  .pd2-text-slot { aspect-ratio: auto; padding-block: 2rem; }
 }
 @media (max-width: 480px) {
-  .pd2-row--land2, .pd2-row--port3 { grid-template-columns: 1fr; }
-  .pd2-row--land2 .pd2-img, .pd2-row--port3 .pd2-img { aspect-ratio: 4 / 3; }
+  /* Nur die "Weitere Projekte"-Grid vereinfachen, Gallery-Layout bleibt wie bei 767px */
   .pd2-more__grid { grid-template-columns: 1fr; }
 }
 
