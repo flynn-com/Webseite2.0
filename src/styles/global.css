@@ -1219,7 +1219,7 @@ a:hover { text-decoration-thickness: 2px; }
     grid-column: 1 / -1;
     aspect-ratio: 3 / 4;
   }
-  .pd2-row--port3 .pd2-img:not(:first-child) { aspect-ratio: 1 / 1; }
+  .pd2-row--port3 > :nth-child(n+2) { aspect-ratio: 1 / 1; min-width: 0; }
 
   /* Text-Slot volle Breite mit natürlicher Texthöhe */
   .pd2-text-slot { aspect-ratio: auto; padding-block: 2rem; }
