@@ -153,20 +153,21 @@ let bodyPlaced = false;
   {otherProjects.length > 0 && (
     <section class="pd2-more">
       <h2 class="pd2-more__heading">Weitere Projekte</h2>
-      <div class="pd2-more__grid">
+      <div class="pd2-more__scroll-wrap">
+      <div class="pd2-more__grid" id="pd2MoreGrid">
         {otherProjects.map((p) => (
           <a class="pd2-more__card" href={projectDetailPath(lang, p.data.slug)}>
             <div class="pd2-more__img">
-              <img src={withBase(p.data.cover)} alt={p.data.title} loading="lazy" />
-            </div>
-            <div class="pd2-more__info">
-              <span class="pd2-more__title">{p.data.title}</span>
-              <span class="pd2-more__num">
-                {String(p.data.order).padStart(2, '0')}/{String(totalProjects).padStart(2, '0')}
-              </span>
+              <img src={withBase(p.data.cover)} alt={p.data.title} loading="lazy"
+                style={`object-position: ${p.data.cover_focal ?? '50% 50%'}`} />
+              <div class="pd2-more__overlay">
+                <span class="pd2-more__num">{String(p.data.order).padStart(2, '0')}/{String(totalProjects).padStart(2, '0')}</span>
+                <span class="pd2-more__title">{p.data.title}</span>
+              </div>
             </div>
           </a>
         ))}
+      </div>
       </div>
     </section>
   )}
@@ -232,4 +233,6 @@ let bodyPlaced = false;
     if (e.key === 'ArrowRight') showNext();
     if (e.key === 'Escape')     closeLightbox();
   });
+
+
 </script>

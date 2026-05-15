@@ -7,6 +7,7 @@ interface Props {
   title: string;
   category: string;
   cover: string;
+  cover_focal?: string;
   description?: string;
   location?: string;
   gallery?: { image: string; focal: string }[];
@@ -16,17 +17,17 @@ interface Props {
 }
 
 const {
-  lang, slug, title, category, cover,
+  lang, slug, title, category, cover, cover_focal = '50% 50%',
   description, location, gallery = [],
   date, index, total,
 } = Astro.props;
 
-// Bilder: Titelbild immer zuerst, dann Galerie-Bilder
-const images: string[] = [
-  ...(cover ? [cover] : []),
-  ...gallery.map(g => g.image),
+// Bilder + Fokuspunkte: Titelbild zuerst, dann Galerie-Bilder
+const slides: { src: string; focal: string }[] = [
+  ...(cover ? [{ src: cover, focal: cover_focal }] : []),
+  ...gallery.map(g => ({ src: g.image, focal: g.focal ?? '50% 50%' })),
 ];
-const hasCarousel = images.length > 1;
+const hasCarousel = slides.length > 1;
 
 // Nummer-Formatierung: 01 / 05
 const numCurrent = String(index + 1).padStart(2, '0');
@@ -57,13 +58,14 @@ const detailHref = projectDetailPath(lang, slug);
   <!-- ── Rechtes Bild-Karussell ── -->
   <div class="proj-card__media" data-carousel>
     <div class="proj-card__slides">
-      {images.map((src, i) => (
+      {slides.map((slide, i) => (
         <img
           class={`proj-card__slide${i === 0 ? ' is-active' : ''}`}
-          src={withBase(src)}
+          src={withBase(slide.src)}
           alt={i === 0 ? title : ''}
           loading={i === 0 ? 'eager' : 'lazy'}
           draggable="false"
+          style={`object-position: ${slide.focal}`}
         />
       ))}
     </div>
@@ -77,7 +79,7 @@ const detailHref = projectDetailPath(lang, slug);
           &#8250;
         </button>
         <div class="proj-card__dots">
-          {images.map((_, i) => (
+          {slides.map((_, i) => (
             <button
               class={`proj-card__dot${i === 0 ? ' is-active' : ''}`}
               aria-label={`Bild ${i + 1}`}
