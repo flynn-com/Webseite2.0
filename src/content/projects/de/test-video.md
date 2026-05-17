@@ -7,7 +7,22 @@ cover: /uploads/projekte/test-video/cover.avif
 cover_focal: "50% 50%"
 description: Das ist ein Test
 location: Hamburg
-gallery: []
+gallery:
+  -
+    image: /uploads/projekte/test-video/_flynn-ar_e-15.avif
+    focal: "50% 50%"
+  -
+    image: /uploads/projekte/test-video/_flynn-ar_e-21.avif
+    focal: "50% 50%"
+  -
+    image: /uploads/projekte/test-video/_flynn-ar_e-26.avif
+    focal: "50% 50%"
+  -
+    image: /uploads/projekte/test-video/_flynn-ar_e-40.avif
+    focal: "50% 50%"
+  -
+    image: /uploads/projekte/test-video/_flynn-ar_e-38.avif
+    focal: "50% 50%"
 youtube: []
 videos:
   - /uploads/projekte/test-video/test_1.mp4
