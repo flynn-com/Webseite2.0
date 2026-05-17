@@ -27,17 +27,30 @@ const galleryImages = entry.data.gallery;
 const videoLandscape = entry.data.videos;
 const videoPortrait  = entry.data.videos_portrait;
 
-// Feste Video-Slot-Zuweisung ins Gallery-Grid:
-// videos[0]  (16:9) → Reihe 2 (rowIdx 1), links (slot 0)
-// videos_portrait[0] → Reihe 3 (rowIdx 2), rechts (slot 'last')
-// videos[1]  (16:9) → Reihe 4 (rowIdx 3), Vollbild (slot 'full')
-// videos_portrait[1] → Reihe 5 (rowIdx 4), links (slot 0)
+// Video-Slot-Zuweisung ins Gallery-Grid (mehrere Videos pro Reihe möglich):
+// Querformat (16:9):
+//   videos[0] → Reihe 1 Links    (rowIdx 0, land2,     pos 0)
+//   videos[1] → Reihe 3 Oben     (rowIdx 2, top1port2, pos 0 = volle Breite)
+//   videos[2] → Reihe 4 Rechts   (rowIdx 3, land2,     pos 1)
+// Hochformat (9:16):
+//   videos_portrait[0] → Reihe 2 Rechts      (rowIdx 1, port3,     pos 'last')
+//   videos_portrait[1] → Reihe 3 Unten Links (rowIdx 2, top1port2, pos 1)
+//   videos_portrait[2+] → Reihe 5+ je 3 in port3-Reihen (rowIdx 4, 7, 10 …)
 interface VideoAssignment { position: number | 'last' | 'full'; src: string; orientation: 'landscape' | 'portrait'; }
-const videoAssignments = new Map<number, VideoAssignment>();
-if (videoLandscape[0])  videoAssignments.set(1, { position: 0,      src: videoLandscape[0],  orientation: 'landscape' });
-if (videoPortrait[0])   videoAssignments.set(2, { position: 'last', src: videoPortrait[0],   orientation: 'portrait'  });
-if (videoLandscape[1])  videoAssignments.set(3, { position: 'full', src: videoLandscape[1],  orientation: 'landscape' });
-if (videoPortrait[1])   videoAssignments.set(4, { position: 0,      src: videoPortrait[1],   orientation: 'portrait'  });
+const videoAssignments = new Map<number, VideoAssignment[]>();
+const addVid = (rowIdx: number, va: VideoAssignment) => {
+  videoAssignments.set(rowIdx, [...(videoAssignments.get(rowIdx) ?? []), va]);
+};
+// Querformat
+if (videoLandscape[0]) addVid(0, { position: 0,      src: videoLandscape[0], orientation: 'landscape' });
+if (videoLandscape[1]) addVid(2, { position: 0,      src: videoLandscape[1], orientation: 'landscape' });
+if (videoLandscape[2]) addVid(3, { position: 1,      src: videoLandscape[2], orientation: 'landscape' });
+// Hochformat
+if (videoPortrait[0])  addVid(1, { position: 'last', src: videoPortrait[0],  orientation: 'portrait'  });
+if (videoPortrait[1])  addVid(2, { position: 1,      src: videoPortrait[1],  orientation: 'portrait'  });
+for (let i = 0; i < videoPortrait.slice(2).length; i++) {
+  addVid(4 + Math.floor(i / 3) * 3, { position: i % 3, src: videoPortrait[2 + i], orientation: 'portrait' });
+}
 
 type ImageSlot = { kind: 'image'; image: string; focal: string };
 type VideoSlot = { kind: 'video'; src: string; orientation: 'landscape' | 'portrait'; full?: boolean };
@@ -59,44 +72,32 @@ const takeImgs = (n: number): ImageSlot[] => {
 
 while (imgCursor < galleryImages.length || rowIndex <= maxVideoRow) {
   const phase = rowIndex % 3;
-  const va = videoAssignments.get(rowIndex);
-  let rowType: GalleryRow['type'];
+  const rowVids = videoAssignments.get(rowIndex) ?? [];
+  const totalSlots = phase === 0 ? 2 : 3;
+  let rowType: GalleryRow['type'] = phase === 0 ? 'land2' : phase === 1 ? 'port3' : 'top1port2';
   let slots: SlotItem[] = [];
 
-  if (phase === 0) {
-    // land2 (oder land1)
-    if (va?.position === 'full') {
-      rowType = 'land2';
-      slots = [{ kind: 'video', src: va.src, orientation: va.orientation, full: true }];
-    } else if (typeof va?.position === 'number') {
-      const imgs = takeImgs(1);
-      const vid: VideoSlot = { kind: 'video', src: va.src, orientation: va.orientation };
-      slots = va.position === 0 ? [vid, ...imgs] : [...imgs, vid];
-      rowType = 'land2';
-    } else {
-      const imgs = takeImgs(2);
-      slots = imgs;
-      rowType = imgs.length === 1 ? 'land1' : 'land2';
-    }
-  } else if (phase === 1) {
-    rowType = 'port3';
-    if (va?.position === 0) {
-      const imgs = takeImgs(2);
-      slots = [{ kind: 'video', src: va.src, orientation: va.orientation }, ...imgs];
-    } else if (va?.position === 'last') {
-      const imgs = takeImgs(2);
-      slots = [...imgs, { kind: 'video', src: va.src, orientation: va.orientation }];
-    } else {
-      slots = takeImgs(3);
-    }
+  const fullVid = rowVids.find(v => v.position === 'full');
+  if (fullVid) {
+    slots = [{ kind: 'video', src: fullVid.src, orientation: fullVid.orientation, full: true }];
   } else {
-    rowType = 'top1port2';
-    if (va?.position === 'last') {
-      const imgs = takeImgs(2);
-      slots = [...imgs, { kind: 'video', src: va.src, orientation: va.orientation }];
-    } else {
-      slots = takeImgs(3);
+    // Baue numerische Positions-Map (position 'last' → totalSlots-1)
+    const vidMap = new Map<number, VideoAssignment>();
+    for (const v of rowVids) {
+      const p = v.position === 'last' ? totalSlots - 1 : v.position as number;
+      vidMap.set(p, v);
     }
+    for (let i = 0; i < totalSlots; i++) {
+      const v = vidMap.get(i);
+      if (v) {
+        slots.push({ kind: 'video', src: v.src, orientation: v.orientation });
+      } else {
+        const img = takeImgs(1);
+        if (img.length > 0) slots.push(img[0]);
+      }
+    }
+    // land2 mit nur 1 Bild (kein Video) → land1
+    if (phase === 0 && slots.length === 1 && slots[0].kind === 'image') rowType = 'land1';
   }
 
   if (slots.length > 0) galleryRows.push({ type: rowType, slots });
@@ -135,7 +136,7 @@ let bodyPlaced = false;
   {hasDesc && <div class="pd2-prose"><p>{entry.data.description}</p></div>}
   {hasBody && !bodyGoesInGallery && <div class="pd2-prose"><Content /></div>}
 
-  {entry.data.cover && (
+  {(entry.data.cover || entry.data.cover_video) && (
     <div class="pd2-hero">
       {entry.data.cover_video ? (
         <LocalVideo src={entry.data.cover_video} poster={entry.data.cover} />
@@ -154,27 +155,23 @@ let bodyPlaced = false;
       {galleryRows.map((row) => {
         const injectText = row.type === 'port3' && bodyGoesInGallery && !bodyPlaced && row.slots[0]?.kind === 'image';
         if (injectText) bodyPlaced = true;
-        const renderSlots = (slotList: typeof row.slots) => slotList.map((slot) =>
-          slot.kind === 'video' ? (
-            <div class={`pd2-video-slot${slot.full ? ' pd2-video-slot--full' : ''}`}>
-              <LocalVideo src={slot.src} />
-            </div>
-          ) : (
-            <button class="pd2-img" data-src={withBase(slot.image)} type="button">
-              <img src={withBase(slot.image)} alt="" loading="lazy"
-                style={`object-position:${slot.focal ?? '50% 50%'}`} />
-            </button>
-          )
-        );
+        const slotsToRender = injectText ? row.slots.slice(1) : row.slots;
         return (
           <div class={`pd2-row pd2-row--${row.type}`}>
-            {injectText ? (
-              <>
-                <div class="pd2-text-slot"><Content /></div>
-                {renderSlots(row.slots.slice(1))}
-              </>
-            ) : (
-              renderSlots(row.slots)
+            {injectText && (
+              <div class="pd2-text-slot"><Content /></div>
+            )}
+            {slotsToRender.map((slot) =>
+              slot.kind === 'video' ? (
+                <div class={`pd2-video-slot${slot.full ? ' pd2-video-slot--full' : ''}`}>
+                  <LocalVideo src={slot.src} />
+                </div>
+              ) : (
+                <button class="pd2-img" data-src={withBase(slot.image)} type="button">
+                  <img src={withBase(slot.image)} alt="" loading="lazy"
+                    style={`object-position:${slot.focal ?? '50% 50%'}`} />
+                </button>
+              )
             )}
           </div>
         );
@@ -182,19 +179,11 @@ let bodyPlaced = false;
     </div>
   )}
 
-  {/* Übrig gebliebene Videos (ab dem 3. Quer- bzw. 3. Hochformat) */}
-  {videoLandscape.slice(2).length > 0 && (
+  {/* Übrig gebliebene Querformat-Videos ab dem 4. (Portrait alle im Grid) */}
+  {videoLandscape.slice(3).length > 0 && (
     <div class="pd2-gallery">
-      {videoLandscape.slice(2).map((src) => (
+      {videoLandscape.slice(3).map((src) => (
         <div class="pd2-video"><LocalVideo src={src} /></div>
-      ))}
-    </div>
-  )}
-
-  {videoPortrait.slice(2).length > 0 && (
-    <div class="pd2-row pd2-row--port3" style="margin-top: var(--pd2-gap);">
-      {videoPortrait.slice(2).map((src) => (
-        <div class="pd2-video pd2-video--portrait"><LocalVideo src={src} /></div>
       ))}
     </div>
   )}
