@@ -24,30 +24,82 @@ const allProjects = await getCollection('projects-de')
 const totalProjects = allProjects.length;
 
 const galleryImages = entry.data.gallery;
+const videoLandscape = entry.data.videos;
+const videoPortrait  = entry.data.videos_portrait;
 
-type GalleryItem = { image: string; focal: string };
-type GalleryRow = { type: 'land2' | 'port3' | 'land1' | 'top1port2'; images: GalleryItem[]; startIdx: number };
+// Feste Video-Slot-Zuweisung ins Gallery-Grid:
+// videos[0]  (16:9) → Reihe 2 (rowIdx 1), links (slot 0)
+// videos_portrait[0] → Reihe 3 (rowIdx 2), rechts (slot 'last')
+// videos[1]  (16:9) → Reihe 4 (rowIdx 3), Vollbild (slot 'full')
+// videos_portrait[1] → Reihe 5 (rowIdx 4), links (slot 0)
+interface VideoAssignment { position: number | 'last' | 'full'; src: string; orientation: 'landscape' | 'portrait'; }
+const videoAssignments = new Map<number, VideoAssignment>();
+if (videoLandscape[0])  videoAssignments.set(1, { position: 0,      src: videoLandscape[0],  orientation: 'landscape' });
+if (videoPortrait[0])   videoAssignments.set(2, { position: 'last', src: videoPortrait[0],   orientation: 'portrait'  });
+if (videoLandscape[1])  videoAssignments.set(3, { position: 'full', src: videoLandscape[1],  orientation: 'landscape' });
+if (videoPortrait[1])   videoAssignments.set(4, { position: 0,      src: videoPortrait[1],   orientation: 'portrait'  });
+
+type ImageSlot = { kind: 'image'; image: string; focal: string };
+type VideoSlot = { kind: 'video'; src: string; orientation: 'landscape' | 'portrait'; full?: boolean };
+type SlotItem  = ImageSlot | VideoSlot;
+type GalleryRow = { type: 'land2' | 'port3' | 'land1' | 'top1port2'; slots: SlotItem[] };
+
 const galleryRows: GalleryRow[] = [];
 let imgCursor = 0;
 let rowIndex = 0;
-while (imgCursor < galleryImages.length) {
+const maxVideoRow = videoAssignments.size ? Math.max(...videoAssignments.keys()) : -1;
+
+const takeImgs = (n: number): ImageSlot[] => {
+  const result = galleryImages.slice(imgCursor, imgCursor + n).map(g => ({
+    kind: 'image' as const, image: g.image, focal: g.focal,
+  }));
+  imgCursor += result.length;
+  return result;
+};
+
+while (imgCursor < galleryImages.length || rowIndex <= maxVideoRow) {
   const phase = rowIndex % 3;
+  const va = videoAssignments.get(rowIndex);
+  let rowType: GalleryRow['type'];
+  let slots: SlotItem[] = [];
+
   if (phase === 0) {
-    // land2: 2 Querformat-Bilder (oder land1 wenn nur 1 übrig)
-    const imgs = galleryImages.slice(imgCursor, imgCursor + 2);
-    galleryRows.push({ type: imgs.length === 1 ? 'land1' : 'land2', images: imgs, startIdx: imgCursor });
-    imgCursor += imgs.length;
+    // land2 (oder land1)
+    if (va?.position === 'full') {
+      rowType = 'land2';
+      slots = [{ kind: 'video', src: va.src, orientation: va.orientation, full: true }];
+    } else if (typeof va?.position === 'number') {
+      const imgs = takeImgs(1);
+      const vid: VideoSlot = { kind: 'video', src: va.src, orientation: va.orientation };
+      slots = va.position === 0 ? [vid, ...imgs] : [...imgs, vid];
+      rowType = 'land2';
+    } else {
+      const imgs = takeImgs(2);
+      slots = imgs;
+      rowType = imgs.length === 1 ? 'land1' : 'land2';
+    }
   } else if (phase === 1) {
-    // port3: 3 Hochformat-Bilder nebeneinander
-    const imgs = galleryImages.slice(imgCursor, imgCursor + 3);
-    galleryRows.push({ type: 'port3', images: imgs, startIdx: imgCursor });
-    imgCursor += imgs.length;
+    rowType = 'port3';
+    if (va?.position === 0) {
+      const imgs = takeImgs(2);
+      slots = [{ kind: 'video', src: va.src, orientation: va.orientation }, ...imgs];
+    } else if (va?.position === 'last') {
+      const imgs = takeImgs(2);
+      slots = [...imgs, { kind: 'video', src: va.src, orientation: va.orientation }];
+    } else {
+      slots = takeImgs(3);
+    }
   } else {
-    // top1port2: 1 Bild volle Breite oben + 2 Hochformat unten
-    const imgs = galleryImages.slice(imgCursor, imgCursor + 3);
-    galleryRows.push({ type: 'top1port2', images: imgs, startIdx: imgCursor });
-    imgCursor += imgs.length;
+    rowType = 'top1port2';
+    if (va?.position === 'last') {
+      const imgs = takeImgs(2);
+      slots = [...imgs, { kind: 'video', src: va.src, orientation: va.orientation }];
+    } else {
+      slots = takeImgs(3);
+    }
   }
+
+  if (slots.length > 0) galleryRows.push({ type: rowType, slots });
   rowIndex++;
 }
 
@@ -55,8 +107,8 @@ const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 
 const hasBody = !!entry.body?.trim();
 const hasDesc = !!entry.data.description?.trim();
-// Fließtext (body) goes into the first port3 row's left slot if one exists
-const bodyGoesInGallery = hasBody && galleryRows.some(r => r.type === 'port3');
+// Fließtext (body) goes into the first port3 row's left slot if one exists and is not a video
+const bodyGoesInGallery = hasBody && galleryRows.some(r => r.type === 'port3' && r.slots[0]?.kind === 'image');
 let bodyPlaced = false;
 ---
 
@@ -85,40 +137,44 @@ let bodyPlaced = false;
 
   {entry.data.cover && (
     <div class="pd2-hero">
-      <button class="pd2-img pd2-hero__btn" type="button" data-src={withBase(entry.data.cover)} aria-label="Titelbild vergrößern">
-        <img src={withBase(entry.data.cover)} alt={entry.data.title}
-          style={`object-position:${entry.data.cover_focal}`}
-          fetchpriority="high" decoding="async" />
-      </button>
+      {entry.data.cover_video ? (
+        <LocalVideo src={entry.data.cover_video} poster={entry.data.cover} />
+      ) : (
+        <button class="pd2-img pd2-hero__btn" type="button" data-src={withBase(entry.data.cover)} aria-label="Titelbild vergrößern">
+          <img src={withBase(entry.data.cover)} alt={entry.data.title}
+            style={`object-position:${entry.data.cover_focal}`}
+            fetchpriority="high" decoding="async" />
+        </button>
+      )}
     </div>
   )}
 
   {galleryRows.length > 0 && (
     <div class="pd2-gallery">
       {galleryRows.map((row) => {
-        const injectText = row.type === 'port3' && bodyGoesInGallery && !bodyPlaced;
+        const injectText = row.type === 'port3' && bodyGoesInGallery && !bodyPlaced && row.slots[0]?.kind === 'image';
         if (injectText) bodyPlaced = true;
+        const renderSlots = (slotList: typeof row.slots) => slotList.map((slot) =>
+          slot.kind === 'video' ? (
+            <div class={`pd2-video-slot${slot.full ? ' pd2-video-slot--full' : ''}`}>
+              <LocalVideo src={slot.src} />
+            </div>
+          ) : (
+            <button class="pd2-img" data-src={withBase(slot.image)} type="button">
+              <img src={withBase(slot.image)} alt="" loading="lazy"
+                style={`object-position:${slot.focal ?? '50% 50%'}`} />
+            </button>
+          )
+        );
         return (
           <div class={`pd2-row pd2-row--${row.type}`}>
             {injectText ? (
               <>
-                <div class="pd2-text-slot">
-                  <Content />
-                </div>
-                {row.images.slice(1).map((item) => (
-                  <button class="pd2-img" data-src={withBase(item.image)} type="button">
-                    <img src={withBase(item.image)} alt="" loading="lazy"
-                      style={`object-position:${item.focal ?? '50% 50%'}`} />
-                  </button>
-                ))}
+                <div class="pd2-text-slot"><Content /></div>
+                {renderSlots(row.slots.slice(1))}
               </>
             ) : (
-              row.images.map((item) => (
-                <button class="pd2-img" data-src={withBase(item.image)} type="button">
-                  <img src={withBase(item.image)} alt="" loading="lazy"
-                    style={`object-position:${item.focal ?? '50% 50%'}`} />
-                </button>
-              ))
+              renderSlots(row.slots)
             )}
           </div>
         );
@@ -126,17 +182,18 @@ let bodyPlaced = false;
     </div>
   )}
 
-  {entry.data.videos.length > 0 && (
+  {/* Übrig gebliebene Videos (ab dem 3. Quer- bzw. 3. Hochformat) */}
+  {videoLandscape.slice(2).length > 0 && (
     <div class="pd2-gallery">
-      {entry.data.videos.map((src) => (
+      {videoLandscape.slice(2).map((src) => (
         <div class="pd2-video"><LocalVideo src={src} /></div>
       ))}
     </div>
   )}
 
-  {entry.data.videos_portrait.length > 0 && (
+  {videoPortrait.slice(2).length > 0 && (
     <div class="pd2-row pd2-row--port3" style="margin-top: var(--pd2-gap);">
-      {entry.data.videos_portrait.map((src) => (
+      {videoPortrait.slice(2).map((src) => (
         <div class="pd2-video pd2-video--portrait"><LocalVideo src={src} /></div>
       ))}
     </div>

@@ -9,6 +9,6 @@ interface Props {
 const { src, poster } = Astro.props;
 ---
 
-<video class="local-video" controls preload="metadata" playsinline poster={poster ? withBase(poster) : undefined}>
+<video class="local-video" autoplay loop muted playsinline preload="auto" poster={poster ? withBase(poster) : undefined}>
   <source src={withBase(src)} />
 </video>

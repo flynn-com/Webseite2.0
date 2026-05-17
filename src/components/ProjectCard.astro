@@ -8,6 +8,7 @@ interface Props {
   category: string;
   cover: string;
   cover_focal?: string;
+  cover_video?: string;
   description?: string;
   location?: string;
   gallery?: { image: string; focal: string }[];
@@ -18,6 +19,7 @@ interface Props {
 
 const {
   lang, slug, title, category, cover, cover_focal = '50% 50%',
+  cover_video,
   description, location, gallery = [],
   date, index, total,
 } = Astro.props;
@@ -27,7 +29,9 @@ const slides: { src: string; focal: string }[] = [
   ...(cover ? [{ src: cover, focal: cover_focal }] : []),
   ...gallery.map(g => ({ src: g.image, focal: g.focal ?? '50% 50%' })),
 ];
-const hasCarousel = slides.length > 1;
+// Wenn cover_video gesetzt: Video ist Slide 0, Bilder ab Slide 1
+const hasVideo = !!cover_video;
+const hasCarousel = hasVideo ? slides.length >= 1 : slides.length > 1;
 
 // Nummer-Formatierung: 01 / 05
 const numCurrent = String(index + 1).padStart(2, '0');
@@ -58,9 +62,17 @@ const detailHref = projectDetailPath(lang, slug);
   <!-- ── Rechtes Bild-Karussell ── -->
   <div class="proj-card__media" data-carousel>
     <div class="proj-card__slides">
+      {hasVideo && (
+        <video
+          class="proj-card__slide proj-card__slide--video is-active"
+          src={withBase(cover_video!)}
+          poster={withBase(cover)}
+          autoplay loop muted playsinline preload="auto"
+        />
+      )}
       {slides.map((slide, i) => (
         <img
-          class={`proj-card__slide${i === 0 ? ' is-active' : ''}`}
+          class={`proj-card__slide${!hasVideo && i === 0 ? ' is-active' : ''}`}
           src={withBase(slide.src)}
           alt={i === 0 ? title : ''}
           loading={i === 0 ? 'eager' : 'lazy'}
@@ -105,11 +117,16 @@ const detailHref = projectDetailPath(lang, slug);
     let current = 0;
 
     function goTo(n: number) {
+      const prevSlide = slides[current];
       slides[current].classList.remove('is-active');
       dots[current]?.classList.remove('is-active');
+      // Video pausieren wenn es inaktiv wird
+      if (prevSlide instanceof HTMLVideoElement) prevSlide.pause();
       current = (n + slides.length) % slides.length;
       slides[current].classList.add('is-active');
       dots[current]?.classList.add('is-active');
+      // Video abspielen wenn es aktiv wird
+      if (slides[current] instanceof HTMLVideoElement) (slides[current] as HTMLVideoElement).play();
     }
 
     // Pfeil-Buttons (Desktop/Tablet)

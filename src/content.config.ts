@@ -9,6 +9,7 @@ const projectFields = z.object({
   order: z.number().default(99),
   cover: z.string(),
   cover_focal: z.string().default('center'),
+  cover_video: z.string().optional(),
   description: z.string().optional(),
   location: z.string().optional(),
   gallery: z.preprocess(
