@@ -277,7 +277,7 @@ function serializeMarkdown(state) {
     return String(v);
   }
 
-  const order = ['title','slug','category','date','order','cover','cover_focal',
+  const order = ['title','slug','category','date','order','cover','cover_focal','cover_video',
                   'description','location','gallery','youtube','videos','videos_portrait',
                   'tags'];
 
@@ -565,6 +565,9 @@ function populateEditor(s) {
   updateFocalCrosshair('cover-focal-crosshair', s.cover_focal || 'center');
   document.getElementById('cover-focal-display').textContent = s.cover_focal || 'center';
 
+  // Cover-Video
+  renderCoverVideo(s.cover_video || '');
+
   // Gallery
   renderGallery(Array.isArray(s.gallery) ? s.gallery : []);
 
@@ -598,6 +601,7 @@ function readEditorState() {
   s.order        = parseInt(document.getElementById('ed-order').value, 10) || 99;
   s.cover        = document.getElementById('ed-cover').value;
   s.cover_focal  = document.getElementById('ed-cover-focal').value || 'center';
+  s.cover_video  = document.getElementById('ed-cover-video').value || undefined;
   s.location     = document.getElementById('ed-location').value.trim() || undefined;
   s.date         = document.getElementById('ed-date').value || undefined;
   s.description  = document.getElementById('ed-description').value.trim() || undefined;
@@ -1035,6 +1039,69 @@ setupVideoDrop('video-drop-landscape', 'video-file-landscape', false);
 setupVideoDrop('video-drop-portrait',  'video-file-portrait',  true);
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Cover-Video upload
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderCoverVideo(src) {
+  const hint    = document.getElementById('cover-video-hint');
+  const preview = document.getElementById('cover-video-preview');
+  const nameEl  = document.getElementById('cover-video-name');
+  const input   = document.getElementById('ed-cover-video');
+  if (src) {
+    hint.style.display    = 'none';
+    preview.style.display = 'flex';
+    nameEl.textContent    = src.split('/').pop();
+    input.value           = src;
+  } else {
+    hint.style.display    = '';
+    preview.style.display = 'none';
+    nameEl.textContent    = '';
+    input.value           = '';
+  }
+}
+
+document.getElementById('cover-video-zone').addEventListener('click', () => {
+  document.getElementById('cover-video-file').click();
+});
+document.getElementById('cover-video-zone').addEventListener('dragover', (e) => {
+  e.preventDefault();
+  document.getElementById('cover-video-zone').classList.add('drag-active');
+});
+document.getElementById('cover-video-zone').addEventListener('dragleave', () => {
+  document.getElementById('cover-video-zone').classList.remove('drag-active');
+});
+document.getElementById('cover-video-zone').addEventListener('drop', async (e) => {
+  e.preventDefault();
+  document.getElementById('cover-video-zone').classList.remove('drag-active');
+  const file = e.dataTransfer.files[0];
+  if (file) await handleCoverVideoFile(file);
+});
+document.getElementById('cover-video-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (file) await handleCoverVideoFile(file);
+  e.target.value = '';
+});
+document.getElementById('btn-cover-video-reset').addEventListener('click', () => {
+  renderCoverVideo('');
+  _editorState.cover_video = undefined;
+  delete _editorState._pendingCoverVideo;
+  markUnsaved();
+});
+
+async function handleCoverVideoFile(file) {
+  const { b64 } = await fileToBase64(file);
+  const slug = document.getElementById('ed-slug').value || 'neu';
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `public/uploads/projekte/${slug}/cover-video.${ext}`;
+  const pub  = `/uploads/projekte/${slug}/cover-video.${ext}`;
+
+  _editorState._pendingCoverVideo = { b64, path, pub, name: file.name };
+  _editorState.cover_video = pub;
+  renderCoverVideo(pub);
+  markUnsaved();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // YouTube add
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1215,6 +1282,19 @@ async function publishProject() {
       if (!r.ok) { logLine(`✕ Fehler: ${r.data.error}`, 'log-err'); throw new Error(r.data.error); }
       logLine(`✓ Cover hochgeladen`, 'log-ok');
       delete state._pendingCover;
+    }
+
+    // 1b. Upload cover-video if pending
+    if (state._pendingCoverVideo) {
+      logLine(`↑ Titelvideo hochladen: ${state._pendingCoverVideo.pub}`);
+      const r = await ghUploadMedia(
+        state._pendingCoverVideo.path,
+        state._pendingCoverVideo.b64,
+        `upload: Titelvideo für ${state.slug}`
+      );
+      if (!r.ok) { logLine(`✕ Fehler: ${r.data.error}`, 'log-err'); throw new Error(r.data.error); }
+      logLine(`✓ Titelvideo hochgeladen`, 'log-ok');
+      delete state._pendingCoverVideo;
     }
 
     // 2. Upload pending gallery / video files
