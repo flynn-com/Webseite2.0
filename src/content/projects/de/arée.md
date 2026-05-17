@@ -10,7 +10,7 @@ location: München
 gallery:
   -
     image: /uploads/projekte/arée/_flynn-ar_e-47.avif
-    focal: "50% 50%"
+    focal: "50% 42%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-28.avif
     focal: "50% 50%"
@@ -43,6 +43,7 @@ videos: []
 videos_portrait: []
 tags: []
 ---
+
 
 
 
