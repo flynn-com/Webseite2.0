@@ -7,7 +7,7 @@ const projectFields = z.object({
   category: z.enum(['fotografie', 'video', 'webdesign', 'design']),
   date: z.coerce.date().optional(),
   order: z.number().default(99),
-  cover: z.string(),
+  cover: z.string().default(''),
   cover_focal: z.string().default('center'),
   cover_video: z.string().optional(),
   description: z.string().optional(),

@@ -163,7 +163,7 @@
           </div>
         </div>
 
-        <!-- ② Titelbild -->
+        <!-- ② Titelbild / Titelvideo -->
         <div class="acc-item" data-acc="cover">
           <div class="acc-header">
             <div class="acc-num">2</div>
@@ -171,56 +171,60 @@
             <span class="acc-chevron">▾</span>
           </div>
           <div class="acc-body">
-            <p style="font-size:.8rem;color:var(--text3);margin-bottom:12px;">
-              Klicke auf das Bild, um den Fokuspunkt festzulegen (wird als <code>cover_focal</code> gespeichert).
-            </p>
-            <div class="cover-upload-zone" id="cover-zone">
-              <div class="upload-hint">
-                <div style="font-size:1.8rem;margin-bottom:6px;">🖼</div>
-                Bild hier ablegen oder klicken<br>
-                <span style="font-size:.75rem;">(JPG, PNG, WEBP, AVIF …)</span>
-              </div>
-              <img id="cover-preview" src="" alt="" style="display:none;">
-              <div class="focal-crosshair" id="cover-focal-crosshair"></div>
-              <input type="file" id="cover-file" accept="image/*,.avif,.heic,.heif,.webp,.tiff,.tif,.raw,.cr2,.nef,.arw,.dng" style="display:none;">
-            </div>
-            <p class="focal-label">Fokuspunkt: <code id="cover-focal-display">center</code></p>
-            <input type="hidden" id="ed-cover" value="">
-            <input type="hidden" id="ed-cover-focal" value="center">
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-secondary btn-sm" id="btn-cover-reset">Bild entfernen</button>
-            </div>
-          </div>
-        </div>
 
-        <!-- ② Titelvideo (optional) -->
-        <div class="acc-item" data-acc="cover-video">
-          <div class="acc-header">
-            <div class="acc-num" style="background:var(--accent2,#555);">▶</div>
-            <span class="acc-header-label">Titelvideo <span style="font-size:.75rem;font-weight:400;opacity:.6;">(optional)</span></span>
-            <span class="acc-chevron">▾</span>
-          </div>
-          <div class="acc-body">
-            <p style="font-size:.8rem;color:var(--text3);margin-bottom:12px;">
-              Wenn ein Video angegeben ist, ersetzt es das Titelbild im Hero-Bereich und läuft automatisch als Loop.<br>
-              Das Titelbild bleibt als Poster-Frame (erster Moment) und Thumbnail in Kacheln erhalten.
-            </p>
-            <div class="gallery-drop-zone" id="cover-video-zone" style="min-height:80px;cursor:pointer;">
-              <div class="upload-hint" id="cover-video-hint">
-                <div style="font-size:1.8rem;margin-bottom:6px;">🎬</div>
-                Video hier ablegen oder klicken<br>
-                <span style="font-size:.75rem;">(MP4, MOV, WEBM …)</span>
-              </div>
-              <div id="cover-video-preview" style="display:none;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2,#1a1a1a);border-radius:6px;">
-                <span style="font-size:1.4rem;">🎬</span>
-                <span id="cover-video-name" style="font-size:.85rem;word-break:break-all;color:var(--text1,#eee);"></span>
-              </div>
-              <input type="file" id="cover-video-file" accept="video/mp4,video/*" style="display:none;">
+            <!-- Tab-Umschalter -->
+            <div style="display:flex;gap:6px;margin-bottom:16px;">
+              <button class="btn btn-secondary btn-sm cover-tab is-active" id="cover-tab-image" type="button">🖼 Bild</button>
+              <button class="btn btn-secondary btn-sm cover-tab" id="cover-tab-video" type="button">🎬 Video</button>
             </div>
-            <input type="hidden" id="ed-cover-video" value="">
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-              <button class="btn btn-secondary btn-sm" id="btn-cover-video-reset">Video entfernen</button>
+
+            <!-- Bild-Bereich -->
+            <div id="cover-pane-image">
+              <p style="font-size:.8rem;color:var(--text3);margin-bottom:12px;">
+                Klicke auf das Bild, um den Fokuspunkt festzulegen (wird als <code>cover_focal</code> gespeichert).
+              </p>
+              <div class="cover-upload-zone" id="cover-zone">
+                <div class="upload-hint">
+                  <div style="font-size:1.8rem;margin-bottom:6px;">🖼</div>
+                  Bild hier ablegen oder klicken<br>
+                  <span style="font-size:.75rem;">(JPG, PNG, WEBP, AVIF …)</span>
+                </div>
+                <img id="cover-preview" src="" alt="" style="display:none;">
+                <div class="focal-crosshair" id="cover-focal-crosshair"></div>
+                <input type="file" id="cover-file" accept="image/*,.avif,.heic,.heif,.webp,.tiff,.tif,.raw,.cr2,.nef,.arw,.dng" style="display:none;">
+              </div>
+              <p class="focal-label">Fokuspunkt: <code id="cover-focal-display">center</code></p>
+              <input type="hidden" id="ed-cover" value="">
+              <input type="hidden" id="ed-cover-focal" value="center">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" id="btn-cover-reset">Bild entfernen</button>
+              </div>
             </div>
+
+            <!-- Video-Bereich -->
+            <div id="cover-pane-video" style="display:none;">
+              <p style="font-size:.8rem;color:var(--text3);margin-bottom:12px;">
+                Das Video läuft automatisch als Loop im Hero-Bereich.<br>
+                Lade zusätzlich ein Bild hoch (Tab „Bild") – es wird als Poster-Frame und Thumbnail in den Projektkacheln verwendet.
+              </p>
+              <div class="gallery-drop-zone" id="cover-video-zone" style="cursor:pointer;">
+                <div class="upload-hint" id="cover-video-hint">
+                  <div style="font-size:1.8rem;margin-bottom:6px;">🎬</div>
+                  Video hier ablegen oder klicken<br>
+                  <span style="font-size:.75rem;">(MP4, MOV, WEBM …)</span>
+                </div>
+                <div id="cover-video-preview" style="display:none;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2,#1a1a1a);border-radius:6px;">
+                  <span style="font-size:1.4rem;">🎬</span>
+                  <span id="cover-video-name" style="font-size:.85rem;word-break:break-all;color:var(--text1,#eee);"></span>
+                </div>
+                <input type="file" id="cover-video-file" accept="video/mp4,video/*" style="display:none;">
+              </div>
+              <input type="hidden" id="ed-cover-video" value="">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+                <button class="btn btn-secondary btn-sm" id="btn-cover-video-reset">Video entfernen</button>
+              </div>
+            </div>
+
           </div>
         </div>
 

@@ -565,8 +565,9 @@ function populateEditor(s) {
   updateFocalCrosshair('cover-focal-crosshair', s.cover_focal || 'center');
   document.getElementById('cover-focal-display').textContent = s.cover_focal || 'center';
 
-  // Cover-Video
+  // Cover-Video + Tab-Umschalter
   renderCoverVideo(s.cover_video || '');
+  setCoverTab(s.cover_video ? 'video' : 'image');
 
   // Gallery
   renderGallery(Array.isArray(s.gallery) ? s.gallery : []);
@@ -1060,6 +1061,17 @@ function renderCoverVideo(src) {
   }
 }
 
+// Tab-Umschalter Bild / Video
+function setCoverTab(tab) {
+  const isVideo = tab === 'video';
+  document.getElementById('cover-pane-image').style.display = isVideo ? 'none' : '';
+  document.getElementById('cover-pane-video').style.display = isVideo ? '' : 'none';
+  document.getElementById('cover-tab-image').classList.toggle('is-active', !isVideo);
+  document.getElementById('cover-tab-video').classList.toggle('is-active', isVideo);
+}
+document.getElementById('cover-tab-image').addEventListener('click', () => setCoverTab('image'));
+document.getElementById('cover-tab-video').addEventListener('click', () => setCoverTab('video'));
+
 document.getElementById('cover-video-zone').addEventListener('click', () => {
   document.getElementById('cover-video-file').click();
 });
@@ -1241,7 +1253,7 @@ async function publishProject() {
 
   if (!state.slug)  { toast('Slug fehlt!', 'error');  return; }
   if (!state.title) { toast('Titel fehlt!', 'error'); return; }
-  if (!state.cover) { toast('Bitte zuerst ein Titelbild hochladen!', 'error'); return; }
+  if (!state.cover && !state.cover_video) { toast('Bitte ein Titelbild oder Titelvideo hochladen!', 'error'); return; }
 
   // Block publish if images need re-upload (b64 lost after page reload)
   const missingFiles = getMissingUploadFiles(state);
