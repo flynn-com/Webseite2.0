@@ -9,8 +9,8 @@ description: Räume aus ungesehenen Blickwinkeln
 location: München
 gallery:
   -
-    image: /uploads/projekte/arée/_flynn-ar_e-38.avif
-    focal: "50% 32%"
+    image: /uploads/projekte/arée/_flynn-ar_e-47.avif
+    focal: "50% 50%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-28.avif
     focal: "50% 50%"
@@ -43,6 +43,7 @@ videos: []
 videos_portrait: []
 tags: []
 ---
+
 
 
 Die neu gestaltete Immobilie, welche von dem Architekturbüros Arée eingerichtet wurde, wurde in einer Fotoreihe abgebildet. Dabei lag der Fokus darauf, das Raumkonzept und die Einrichtung durch gezielte Perspektiven in Szene zu setzen.
