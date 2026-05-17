@@ -1,6 +1,6 @@
 ---
 photo: /uploads/about/®flynn.avif
-photo_focal: 50% 40%
+photo_focal: 50% 31%
 subtitle: "Creative Director & Designer"
 skills:
   - Fotografie
@@ -11,6 +11,7 @@ skills:
 ---
 
 
-Hallo, ich bin Flynn Bertsch. Als Fotograf, Videograf und Designer aus Stuttgart verwandle ich Ideen in visuelle Geschichten — von editorischen Shootings über Kampagnen bis hin zu Webprojekten. Mein Blick für Licht, Komposition und Details fließt in jede Arbeit ein.
 
-Ob Portrait, Fashion oder bewegtes Bild — ich arbeite eng mit meinen Kunden zusammen, um Projekte zu schaffen, die genau auf den Punkt treffen.
+Hi, ich bin Flynn. Als Fotograf, Videograf und Designer aus Stuttgart verwandle ich Ideen in visuelle Geschichten, von editorischen Shootings über Kampagnen bis hin zu Webprojekten. Mein Blick für Licht, Komposition und Details fließt in jede Arbeit ein.
+
+Ob Portrait, Fashion oder bewegtes Bild,  ich arbeite eng mit meinen Kunden zusammen, um Projekte zu schaffen, die genau auf den Punkt treffen.
