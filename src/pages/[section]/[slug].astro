@@ -113,7 +113,13 @@ const bodyGoesInGallery = hasBody && galleryRows.some(r => r.type === 'port3' &&
 let bodyPlaced = false;
 ---
 
-<BaseLayout lang={lang} title={`${entry.data.title} – Flynn Bertsch`} description={entry.data.description}>
+<BaseLayout
+  lang={lang}
+  title={`${entry.data.title} – Flynn Bertsch | ${entry.data.location ? entry.data.location + ' · ' : ''}Fotograf & Videograf`}
+  description={entry.data.description ?? `${entry.data.title} – ein Projekt von Flynn Bertsch, Fotograf und Videograf aus Stuttgart.`}
+  ogImage={entry.data.cover ? `https://flynnbertsch.com${entry.data.cover}` : undefined}
+  ogType="article"
+>
 <div class="pd2-page">
 
   <a class="pd2-nav" href={pathForLang(lang, 'projects')}>

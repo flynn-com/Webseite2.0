@@ -22,7 +22,13 @@ const lang = 'en' as const;
 const fmt = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 
-<BaseLayout lang={lang} title={`${entry.data.title} – Flynn Bertsch`} description={entry.data.description}>
+<BaseLayout
+  lang={lang}
+  title={`${entry.data.title} – Flynn Bertsch | ${entry.data.location ? entry.data.location + ' · ' : ''}Photographer & Videographer`}
+  description={entry.data.description ?? `${entry.data.title} – a project by Flynn Bertsch, photographer and videographer based in Stuttgart, Germany.`}
+  ogImage={entry.data.cover ? `https://flynnbertsch.com${entry.data.cover}` : undefined}
+  ogType="article"
+>
   <article class="project-detail container">
     <a class="project-detail__back" href={pathForLang(lang, 'projects')}>{t(lang, 'project.back')}</a>
 

@@ -9,10 +9,74 @@ interface Props {
   description?: string;
   lang?: Lang;
   bodyClass?: string;
+  /** Vollständige URL zu einem OG-Bild (z. B. Cover-Foto des Projekts) */
+  ogImage?: string;
+  /** Seitentyp für Open Graph, default 'website' */
+  ogType?: 'website' | 'article';
 }
 
-const { title, description, lang: langProp, bodyClass } = Astro.props;
+const {
+  title,
+  description,
+  lang: langProp,
+  bodyClass,
+  ogImage,
+  ogType = 'website',
+} = Astro.props;
+
 const lang = langProp ?? getLangFromUrl(Astro.url);
+
+const siteUrl = 'https://flynnbertsch.com';
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+const defaultOgImage = `${siteUrl}/og-default.jpg`;
+const resolvedOgImage = ogImage ?? defaultOgImage;
+
+// JSON-LD: Photographer + LocalBusiness (beide kombiniert)
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': ['Person', 'LocalBusiness'],
+      '@id': `${siteUrl}/#person`,
+      name: 'Flynn Bertsch',
+      url: siteUrl,
+      image: resolvedOgImage,
+      description:
+        lang === 'de'
+          ? 'Professioneller Fotograf, Videograf, Webdesigner und Designer aus Stuttgart – tätig in Stuttgart, München und ganz Deutschland.'
+          : 'Professional photographer, videographer, web designer and designer based in Stuttgart – working in Stuttgart, Munich and across Germany.',
+      jobTitle: lang === 'de' ? 'Fotograf & Videograf' : 'Photographer & Videographer',
+      knowsAbout:
+        lang === 'de'
+          ? ['Fotografie', 'Videografie', 'Webdesign', 'Design', 'Editorial', 'Kampagne', 'Portrait']
+          : ['Photography', 'Videography', 'Web Design', 'Design', 'Editorial', 'Campaign', 'Portrait'],
+      areaServed: [
+        { '@type': 'City', name: 'Stuttgart' },
+        { '@type': 'City', name: 'München' },
+        { '@type': 'State', name: 'Baden-Württemberg' },
+        { '@type': 'State', name: 'Bayern' },
+        { '@type': 'Country', name: 'Deutschland' },
+      ],
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Stuttgart',
+        addressRegion: 'Baden-Württemberg',
+        addressCountry: 'DE',
+      },
+      sameAs: [
+        'https://www.instagram.com/flynnbertsch',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: siteUrl,
+      name: 'Flynn Bertsch Portfolio',
+      publisher: { '@id': `${siteUrl}/#person` },
+      inLanguage: lang === 'de' ? 'de-DE' : 'en-US',
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -21,9 +85,42 @@ const lang = langProp ?? getLangFromUrl(Astro.url);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    {description && <meta name="description" content={description} />}
+
+    <!-- Canonical -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Primäre Meta-Tags -->
     <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <meta name="author" content="Flynn Bertsch" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:image" content={resolvedOgImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Flynn Bertsch Portfolio" />
+    <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
+    {lang === 'de'
+      ? <meta property="og:locale:alternate" content="en_US" />
+      : <meta property="og:locale:alternate" content="de_DE" />
+    }
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    <meta name="twitter:image" content={resolvedOgImage} />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body class={bodyClass}>
     <a class="skip-link" href="#main">Zum Inhalt springen</a>
