@@ -340,6 +340,7 @@
         <button class="tab-btn" data-tab="contact">Kontakt</button>
         <button class="tab-btn" data-tab="imprint">Impressum</button>
         <button class="tab-btn" data-tab="privacy">Datenschutz</button>
+        <button class="tab-btn" data-tab="seo">SEO</button>
       </div>
 
       <!-- Über mich -->
@@ -417,6 +418,38 @@
         <div style="display:flex;gap:10px;align-items:center;">
           <button class="btn btn-primary" id="btn-save-privacy">⬆ Speichern & Veröffentlichen</button>
           <span id="privacy-status" style="font-size:.8rem;color:var(--text3);"></span>
+        </div>
+      </div>
+
+      <!-- SEO -->
+      <div id="tab-seo" class="tab-panel">
+        <p style="color:var(--text3);font-size:.85rem;margin-bottom:1.5rem;">
+          Diese Texte erscheinen in Google-Suchergebnissen wenn jemand nach dir sucht.
+          Nach dem Speichern wird die Webseite automatisch neu gebaut (~2 Min).
+        </p>
+        <div class="form-group">
+          <label for="seo-title-de">Google-Titel (Deutsch)</label>
+          <input type="text" id="seo-title-de" placeholder="Flynn Bertsch – Fotograf & Videograf | Stuttgart & München" maxlength="70">
+          <div class="hint">Empfehlung: max. 60 Zeichen · <span id="seo-title-de-count">0</span>/60</div>
+        </div>
+        <div class="form-group">
+          <label for="seo-desc-de">Google-Beschreibung (Deutsch)</label>
+          <textarea id="seo-desc-de" rows="3" placeholder="Flynn Bertsch – professioneller Fotograf…" maxlength="160"></textarea>
+          <div class="hint">Empfehlung: max. 155 Zeichen · <span id="seo-desc-de-count">0</span>/155</div>
+        </div>
+        <div class="form-group" style="margin-top:1.5rem;">
+          <label for="seo-title-en">Google-Titel (Englisch)</label>
+          <input type="text" id="seo-title-en" placeholder="Flynn Bertsch – Photographer & Videographer | Stuttgart & Munich" maxlength="70">
+          <div class="hint">Empfehlung: max. 60 Zeichen · <span id="seo-title-en-count">0</span>/60</div>
+        </div>
+        <div class="form-group">
+          <label for="seo-desc-en">Google-Beschreibung (Englisch)</label>
+          <textarea id="seo-desc-en" rows="3" placeholder="Flynn Bertsch – professional photographer…" maxlength="160"></textarea>
+          <div class="hint">Empfehlung: max. 155 Zeichen · <span id="seo-desc-en-count">0</span>/155</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
+          <button class="btn btn-primary" id="btn-save-seo">⬆ Speichern & Veröffentlichen</button>
+          <span id="seo-status" style="font-size:.8rem;color:var(--text3);"></span>
         </div>
       </div>
 

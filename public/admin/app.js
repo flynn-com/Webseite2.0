@@ -1543,6 +1543,19 @@ async function loadSettingsData() {
     if (privacy && privacy.exists) {
       document.getElementById('privacy-body').value = parseMarkdown(privacy.content)._body || '';
     }
+
+    // SEO
+    const seo = await ghGetFile('src/data/seo.json');
+    if (seo && seo.exists) {
+      try {
+        const data = JSON.parse(seo.content);
+        document.getElementById('seo-title-de').value = data.de?.title || '';
+        document.getElementById('seo-desc-de').value  = data.de?.description || '';
+        document.getElementById('seo-title-en').value = data.en?.title || '';
+        document.getElementById('seo-desc-en').value  = data.en?.description || '';
+        updateSeoCounters();
+      } catch(e) {}
+    }
   } finally {
     hideLoading();
   }
@@ -1706,6 +1719,49 @@ document.getElementById('btn-save-privacy').addEventListener('click', async () =
     if (!r.ok) throw new Error(r.data.error);
     status.textContent = '✓ Gespeichert';
     toast('Datenschutz gespeichert', 'success');
+  } catch (err) {
+    status.textContent = '✕ Fehler';
+    toast('Fehler: ' + err.message, 'error');
+  }
+});
+
+// ── SEO ──────────────────────────────────────────────────────────────────────
+
+function updateSeoCounters() {
+  const titleDe = document.getElementById('seo-title-de');
+  const descDe  = document.getElementById('seo-desc-de');
+  const titleEn = document.getElementById('seo-title-en');
+  const descEn  = document.getElementById('seo-desc-en');
+  if (titleDe) document.getElementById('seo-title-de-count').textContent = titleDe.value.length;
+  if (descDe)  document.getElementById('seo-desc-de-count').textContent  = descDe.value.length;
+  if (titleEn) document.getElementById('seo-title-en-count').textContent = titleEn.value.length;
+  if (descEn)  document.getElementById('seo-desc-en-count').textContent  = descEn.value.length;
+}
+
+['seo-title-de','seo-desc-de','seo-title-en','seo-desc-en'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateSeoCounters);
+});
+
+document.getElementById('btn-save-seo').addEventListener('click', async () => {
+  const status = document.getElementById('seo-status');
+  status.textContent = 'Speichere…';
+  try {
+    const data = {
+      de: {
+        title:       document.getElementById('seo-title-de').value.trim(),
+        description: document.getElementById('seo-desc-de').value.trim(),
+      },
+      en: {
+        title:       document.getElementById('seo-title-en').value.trim(),
+        description: document.getElementById('seo-desc-en').value.trim(),
+      },
+    };
+    const content = JSON.stringify(data, null, 2) + '\n';
+    const existing = await ghGetFile('src/data/seo.json');
+    const r = await ghPutFile('src/data/seo.json', content, 'update: SEO title & description', existing?.sha);
+    if (!r.ok) throw new Error(r.data.error);
+    status.textContent = '✓ Gespeichert';
+    toast('SEO-Texte gespeichert – Webseite wird neu gebaut', 'success');
   } catch (err) {
     status.textContent = '✕ Fehler';
     toast('Fehler: ' + err.message, 'error');

@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import Hero from '../../components/Hero.astro';
 import { t, pathForLang } from '../../i18n/ui';
+import seoData from '../../data/seo.json';
 
 const lang = 'en' as const;
 const allProjects = await getCollection('projects-en', ({ data }) => !data.draft && data.visible);
@@ -15,8 +16,8 @@ const projectsToShow = allProjects
 
 <BaseLayout
   lang={lang}
-  title="Flynn Bertsch \u2013 Photographer & Videographer | Stuttgart & Munich"
-  description="Flynn Bertsch \u2013 professional photographer and videographer based in Stuttgart, Germany. Editorials, campaigns, portraits and web design. Working across Stuttgart, Munich and Germany."
+  title={seoData.en.title}
+  description={seoData.en.description}
   bodyClass="has-hero"
 >
   <Hero lang={lang} />
