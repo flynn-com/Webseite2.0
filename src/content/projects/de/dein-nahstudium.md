@@ -4,8 +4,8 @@ slug: dein-nahstudium
 category: video
 order: 4
 cover: /uploads/projekte/dein-nahstudium/cover.png
-cover_focal: "50% 44%"
-description: AKAD - University - Dein Nahstudium
+cover_focal: "66% 47%"
+description: AKAD University - Dein Nahstudium
 location: Deutschland
 gallery: []
 youtube:
