@@ -38,5 +38,4 @@ tags:
 ---
 
 Was wäre, wenn der Prof immer direkt in deinem Leben wäre? Beim Frühstück. Beim Haarewaschen. Beim Lernen auf dem Roller. Beim Frisör? Wo auch immer du bist.
-
 Für AKAD, eine der größten Fernhochschulen Deutschlands, haben wir diesen Gedanken zur Sommer-Kampagne gemacht. „Dein Nahstudium“ inszeniert die Vorteile digitalen Lernens mit maximaler Nähe – überzeichnet, provokant und so charmant, dass man nicht weggucken kann.
