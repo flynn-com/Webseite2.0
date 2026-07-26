@@ -2,7 +2,7 @@
 title: Dein Nahstudium
 slug: dein-nahstudium
 category: video
-order: 4
+order: 3
 cover: /uploads/projekte/dein-nahstudium/cover.avif
 cover_focal: "72% 48%"
 cover_video: /uploads/projekte/dein-nahstudium/cover-video.mp4
