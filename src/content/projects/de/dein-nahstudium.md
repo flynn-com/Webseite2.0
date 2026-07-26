@@ -28,9 +28,7 @@ gallery:
     image: /uploads/projekte/dein-nahstudium/_flynn-akad-8.avif
     focal: "50% 50%"
 youtube: []
-videos:
-  - /uploads/projekte/dein-nahstudium/akad_fris_r__web.mp4
-  - /uploads/projekte/dein-nahstudium/akad_k_che__web.mp4
+videos: []
 videos_portrait: []
 tags:
   - AKAD
