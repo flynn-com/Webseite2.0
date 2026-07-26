@@ -27,15 +27,17 @@ gallery:
   -
     image: /uploads/projekte/dein-nahstudium/_flynn-akad-8.avif
     focal: "50% 50%"
-youtube:
-  - "https://youtu.be/9IGpF8RBbp4"
-videos: []
+youtube: []
+videos:
+  - /uploads/projekte/dein-nahstudium/akad_fris_r__web.mp4
+  - /uploads/projekte/dein-nahstudium/akad_k_che__web.mp4
 videos_portrait: []
 tags:
   - AKAD
   - Werbung
   - Werbefilm
 ---
+
 
 Was wäre, wenn der Prof immer direkt in deinem Leben wäre? Beim Frühstück. Beim Haarewaschen. Beim Lernen auf dem Roller. Beim Frisör? Wo auch immer du bist.
 Für AKAD, eine der größten Fernhochschulen Deutschlands, haben wir diesen Gedanken zur Sommer-Kampagne gemacht. „Dein Nahstudium“ inszeniert die Vorteile digitalen Lernens mit maximaler Nähe – überzeichnet, provokant und so charmant, dass man nicht weggucken kann.
