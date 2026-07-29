@@ -1,12 +1,11 @@
 ---
-title: Dein Nahstudium
+title: AKAD University
 slug: dein-nahstudium
 category: video
 order: 3
-cover: /uploads/projekte/dein-nahstudium/cover.avif
-cover_focal: "72% 48%"
+cover_focal: center
 cover_video: /uploads/projekte/dein-nahstudium/cover-video.mp4
-description: AKAD University - Dein Nahstudium
+description: Dein Nahstudium
 location: Deutschland
 gallery:
   -
@@ -36,6 +35,5 @@ tags:
   - Werbefilm
 ---
 
-
-Was wäre, wenn der Prof immer direkt in deinem Leben wäre? Beim Frühstück. Beim Haarewaschen. Beim Lernen auf dem Roller. Beim Frisör? Wo auch immer du bist.
-Für AKAD, eine der größten Fernhochschulen Deutschlands, haben wir diesen Gedanken zur Sommer-Kampagne gemacht. „Dein Nahstudium“ inszeniert die Vorteile digitalen Lernens mit maximaler Nähe – überzeichnet, provokant und so charmant, dass man nicht weggucken kann.
+Digitales Lernen bedeutet Distanz? Im Gegenteil. Was wäre, wenn der Prof immer genau da ist, wo du auch bist? Ob beim Frühstück, beim Friseur oder unterwegs auf dem Roller.
+Mit der Sommerkampagne „Dein Nahstudium“ für die AKAD University haben wir die Flexibilität im Fernstudium greifbar gemacht. Als Verantwortlicher für Storytelling und Umsetzung war es mein Ziel, diese absolute Nähe in eine Kampagne zu übersetzen, die überzeichnet, provokant und gleichzeitig extrem charmant ist. Ein Look & Feel, das auffällt und festhält.
