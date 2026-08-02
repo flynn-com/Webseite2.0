@@ -172,12 +172,17 @@ const jsonLd = {
     const minSize  = baseSize * 0.4;
 
     el.textContent = '';
+    // Beide Zeilen als eigene Blockboxen (kein <br>, kein display:flex auf el selbst –
+    // das würde die Breitenberechnung des äußeren Flex-Headers verfälschen).
     const line1El = document.createElement('span');
+    line1El.style.display = 'block';
     line1El.textContent = line1.join(' ');
     el.appendChild(line1El);
-    el.appendChild(document.createElement('br'));
 
     const restEl = document.createElement('span');
+    // inline-block (nicht block!): muss auf seine natürliche Textbreite schrumpfen,
+    // damit die Breitenmessung unten stimmt. Steht trotzdem automatisch in eigener
+    // Zeile, weil davor ein Blockelement (line1El) steht.
     restEl.style.display    = 'inline-block';
     restEl.style.whiteSpace = 'nowrap';
     restEl.style.fontSize   = baseSize + 'px';
@@ -196,6 +201,11 @@ const jsonLd = {
         restEl.style.fontSize = scaled + 'px';
       }
     }
+
+    // Zeilenabstand verkleinern: den von der Schriftgröße vorgegebenen natürlichen
+    // Abstand messen und um die Hälfte reduzieren (nie negativ/überlappend).
+    const naturalGap = restEl.getBoundingClientRect().top - line1El.getBoundingClientRect().bottom;
+    if (naturalGap > 0) restEl.style.marginTop = `${-naturalGap * 0.5}px`;
   }
 
   function fitAllTitles() {
