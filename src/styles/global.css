@@ -358,6 +358,9 @@ a:hover { text-decoration-thickness: 2px; }
   text-transform: uppercase;
   letter-spacing: 0.02em;
   line-height: 1.1;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 .proj-card__desc {
   color: rgba(255,255,255,0.55);
@@ -993,6 +996,10 @@ a:hover { text-decoration-thickness: 2px; }
   letter-spacing: -0.06em;
   line-height: 0.88;
   margin: 0;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 .pd2-header-right {
   display: flex;

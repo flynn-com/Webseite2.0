@@ -131,3 +131,83 @@ const jsonLd = {
     <Footer lang={lang} />
 </body>
 </html>
+
+<script>
+  // Zweizeilige Projekt-Titel (.pd2-title, .proj-card__title): erste Zeile bleibt in
+  // normaler Größe, eine eventuelle zweite Zeile wird automatisch so weit verkleinert,
+  // dass sie in einer Zeile Platz findet (statt umzubrechen/abgeschnitten zu werden).
+  function fitTitle(el: HTMLElement) {
+    const original = el.dataset.autofitOriginal ?? el.textContent?.trim() ?? '';
+    el.dataset.autofitOriginal = original;
+    el.textContent = original;
+
+    const words = original.split(/\s+/).filter(Boolean);
+    if (words.length < 2) return;
+
+    const textNode = el.firstChild;
+    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+
+    // Anhand der natürlichen Umbruchstelle (aktuelle Schriftgröße) herausfinden,
+    // welche Wörter in Zeile 1 und welche in die restlichen Zeilen fallen.
+    const range = document.createRange();
+    let cursor = 0;
+    const tops: number[] = [];
+    for (const w of words) {
+      const start = original.indexOf(w, cursor);
+      const end = start + w.length;
+      cursor = end;
+      range.setStart(textNode, start);
+      range.setEnd(textNode, end);
+      tops.push(range.getBoundingClientRect().top);
+    }
+
+    const firstTop = tops[0];
+    const line1: string[] = [];
+    const rest: string[] = [];
+    words.forEach((w, i) => (Math.abs(tops[i] - firstTop) < 2 ? line1 : rest).push(w));
+
+    if (rest.length === 0) return; // passt bereits in eine Zeile
+
+    const baseSize = parseFloat(getComputedStyle(el).fontSize);
+    const minSize  = baseSize * 0.4;
+
+    el.textContent = '';
+    const line1El = document.createElement('span');
+    line1El.textContent = line1.join(' ');
+    el.appendChild(line1El);
+    el.appendChild(document.createElement('br'));
+
+    const restEl = document.createElement('span');
+    restEl.style.display    = 'inline-block';
+    restEl.style.whiteSpace = 'nowrap';
+    restEl.style.fontSize   = baseSize + 'px';
+    restEl.textContent = rest.join(' ');
+    el.appendChild(restEl);
+
+    const availWidth = el.clientWidth;
+    const restWidth   = restEl.getBoundingClientRect().width;
+    if (availWidth > 0 && restWidth > availWidth) {
+      const scaled = baseSize * (availWidth / restWidth);
+      if (scaled < minSize) {
+        // Auch bei minimaler Größe zu lang → normal umbrechen statt winzig quetschen
+        restEl.style.whiteSpace = 'normal';
+        restEl.style.fontSize   = minSize + 'px';
+      } else {
+        restEl.style.fontSize = scaled + 'px';
+      }
+    }
+  }
+
+  function fitAllTitles() {
+    document.querySelectorAll<HTMLElement>('.pd2-title, .proj-card__title').forEach(fitTitle);
+  }
+
+  fitAllTitles();
+  document.fonts?.ready?.then(fitAllTitles);
+
+  let resizeTimer: ReturnType<typeof setTimeout>;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fitAllTitles, 150);
+  });
+</script>
