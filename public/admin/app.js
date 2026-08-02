@@ -277,7 +277,7 @@ function serializeMarkdown(state) {
     return String(v);
   }
 
-  const order = ['title','slug','category','date','order','cover','cover_focal','cover_video',
+  const order = ['title','slug','category','date','order','featured','cover','cover_focal','cover_video',
                   'description','location','gallery','youtube','videos','videos_portrait',
                   'tags'];
 
@@ -469,7 +469,9 @@ function renderProjectGrid() {
         <div class="project-card-title">${p.title || '(ohne Titel)'}</div>
         <div class="project-card-meta">
           <span class="badge badge-category">${p.category || ''}</span>
-          <span class="badge badge-visible">veröffentlicht</span>
+          ${p.featured !== false
+            ? `<span class="badge badge-visible">Startseite</span>`
+            : `<span class="badge badge-hidden">nur Portfolio</span>`}
         </div>
       </div>`;
 
@@ -508,7 +510,7 @@ function openEditor(slug, localOnly = false) {
   let state = _localDrafts[slug] || null;
   if (!state) {
     const p = _projects.find(p => p.slug === slug);
-    state = p ? JSON.parse(JSON.stringify(p)) : { slug, title: '', order: 99, category: 'fotografie', gallery: [], youtube: [], videos: [], videos_portrait: [], tags: [], _body: '' };
+    state = p ? JSON.parse(JSON.stringify(p)) : { slug, title: '', order: 99, category: 'fotografie', featured: true, gallery: [], youtube: [], videos: [], videos_portrait: [], tags: [], _body: '' };
   }
   // Ensure required arrays exist (safeguard against malformed/inline-[] frontmatter)
   state.gallery          = Array.isArray(state.gallery)          ? state.gallery          : [];
@@ -540,6 +542,7 @@ function populateEditor(s) {
   document.getElementById('ed-slug').value        = s.slug || '';
   document.getElementById('ed-category').value    = s.category || 'fotografie';
   document.getElementById('ed-order').value       = s.order != null ? s.order : 99;
+  document.getElementById('ed-featured').checked  = s.featured !== false;
 
   // Cover
   const coverPreview = document.getElementById('cover-preview');
@@ -600,6 +603,7 @@ function readEditorState() {
   s.slug         = document.getElementById('ed-slug').value.trim();
   s.category     = document.getElementById('ed-category').value;
   s.order        = parseInt(document.getElementById('ed-order').value, 10) || 99;
+  s.featured     = document.getElementById('ed-featured').checked;
   s.cover        = document.getElementById('ed-cover').value;
   s.cover_focal  = document.getElementById('ed-cover-focal').value || 'center';
   s.cover_video  = document.getElementById('ed-cover-video').value || undefined;

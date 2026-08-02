@@ -226,6 +226,28 @@ body {
 
 .form-group input[type="number"] { width: 100px; }
 
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  font-size: .875rem !important;
+  font-weight: 400 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  color: var(--text) !important;
+  cursor: pointer;
+  margin-bottom: 0 !important;
+}
+.checkbox-label input[type="checkbox"] {
+  display: inline-block !important;
+  width: 16px !important;
+  height: 16px !important;
+  padding: 0 !important;
+  accent-color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
