@@ -130,7 +130,7 @@ async function doLogin(username, password) {
     localStorage.setItem('admin_token', _token);
     return { ok: true };
   }
-  return { ok: false, error: data.error || 'Fehler', resetAvailable: data.resetAvailable, attempts: data.attempts };
+  return { ok: false, error: data.error || 'Fehler' };
 }
 
 async function doLogout() {
@@ -1799,9 +1799,6 @@ document.getElementById('btn-login').addEventListener('click', async () => {
   } else {
     errEl.textContent = res.error || 'Fehler';
     errEl.classList.add('show');
-    if (res.resetAvailable) {
-      document.getElementById('reset-hint').style.display = '';
-    }
   }
 });
 

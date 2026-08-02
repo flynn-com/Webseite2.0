@@ -130,14 +130,28 @@ async function handleSetup(request, env) {
   return json({ ok: true });
 }
 
+const LOGIN_LOCKOUT_THRESHOLD = 5;
+const LOGIN_LOCKOUT_MS        = 15 * 60 * 1000; // 15 min Sperre
+const LOGIN_WINDOW_MS         = 30 * 60 * 1000; // Zähler verfällt nach 30 min Ruhe
+
 async function handleLogin(request, env) {
   const { username, password } = await request.json();
 
-  // Failed-attempts tracking (reset after 30 min)
   const attKey   = 'failed_attempts';
   const attRaw   = await env.ADMIN_KV.get(attKey);
   const att      = attRaw ? JSON.parse(attRaw) : { count: 0, lastAttempt: 0 };
-  if (Date.now() - att.lastAttempt > 30 * 60 * 1000) att.count = 0;
+  const sinceLast = Date.now() - att.lastAttempt;
+
+  // Aktive Sperre nach zu vielen Fehlversuchen
+  if (att.count >= LOGIN_LOCKOUT_THRESHOLD && sinceLast < LOGIN_LOCKOUT_MS) {
+    const waitMin = Math.ceil((LOGIN_LOCKOUT_MS - sinceLast) / 60000);
+    return json({ error: `Zu viele Fehlversuche. Bitte in ${waitMin} Minute(n) erneut versuchen.`, locked: true }, 429);
+  }
+
+  // Zähler verfällt nach Ruhephase (auch nach abgelaufener Sperre)
+  if (sinceLast > LOGIN_WINDOW_MS || (att.count >= LOGIN_LOCKOUT_THRESHOLD && sinceLast >= LOGIN_LOCKOUT_MS)) {
+    att.count = 0;
+  }
 
   const credsRaw = await env.ADMIN_KV.get('credentials');
   if (!credsRaw) return json({ error: 'Kein Admin konfiguriert' }, 503);
@@ -151,7 +165,7 @@ async function handleLogin(request, env) {
     att.count++;
     att.lastAttempt = Date.now();
     await env.ADMIN_KV.put(attKey, JSON.stringify(att));
-    return json({ error: 'Benutzername oder Passwort falsch', resetAvailable: att.count >= 3, attempts: att.count }, 401);
+    return json({ error: 'Benutzername oder Passwort falsch' }, 401);
   }
 
   // Create session (24 h)
@@ -169,7 +183,14 @@ async function handleLogout(request, env) {
   return json({ ok: true });
 }
 
+const RESET_REQUEST_COOLDOWN_MS = 5 * 60 * 1000; // max. 1 Reset-Mail alle 5 min
+
 async function handleResetRequest(request, env) {
+  const lastReq = await env.ADMIN_KV.get('last_reset_request');
+  if (lastReq && Date.now() - Number(lastReq) < RESET_REQUEST_COOLDOWN_MS) {
+    return json({ error: 'Es wurde bereits kürzlich eine Reset-Mail versendet. Bitte prüfe dein Postfach oder warte ein paar Minuten.' }, 429);
+  }
+
   // Generate reset token (1 h)
   const token = randomHex(32);
   await env.ADMIN_KV.put(`reset:${token}`, JSON.stringify({ createdAt: Date.now() }), { expirationTtl: 3600 });
@@ -200,6 +221,7 @@ async function handleResetRequest(request, env) {
     return json({ error: 'E-Mail konnte nicht gesendet werden' }, 500);
   }
 
+  await env.ADMIN_KV.put('last_reset_request', String(Date.now()));
   return json({ ok: true });
 }
 
