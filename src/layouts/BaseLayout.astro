@@ -202,10 +202,14 @@ const jsonLd = {
       }
     }
 
-    // Zeilenabstand verkleinern: den von der Schriftgröße vorgegebenen natürlichen
-    // Abstand messen und um die Hälfte reduzieren (nie negativ/überlappend).
+    // Breite ist jetzt korrekt gemessen — für die Darstellung auf eine echte Blockbox
+    // wechseln. inline-block reserviert sonst unsichtbaren Leerraum in Höhe der
+    // ursprünglichen (größeren) Schrift, was den Abstand unnötig aufbläht.
+    restEl.style.display = 'block';
+
+    // Verbleibenden minimalen Abstand nochmal zusätzlich verengen (nie überlappend).
     const naturalGap = restEl.getBoundingClientRect().top - line1El.getBoundingClientRect().bottom;
-    if (naturalGap > 0) restEl.style.marginTop = `${-naturalGap * 0.5}px`;
+    if (naturalGap > 0) restEl.style.marginTop = `${-naturalGap * 0.8}px`;
   }
 
   function fitAllTitles() {
