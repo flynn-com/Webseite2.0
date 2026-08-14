@@ -988,18 +988,31 @@ a:hover { text-decoration-thickness: 2px; }
   padding: clamp(50px, 6vw, 80px) clamp(28px, 2.54vw, 60px) clamp(60px, 8vw, 120px);
 }
 
-/* Zurück-Link auf gleicher Höhe wie der Kontakt-Button oben rechts */
+/* Zurück-Link auf gleicher Höhe wie der Kontakt-Button oben rechts.
+   padding:0, da die alte Top-Padding (für frühere Inline-Position gedacht)
+   den Text sonst asymmetrisch aus der Mitte der Box schiebt. */
 .pd2-page > .pd2-nav {
   position: absolute;
   top: clamp(32px, 4vw, 52px);
   left: clamp(28px, 2.54vw, 60px);
   transform: translateY(-50%);
+  padding: 0;
 }
 @media (max-width: 767px) {
   /* Muss exakt mit der Mobile-Position von .am-contact-btn übereinstimmen */
   .pd2-page > .pd2-nav {
     top: clamp(28px, 7vw, 44px);
     left: clamp(16px, 4vw, 28px);
+  }
+}
+
+/* Kontakt-Button auf Schriftgröße des Zurück-Links (minus 10%) bringen */
+.pd2-page > .am-contact-btn {
+  font-size: 0.99rem;
+}
+@media (max-width: 767px) {
+  .pd2-page > .am-contact-btn {
+    font-size: 0.99rem;
   }
 }
 
