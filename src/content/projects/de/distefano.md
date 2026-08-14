@@ -10,13 +10,13 @@ location: Italien
 gallery:
   -
     image: /uploads/projekte/distefano/_flynn-distefano-2.avif
-    focal: "51% 62%"
+    focal: "52% 58%"
   -
     image: /uploads/projekte/distefano/_flynn-distefano-8.avif
     focal: "50% 50%"
   -
     image: /uploads/projekte/distefano/_flynn-distefano-28.avif
-    focal: "50% 50%"
+    focal: "50% 43%"
   -
     image: /uploads/projekte/distefano/_flynn-distefano-9.avif
     focal: "50% 50%"
