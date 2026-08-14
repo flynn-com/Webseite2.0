@@ -791,6 +791,62 @@ body {
 }
 .video-item .btn-icon { flex-shrink: 0; }
 
+/* ── Behind the Scenes ──────────────────────────────────────────────────── */
+
+.bts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.bts-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.bts-item-kind {
+  flex-shrink: 0;
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+}
+.bts-item-thumb {
+  width: 48px; height: 48px;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--surface3);
+  flex-shrink: 0;
+}
+.bts-item-text {
+  flex: 1;
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: .82rem;
+  padding: 6px 8px;
+  resize: vertical;
+  min-height: 36px;
+}
+.bts-item-name {
+  flex: 1;
+  font-size: .82rem;
+  color: var(--text2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bts-item-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
 /* ── Settings Tabs ──────────────────────────────────────────────────────── */
 
 .tabs {

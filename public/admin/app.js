@@ -279,7 +279,7 @@ function serializeMarkdown(state) {
 
   const order = ['title','slug','category','date','order','featured','cover','cover_focal','cover_video',
                   'description','location','gallery','youtube','videos','videos_portrait',
-                  'tags'];
+                  'tags','bts_enabled','bts_items'];
 
   for (const key of order) {
     if (!(key in state)) continue;
@@ -510,7 +510,7 @@ function openEditor(slug, localOnly = false) {
   let state = _localDrafts[slug] || null;
   if (!state) {
     const p = _projects.find(p => p.slug === slug);
-    state = p ? JSON.parse(JSON.stringify(p)) : { slug, title: '', order: 99, category: 'fotografie', featured: true, gallery: [], youtube: [], videos: [], videos_portrait: [], tags: [], _body: '' };
+    state = p ? JSON.parse(JSON.stringify(p)) : { slug, title: '', order: 99, category: 'fotografie', featured: true, gallery: [], youtube: [], videos: [], videos_portrait: [], tags: [], bts_enabled: false, bts_items: [], _body: '' };
   }
   // Ensure required arrays exist (safeguard against malformed/inline-[] frontmatter)
   state.gallery          = Array.isArray(state.gallery)          ? state.gallery          : [];
@@ -518,6 +518,7 @@ function openEditor(slug, localOnly = false) {
   state.videos           = Array.isArray(state.videos)           ? state.videos           : [];
   state.videos_portrait  = Array.isArray(state.videos_portrait)  ? state.videos_portrait  : [];
   state.tags             = Array.isArray(state.tags)             ? state.tags             : [];
+  state.bts_items        = Array.isArray(state.bts_items)        ? state.bts_items        : [];
   _editorState = state;
 
   try {
@@ -587,6 +588,9 @@ function populateEditor(s) {
   document.getElementById('ed-body').value        = s._body || '';
   renderTags(Array.isArray(s.tags) ? s.tags : []);
 
+  // Behind the Scenes
+  document.getElementById('ed-bts-enabled').checked = !!s.bts_enabled;
+  renderBts(Array.isArray(s.bts_items) ? s.bts_items : []);
 
   // Warnung wenn Bild-Daten nach Seitenneuladen fehlen
   updatePendingWarning();
@@ -604,6 +608,7 @@ function readEditorState() {
   s.category     = document.getElementById('ed-category').value;
   s.order        = parseInt(document.getElementById('ed-order').value, 10) || 99;
   s.featured     = document.getElementById('ed-featured').checked;
+  s.bts_enabled  = document.getElementById('ed-bts-enabled').checked;
   s.cover        = document.getElementById('ed-cover').value;
   s.cover_focal  = document.getElementById('ed-cover-focal').value || 'center';
   s.cover_video  = document.getElementById('ed-cover-video').value || undefined;
@@ -820,6 +825,149 @@ function renderTags(tags) {
     list.appendChild(span);
   });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Behind the Scenes (gemischte Liste: Bild / Video / Text)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderBts(items) {
+  const list = document.getElementById('bts-list');
+  list.innerHTML = '';
+
+  items.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'bts-item';
+
+    const kindEl = document.createElement('span');
+    kindEl.className = 'bts-item-kind';
+    kindEl.textContent = item.kind === 'image' ? '🖼' : item.kind === 'video' ? '🎬' : '📝';
+    div.appendChild(kindEl);
+
+    if (item.kind === 'text') {
+      const textarea = document.createElement('textarea');
+      textarea.className = 'bts-item-text';
+      textarea.rows = 1;
+      textarea.placeholder = 'Text eingeben…';
+      textarea.value = item.text || '';
+      textarea.addEventListener('input', () => {
+        // Zeilenumbrüche entfernen: das YAML-Frontmatter unterstützt nur einzeilige Werte
+        _editorState.bts_items[idx].text = textarea.value.replace(/\r?\n/g, ' ');
+        markUnsaved();
+      });
+      div.appendChild(textarea);
+    } else {
+      const src = item.kind === 'image' ? item.image : item.video;
+      if (item.kind === 'image') {
+        const img = document.createElement('img');
+        img.className = 'bts-item-thumb';
+        img.alt = '';
+        img.src = resolveImg(src);
+        div.appendChild(img);
+      } else {
+        const video = document.createElement('video');
+        video.className = 'bts-item-thumb';
+        video.muted = true;
+        video.preload = 'metadata';
+        video.src = resolveImg(src);
+        div.appendChild(video);
+      }
+      const nameEl = document.createElement('span');
+      nameEl.className = 'bts-item-name';
+      nameEl.textContent = (src || '').split('/').pop();
+      nameEl.title = src || '';
+      div.appendChild(nameEl);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'bts-item-actions';
+    actions.innerHTML = `
+      <button class="btn-icon" data-action="left"   data-idx="${idx}" title="Nach links">◀</button>
+      <button class="btn-icon" data-action="right"  data-idx="${idx}" title="Nach rechts">▶</button>
+      <button class="btn-icon" data-action="remove" data-idx="${idx}" title="Entfernen">✕</button>`;
+    div.appendChild(actions);
+
+    list.appendChild(div);
+  });
+
+  list.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      const idx    = parseInt(btn.dataset.idx, 10);
+      const bts    = _editorState.bts_items || [];
+
+      if (action === 'remove') {
+        const removed = bts[idx];
+        bts.splice(idx, 1);
+        if (_editorState._pendingMedia && removed) {
+          const src = removed.kind === 'image' ? removed.image : removed.video;
+          _editorState._pendingMedia = _editorState._pendingMedia.filter(m => m.pub !== src);
+        }
+        renderBts(bts);
+        markUnsaved();
+      } else if (action === 'left' && idx > 0) {
+        [bts[idx - 1], bts[idx]] = [bts[idx], bts[idx - 1]];
+        renderBts(bts);
+        markUnsaved();
+      } else if (action === 'right' && idx < bts.length - 1) {
+        [bts[idx + 1], bts[idx]] = [bts[idx], bts[idx + 1]];
+        renderBts(bts);
+        markUnsaved();
+      }
+    });
+  });
+}
+
+async function handleBtsFiles(files, kind) {
+  for (const file of files) {
+    const { b64, dataUrl, blobUrl } = await fileToBase64(file);
+    const slug = document.getElementById('ed-slug').value || 'neu';
+    const ext  = file.name.split('.').pop().toLowerCase();
+    const name = file.name.replace(/\.[^.]+$/, '').replace(/[^a-z0-9-_]/gi, '_').toLowerCase();
+    const path = `public/uploads/projekte/${slug}/${name}.${ext}`;
+    const pub  = `/uploads/projekte/${slug}/${name}.${ext}`;
+
+    _blobCache[pub]    = dataUrl;
+    _displayCache[pub] = blobUrl;
+    addToPendingPaths(slug, pub);
+
+    if (!_editorState.bts_items)    _editorState.bts_items    = [];
+    if (!_editorState._pendingMedia) _editorState._pendingMedia = [];
+
+    _editorState.bts_items.push(kind === 'image' ? { kind: 'image', image: pub } : { kind: 'video', video: pub });
+    _editorState._pendingMedia.push({ b64, path, pub, name: file.name });
+  }
+  renderBts(_editorState.bts_items);
+  updatePendingWarning();
+  markUnsaved();
+}
+
+document.getElementById('btn-bts-add-image').addEventListener('click', () => {
+  document.getElementById('bts-image-file').click();
+});
+document.getElementById('bts-image-file').addEventListener('change', async (e) => {
+  await handleBtsFiles(Array.from(e.target.files), 'image');
+  e.target.value = '';
+});
+
+document.getElementById('btn-bts-add-video').addEventListener('click', () => {
+  document.getElementById('bts-video-file').click();
+});
+document.getElementById('bts-video-file').addEventListener('change', async (e) => {
+  await handleBtsFiles(Array.from(e.target.files), 'video');
+  e.target.value = '';
+});
+
+document.getElementById('btn-bts-add-text').addEventListener('click', () => {
+  if (!_editorState.bts_items) _editorState.bts_items = [];
+  _editorState.bts_items.push({ kind: 'text', text: '' });
+  renderBts(_editorState.bts_items);
+  markUnsaved();
+  requestAnimationFrame(() => {
+    const areas = document.querySelectorAll('#bts-list .bts-item-text');
+    const last  = areas[areas.length - 1];
+    if (last) last.focus();
+  });
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Focal Point Modal

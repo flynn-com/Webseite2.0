@@ -321,6 +321,32 @@
           </div>
         </div>
 
+        <!-- ⑥ Behind the Scenes -->
+        <div class="acc-item" data-acc="bts">
+          <div class="acc-header">
+            <div class="acc-num">6</div>
+            <span class="acc-header-label">Behind the Scenes</span>
+            <span class="acc-chevron">▾</span>
+          </div>
+          <div class="acc-body">
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="ed-bts-enabled">
+                Behind-the-Scenes-Bereich aktivieren
+              </label>
+              <div class="hint">Zeigt einen verschiebbaren Glas-Container mit Bildern, Videos und Text zwischen dem letzten Bild und "Weitere Projekte".</div>
+            </div>
+            <div class="bts-list" id="bts-list"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+              <button class="btn btn-secondary btn-sm" type="button" id="btn-bts-add-image">🖼 Bild hinzufügen</button>
+              <button class="btn btn-secondary btn-sm" type="button" id="btn-bts-add-video">🎬 Video hinzufügen</button>
+              <button class="btn btn-secondary btn-sm" type="button" id="btn-bts-add-text">📝 Text hinzufügen</button>
+            </div>
+            <input type="file" id="bts-image-file" accept="image/*,.avif,.heic,.heif,.webp,.tiff,.tif,.raw,.cr2,.nef,.arw,.dng" multiple style="display:none;">
+            <input type="file" id="bts-video-file" accept="video/mp4,video/*" multiple style="display:none;">
+          </div>
+        </div>
+
       </div><!-- end accordion -->
 
       <!-- Sticky Action Bar -->

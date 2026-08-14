@@ -42,6 +42,17 @@ const projectFields = z.object({
   tags: z.array(z.string()).default([]),
   // featured: Projekt erscheint auf der Startseite (default true = alle neuen Projekte werden angezeigt)
   featured: z.boolean().default(true),
+  // Behind the Scenes: optionaler Glas-Container mit gemischter Bild/Video/Text-Reihe
+  bts_enabled: z.boolean().default(false),
+  bts_items: z.preprocess(
+    (val) => (val ?? []),
+    z.array(z.object({
+      kind: z.enum(['image', 'video', 'text']),
+      image: z.string().optional(),
+      video: z.string().optional(),
+      text: z.string().optional(),
+    }))
+  ).default([]),
 });
 
 const projectsDe = defineCollection({

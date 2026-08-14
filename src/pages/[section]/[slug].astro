@@ -202,6 +202,41 @@ let bodyPlaced = false;
     </div>
   )}
 
+  {entry.data.bts_enabled && entry.data.bts_items.length > 0 && (
+    <section class="pd2-bts">
+      <h2 class="pd2-bts__heading">Behind the Scenes</h2>
+      <div class="pd2-bts__scroll-wrap">
+        <div class="pd2-bts__track" id="btsTrack">
+          {entry.data.bts_items.map((item) => {
+            if (item.kind === 'image' && item.image) {
+              return (
+                <div class="pd2-bts__item pd2-bts__item--media">
+                  <img src={withBase(item.image)} alt="" loading="lazy" />
+                </div>
+              );
+            }
+            if (item.kind === 'video' && item.video) {
+              return (
+                <div class="pd2-bts__item pd2-bts__item--media">
+                  <video src={withBase(item.video)} autoplay loop muted playsinline preload="metadata" />
+                </div>
+              );
+            }
+            if (item.kind === 'text' && item.text) {
+              return (
+                <div class="pd2-bts__item pd2-bts__item--text">
+                  <p>{item.text}</p>
+                </div>
+              );
+            }
+            return null;
+          })}
+        </div>
+        <button class="pd2-bts__next" id="btsNext" type="button" aria-label="Weiter">&#8250;</button>
+      </div>
+    </section>
+  )}
+
   {otherProjects.length > 0 && (
     <section class="pd2-more">
       <h2 class="pd2-more__heading">Weitere Projekte</h2>
@@ -294,6 +329,40 @@ let bodyPlaced = false;
     if (e.key === 'ArrowRight') showNext();
     if (e.key === 'Escape')     closeLightbox();
   });
+
+  // ── Behind the Scenes: horizontales Ziehen + Weiter-Pfeil ──
+  const btsTrack = document.getElementById('btsTrack');
+  const btsNext  = document.getElementById('btsNext') as HTMLButtonElement | null;
+  if (btsTrack) {
+    btsNext?.addEventListener('click', () => {
+      btsTrack.scrollBy({ left: btsTrack.clientWidth * 0.7, behavior: 'smooth' });
+    });
+
+    function updateBtsNextVisibility() {
+      const maxScroll = btsTrack!.scrollWidth - btsTrack!.clientWidth - 4;
+      if (btsNext) btsNext.style.display = btsTrack!.scrollLeft >= maxScroll ? 'none' : '';
+    }
+    btsTrack.addEventListener('scroll', updateBtsNextVisibility, { passive: true });
+    updateBtsNextVisibility();
+
+    // Maus-Ziehen (Desktop) — Touch/Trackpad nutzen bereits natives Scrollen
+    let isDragging = false, dragStartX = 0, dragStartScroll = 0;
+    btsTrack.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      dragStartX = e.pageX;
+      dragStartScroll = btsTrack.scrollLeft;
+      btsTrack.classList.add('is-dragging');
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      btsTrack.scrollLeft = dragStartScroll - (e.pageX - dragStartX);
+    });
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+      btsTrack.classList.remove('is-dragging');
+    });
+  }
 
 
 </script>
