@@ -11,19 +11,19 @@ location: München
 gallery:
   -
     image: /uploads/projekte/arée/_flynn-_ar_e-20.avif
-    focal: "50% 50%"
+    focal: "48% 50%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-28.avif
     focal: "50% 50%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-25.avif
-    focal: "50% 50%"
+    focal: "50% 58%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-10.avif
-    focal: "50% 50%"
+    focal: "50% 43%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-57.avif
-    focal: "50% 50%"
+    focal: "50% 56%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-35.avif
     focal: "50% 63%"
@@ -44,10 +44,10 @@ gallery:
     focal: "50% 50%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-21.avif
-    focal: "50% 50%"
+    focal: "50% 43%"
   -
     image: /uploads/projekte/arée/_flynn-_ar_e-37.avif
-    focal: "50% 50%"
+    focal: "50% 67%"
 youtube: []
 videos: []
 videos_portrait: []
