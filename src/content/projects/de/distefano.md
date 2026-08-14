@@ -5,7 +5,7 @@ category: fotografie
 order: 3
 featured: true
 cover: /uploads/projekte/distefano/cover.avif
-cover_focal: "49% 41%"
+cover_focal: "49% 39%"
 location: Italien
 gallery:
   -
@@ -22,10 +22,10 @@ gallery:
     focal: "50% 50%"
   -
     image: /uploads/projekte/distefano/_flynn-distefano-17.avif
-    focal: "48% 39%"
+    focal: "49% 55%"
   -
     image: /uploads/projekte/distefano/_flynn-distefano-26.avif
-    focal: "47% 44%"
+    focal: "49% 55%"
 youtube: []
 videos: []
 videos_portrait: []
