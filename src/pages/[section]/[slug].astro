@@ -210,8 +210,17 @@ let bodyPlaced = false;
         {otherProjects.map((p) => (
           <a class="pd2-more__card" href={projectDetailPath(lang, p.data.slug)}>
             <div class="pd2-more__img">
-              {p.data.cover && <img src={withBase(p.data.cover)} alt={p.data.title} loading="lazy"
-                style={`object-position: ${p.data.cover_focal ?? '50% 50%'}`} />}
+              {p.data.cover_video ? (
+                <video
+                  src={withBase(p.data.cover_video)}
+                  poster={p.data.cover ? withBase(p.data.cover) : undefined}
+                  style={`object-position: ${p.data.cover_focal ?? '50% 50%'}`}
+                  autoplay loop muted playsinline preload="metadata"
+                />
+              ) : p.data.cover && (
+                <img src={withBase(p.data.cover)} alt={p.data.title} loading="lazy"
+                  style={`object-position: ${p.data.cover_focal ?? '50% 50%'}`} />
+              )}
               <div class="pd2-more__overlay">
                 <span class="pd2-more__num">{String(p.data.order).padStart(2, '0')}/{String(totalProjects).padStart(2, '0')}</span>
                 <span class="pd2-more__title">{p.data.title}</span>

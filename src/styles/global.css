@@ -938,12 +938,12 @@ a:hover { text-decoration-thickness: 2px; }
 @media (max-width: 767px) {
   .hero-flynn__nav {
     top: 1.5rem;
-    gap: 0.4rem;
+    gap: 0.48rem;
   }
   .glass-btn--pill {
-    padding: 0.5em 0.9em;
+    padding: 0.6em 1.08em;
     min-width: 0;
-    font-size: 0.62rem;
+    font-size: 0.744rem;
   }
   .hero-flynn__scroll {
     bottom: 1.5rem;
@@ -984,7 +984,23 @@ a:hover { text-decoration-thickness: 2px; }
   position: relative;
   background: #fff;
   min-height: 100vh;
-  padding: 0 clamp(28px, 2.54vw, 60px) clamp(60px, 8vw, 120px);
+  /* Oben Platz für den jetzt absolut positionierten Zurück-Link lassen */
+  padding: clamp(50px, 6vw, 80px) clamp(28px, 2.54vw, 60px) clamp(60px, 8vw, 120px);
+}
+
+/* Zurück-Link auf gleicher Höhe wie der Kontakt-Button oben rechts */
+.pd2-page > .pd2-nav {
+  position: absolute;
+  top: clamp(32px, 4vw, 52px);
+  left: clamp(28px, 2.54vw, 60px);
+  transform: translateY(-50%);
+}
+@media (max-width: 767px) {
+  /* Muss exakt mit der Mobile-Position von .am-contact-btn übereinstimmen */
+  .pd2-page > .pd2-nav {
+    top: clamp(28px, 7vw, 44px);
+    left: clamp(16px, 4vw, 28px);
+  }
 }
 
 /* ── Zurück-Link ── */
@@ -1221,11 +1237,13 @@ a:hover { text-decoration-thickness: 2px; }
   overflow: hidden;
   background: #e0e0e0;
 }
-.pd2-more__img img {
+.pd2-more__img img,
+.pd2-more__img video {
   width: 100%; height: 100%; object-fit: cover;
   transition: transform 0.5s ease;
 }
-.pd2-more__card:hover .pd2-more__img img { transform: scale(1.04); }
+.pd2-more__card:hover .pd2-more__img img,
+.pd2-more__card:hover .pd2-more__img video { transform: scale(1.04); }
 .pd2-more__overlay {
   position: absolute;
   inset: 0;
