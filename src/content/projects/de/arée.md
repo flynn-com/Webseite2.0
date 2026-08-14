@@ -20,10 +20,10 @@ gallery:
     focal: "50% 58%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-10.avif
-    focal: "50% 43%"
+    focal: "50% 39%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-57.avif
-    focal: "50% 56%"
+    focal: "50% 50%"
   -
     image: /uploads/projekte/arée/_flynn-ar_e-35.avif
     focal: "50% 63%"
@@ -53,6 +53,7 @@ videos: []
 videos_portrait: []
 tags: []
 ---
+
 
 
 
