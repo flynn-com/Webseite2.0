@@ -233,23 +233,24 @@ a:hover { text-decoration-thickness: 2px; }
   position: relative;
   z-index: 4;
   width: 100%;
-  padding: clamp(2rem, 6vw, 6rem) 1.5rem;
+  padding: clamp(2rem, 6vw, 6rem) clamp(1rem, 4vw, 3rem) 0;
   background: transparent;
   text-align: center;
 }
 .portfolio-heading h1 {
-  margin: 0;
+  margin: 0 auto;
+  max-width: 1800px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 900;
   letter-spacing: -0.04em;
   line-height: 0.95;
   font-size: clamp(3rem, 14vw, 13rem);
-  color: #1a1a1a;
+  color: #000;
   -webkit-text-stroke: 0;
   text-stroke: 0;
 }
 @media (max-width: 767px) {
-  .portfolio-heading { padding: 2rem 1rem; }
+  .portfolio-heading { padding: 2rem 1rem 0; }
   .portfolio-heading h1 { font-size: clamp(2.5rem, 15vw, 5rem); }
 }
 
@@ -260,18 +261,27 @@ a:hover { text-decoration-thickness: 2px; }
   background: transparent;
   padding: clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 3rem);
 }
+.projects-section__subtitle {
+  max-width: 1800px;
+  margin: 0 auto clamp(1.25rem, 2.5vw, 2rem);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.365rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(26, 26, 26, 0.45);
+}
+@media (max-width: 767px) {
+  .projects-section__subtitle { font-size: 0.85rem; letter-spacing: 0.08em; margin-bottom: 1.25rem; }
+}
 .projects-section__more {
   text-align: center;
   margin-top: 2.5rem;
 }
-.projects-section__more a {
-  color: rgba(255,255,255,0.55);
-  font-size: 0.9rem;
-  letter-spacing: 0.06em;
-  text-decoration: none;
-  transition: color 0.2s;
+.projects-section__more .glass-btn {
+  color: rgba(26, 26, 26, 0.45);
 }
-.projects-section__more a:hover { color: #fff; }
 
 /* ---------- Project Grid (Startseite) ---------- */
 .project-grid {
@@ -852,7 +862,7 @@ a:hover { text-decoration-thickness: 2px; }
   width: 1.1rem;
   height: auto;
   display: block;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(0.6);
   opacity: 0.95;
 }
 
@@ -863,6 +873,10 @@ a:hover { text-decoration-thickness: 2px; }
   left: 50%;
   transform: translateX(-50%);
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: max-content;
+  max-width: calc(100vw - 1rem);
   gap: 1.25rem;
   z-index: 4;
 }
@@ -885,24 +899,51 @@ a:hover { text-decoration-thickness: 2px; }
   .hero-lang-switch { top: 1.5rem; right: 1rem; }
 }
 
-/* ---------- Scroll-Pfeil unten ---------- */
+/* ---------- Scroll-Pfeil unten (ohne Glas-Hintergrund, nur das Icon) ---------- */
 .hero-flynn__scroll {
   position: absolute;
   left: 50%;
   top: calc(100vh - 5.5rem);
   transform: translateX(-50%);
   z-index: 4;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.hero-flynn__scroll::before,
+.hero-flynn__scroll::after {
+  display: none;
+}
+.hero-flynn__scroll:hover,
+.hero-flynn__scroll:focus-visible {
+  background: none;
+  box-shadow: none;
+  transform: translateX(-50%);
+}
+/* Sanftes Wippen, um zum Scrollen einzuladen (Icon statt Button, damit der
+   Hover-Effekt des Glass-Buttons unabhängig davon funktioniert) */
+@keyframes hero-scroll-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(5px); }
+}
+.hero-flynn__scroll img {
+  animation: hero-scroll-bounce 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-flynn__scroll img { animation: none; }
 }
 
 /* Mobile-Anpassungen */
 @media (max-width: 767px) {
   .hero-flynn__nav {
     top: 1.5rem;
-    gap: 0.75rem;
+    gap: 0.4rem;
   }
   .glass-btn--pill {
-    padding: 0.7em 1.5em;
-    font-size: 0.75rem;
+    padding: 0.5em 0.9em;
+    min-width: 0;
+    font-size: 0.62rem;
   }
   .hero-flynn__scroll {
     bottom: 1.5rem;

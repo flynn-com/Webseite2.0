@@ -6,6 +6,7 @@ interface Props {
 }
 
 const { lang } = Astro.props;
+const projectsLabel = lang === 'de' ? 'PORTFOLIO' : 'PORTFOLIO';
 const aboutLabel   = lang === 'de' ? '\u00dcBER MICH' : 'ABOUT';
 const contactLabel = lang === 'de' ? 'KONTAKT'   : 'CONTACT';
 const scrollLabel  = lang === 'de' ? 'Nach unten scrollen' : 'Scroll down';
@@ -20,13 +21,15 @@ const langEnHref = pathForLang('en', 'home');
 
   <!-- Navigation (Glas-Buttons + Sprachumschalter, scrollen mit) -->
   <nav class="hero-flynn__nav" aria-label="Hauptnavigation">
-    <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'contact')}>
-      <span>{contactLabel}</span>
+    <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'projects')}>
+      <span>{projectsLabel}</span>
     </a>
     <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'about')}>
       <span>{aboutLabel}</span>
     </a>
-
+    <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'contact')}>
+      <span>{contactLabel}</span>
+    </a>
   </nav>
 
   <!-- Sprachumschalter oben rechts — vorübergehend ausgeblendet -->

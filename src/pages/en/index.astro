@@ -27,6 +27,7 @@ const projectsToShow = allProjects
   </section>
 
   <section class="projects-section">
+    <p class="projects-section__subtitle">{t(lang, 'home.featured.title')}</p>
     {projectsToShow.length === 0 ? (
       <p style="color:#fff;">{t(lang, 'projects.empty')}</p>
     ) : (
@@ -49,8 +50,10 @@ const projectsToShow = allProjects
       </div>
     )}
 
-    <p style="margin-top: 2rem; text-align: center;">
-      <a href={pathForLang(lang, 'projects')} style="color:#fff;">{t(lang, 'home.cta.allProjects')} &rarr;</a>
+    <p class="projects-section__more">
+      <a class="glass-btn glass-btn--pill" href={pathForLang(lang, 'projects')}>
+        <span>{t(lang, 'home.cta.allProjects')}</span>
+      </a>
     </p>
   </section>
 </BaseLayout>
