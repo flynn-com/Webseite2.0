@@ -34,21 +34,13 @@ tags:
   - AKAD
   - Werbung
   - Werbefilm
-bts_enabled: false
-bts_items:
-  -
-    kind: image
-    image: /uploads/projekte/dein-nahstudium/img_8966.avif
-  -
-    kind: image
-    image: /uploads/projekte/dein-nahstudium/img_8975.avif
-  -
-    kind: video
-    video: /uploads/projekte/dein-nahstudium/img_8976.mp4
-  -
-    kind: text
-    text: "Dieser Dreh hat großen Spaß gemacht, da wir vielfältige Locations, wie beispielsweise den Friseur, nutzen konnten. Die größte Herausforderung bei dieser Produktion bestand darin, die passenden Drehorte in kürzester Zeit zu finden und die gewünschten Szenen in kürzester Zeit umzusetzen."
+bts_enabled: true
+bts_media_1: /uploads/projekte/dein-nahstudium/bts-1.jpeg
+bts_media_2: /uploads/projekte/dein-nahstudium/bts-2.mp4
+bts_media_3: /uploads/projekte/dein-nahstudium/bts-3.jpeg
+bts_text: "Dieser Dreh hat großen Spaß gemacht, da wir vielfältige Locations, wie beispielsweise einen Friseur, nutzen konnten. Die größte Herausforderung bei dieser Produktion bestand darin, die passenden Drehorte in kürzester Zeit zu finden und die gewünschten Szenen dort umzusetzen."
 ---
+
 
 
 
