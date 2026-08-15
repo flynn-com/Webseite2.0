@@ -34,24 +34,16 @@ tags:
   - AKAD
   - Werbung
   - Werbefilm
-bts_enabled: false
+bts_enabled: true
 bts_items:
   -
     kind: image
-    image: /uploads/projekte/dein-nahstudium/img_2987.heic
+    image: /uploads/projekte/dein-nahstudium/img_8966.avif
   -
     kind: image
-    image: /uploads/projekte/dein-nahstudium/img_2960.heic
-  -
-    kind: image
-    image: /uploads/projekte/dein-nahstudium/img_2836.heic
-  -
-    kind: image
-    image: /uploads/projekte/dein-nahstudium/img_2687.heic
-  -
-    kind: text
-    text: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At"
+    image: /uploads/projekte/dein-nahstudium/img_8975.avif
 ---
+
 
 
 Digitales Lernen bedeutet Distanz? Im Gegenteil. Was wäre, wenn der Prof immer genau da ist, wo du auch bist? Ob beim Frühstück, beim Friseur oder unterwegs auf dem Roller.
