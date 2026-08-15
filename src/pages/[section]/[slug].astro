@@ -213,27 +213,30 @@ let bodyPlaced = false;
         <img class="pd2-bts-wrap__camera" src={withBase('/uploads/hero/bts-camera.svg')} alt="" aria-hidden="true" />
         <div class="pd2-bts">
           <div class="pd2-bts__grid">
-          {entry.data.bts_media_1 && (
-            <div class="pd2-bts__slot pd2-bts__slot--1">
-              {isVideoFile(entry.data.bts_media_1)
+          {/* Alle drei Plätze bleiben immer reserviert, auch wenn (noch) nicht
+              alle drei befüllt sind - sonst fällt die mittlere Spalte ohne
+              Inhalt auf 0 zusammen und das Raster verzerrt sich. */}
+          <div class="pd2-bts__slot pd2-bts__slot--1">
+            {entry.data.bts_media_1 && (
+              isVideoFile(entry.data.bts_media_1)
                 ? <video src={withBase(entry.data.bts_media_1)} autoplay loop muted playsinline preload="metadata" />
-                : <img src={withBase(entry.data.bts_media_1)} alt="" loading="lazy" />}
-            </div>
-          )}
-          {entry.data.bts_media_2 && (
-            <div class="pd2-bts__slot pd2-bts__slot--2">
-              {isVideoFile(entry.data.bts_media_2)
+                : <img src={withBase(entry.data.bts_media_1)} alt="" loading="lazy" />
+            )}
+          </div>
+          <div class="pd2-bts__slot pd2-bts__slot--2">
+            {entry.data.bts_media_2 && (
+              isVideoFile(entry.data.bts_media_2)
                 ? <video src={withBase(entry.data.bts_media_2)} autoplay loop muted playsinline preload="metadata" />
-                : <img src={withBase(entry.data.bts_media_2)} alt="" loading="lazy" />}
-            </div>
-          )}
-          {entry.data.bts_media_3 && (
-            <div class="pd2-bts__slot pd2-bts__slot--3">
-              {isVideoFile(entry.data.bts_media_3)
+                : <img src={withBase(entry.data.bts_media_2)} alt="" loading="lazy" />
+            )}
+          </div>
+          <div class="pd2-bts__slot pd2-bts__slot--3">
+            {entry.data.bts_media_3 && (
+              isVideoFile(entry.data.bts_media_3)
                 ? <video src={withBase(entry.data.bts_media_3)} autoplay loop muted playsinline preload="metadata" />
-                : <img src={withBase(entry.data.bts_media_3)} alt="" loading="lazy" />}
-            </div>
-          )}
+                : <img src={withBase(entry.data.bts_media_3)} alt="" loading="lazy" />
+            )}
+          </div>
           {entry.data.bts_text && (
             <div class="pd2-bts__text"><p>{entry.data.bts_text}</p></div>
           )}

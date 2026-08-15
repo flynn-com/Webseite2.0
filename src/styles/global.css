@@ -1285,13 +1285,12 @@ a:hover { text-decoration-thickness: 2px; }
 }
 
 /* ── Behind the Scenes: Container ──
-   80% der Viewport-Breite (10% Platz links/rechts) bei "normalem" Desktop,
-   wächst aber auf sehr breiten Bildschirmen nicht mehr weiter mit. */
+   Immer 80% der Viewport-Breite (10% Platz links/rechts), wächst auf sehr
+   breiten Bildschirmen ab 2000px nicht mehr weiter mit. */
 .pd2-bts {
   position: relative;
   z-index: 1;
-  width: fit-content;
-  max-width: min(80vw, 1150px);
+  width: min(80vw, 1600px);
   border-radius: 20px;
   background: rgba(240, 240, 240, 0.88);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
@@ -1303,15 +1302,17 @@ a:hover { text-decoration-thickness: 2px; }
   overflow: hidden;
 }
 
-/* Festes 3-Slot-Raster: groß | 9:16 | oben rechts + Text darunter */
+/* Festes 3-Slot-Raster: groß | 9:16 | oben rechts + Text darunter.
+   Füllt den Container komplett aus; Seitenverhältnis der ganzen Reihe fest,
+   damit die Spalten-/Zeilenproportionen auf jeder Breite gleich bleiben. */
 .pd2-bts__grid {
   display: grid;
   /* Mitte: "auto" + aspect-ratio auf dem Slot selbst = exakt 9:16 bei jeder Höhe */
   grid-template-columns: 1.5fr auto 1fr;
   grid-template-rows: 1.3fr 1fr;
   gap: clamp(8px, 1vw, 14px);
-  height: clamp(240px, 26vw, 460px);
-  width: clamp(360px, 46vw, 760px);
+  width: 100%;
+  aspect-ratio: 16 / 9;
 }
 .pd2-bts__slot {
   border-radius: 12px;
@@ -1356,8 +1357,6 @@ a:hover { text-decoration-thickness: 2px; }
     padding: 16px;
   }
   .pd2-bts__grid {
-    width: 100%;
-    height: clamp(180px, 60vw, 300px);
     grid-template-columns: 1.4fr auto 1fr;
     gap: 6px;
   }
