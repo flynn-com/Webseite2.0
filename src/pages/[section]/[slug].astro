@@ -203,36 +203,39 @@ let bodyPlaced = false;
   )}
 
   {entry.data.bts_enabled && entry.data.bts_items.length > 0 && (
-    <section class="pd2-bts">
-      <h2 class="pd2-bts__heading">Behind the Scenes</h2>
-      <div class="pd2-bts__scroll-wrap">
-        <div class="pd2-bts__track" id="btsTrack">
-          {entry.data.bts_items.map((item) => {
-            if (item.kind === 'image' && item.image) {
-              return (
-                <div class="pd2-bts__item pd2-bts__item--media">
-                  <img src={withBase(item.image)} alt="" loading="lazy" />
-                </div>
-              );
-            }
-            if (item.kind === 'video' && item.video) {
-              return (
-                <div class="pd2-bts__item pd2-bts__item--media">
-                  <video src={withBase(item.video)} autoplay loop muted playsinline preload="metadata" />
-                </div>
-              );
-            }
-            if (item.kind === 'text' && item.text) {
-              return (
-                <div class="pd2-bts__item pd2-bts__item--text">
-                  <p>{item.text}</p>
-                </div>
-              );
-            }
-            return null;
-          })}
+    <section class="pd2-bts-wrap">
+      <img class="pd2-bts-wrap__logo" src={withBase('/uploads/hero/logo-flynn.png')} alt="" aria-hidden="true" />
+      <div class="pd2-bts">
+        <h2 class="pd2-bts__heading">Behind the Scenes</h2>
+        <div class="pd2-bts__scroll-wrap">
+          <div class="pd2-bts__track" id="btsTrack">
+            {entry.data.bts_items.map((item) => {
+              if (item.kind === 'image' && item.image) {
+                return (
+                  <div class="pd2-bts__item pd2-bts__item--media">
+                    <img src={withBase(item.image)} alt="" loading="lazy" />
+                  </div>
+                );
+              }
+              if (item.kind === 'video' && item.video) {
+                return (
+                  <div class="pd2-bts__item pd2-bts__item--media">
+                    <video src={withBase(item.video)} autoplay loop muted playsinline preload="metadata" />
+                  </div>
+                );
+              }
+              if (item.kind === 'text' && item.text) {
+                return (
+                  <div class="pd2-bts__item pd2-bts__item--text">
+                    <p>{item.text}</p>
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+          <button class="pd2-bts__next" id="btsNext" type="button" aria-label="Weiter">&#8250;</button>
         </div>
-        <button class="pd2-bts__next" id="btsNext" type="button" aria-label="Weiter">&#8250;</button>
       </div>
     </section>
   )}
