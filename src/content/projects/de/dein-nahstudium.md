@@ -34,7 +34,7 @@ tags:
   - AKAD
   - Werbung
   - Werbefilm
-bts_enabled: true
+bts_enabled: false
 bts_items:
   -
     kind: image
