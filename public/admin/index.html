@@ -334,16 +334,57 @@
                 <input type="checkbox" id="ed-bts-enabled">
                 Behind-the-Scenes-Bereich aktivieren
               </label>
-              <div class="hint">Zeigt einen verschiebbaren Glas-Container mit Bildern, Videos und Text zwischen dem letzten Bild und "Weitere Projekte".</div>
+              <div class="hint">Festes Layout mit genau 3 Bildern/Videos zwischen dem letzten Bild und "Weitere Projekte": groß links, Hochformat 9:16 in der Mitte, klein oben rechts + Text.</div>
             </div>
-            <div class="bts-list" id="bts-list"></div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-              <button class="btn btn-secondary btn-sm" type="button" id="btn-bts-add-image">🖼 Bild hinzufügen</button>
-              <button class="btn btn-secondary btn-sm" type="button" id="btn-bts-add-video">🎬 Video hinzufügen</button>
-              <button class="btn btn-secondary btn-sm" type="button" id="btn-bts-add-text">📝 Text hinzufügen</button>
+
+            <div class="bts-slots">
+              <div class="bts-slot">
+                <p class="bts-slot-label">1 · Groß, links</p>
+                <div class="bts-slot-zone" id="bts-zone-1">
+                  <div class="upload-hint" id="bts-hint-1">
+                    <div style="font-size:1.4rem;margin-bottom:4px;">🖼🎬</div>
+                    Bild oder Video hierher ziehen oder klicken
+                  </div>
+                  <img class="bts-slot-preview-img" id="bts-preview-img-1" style="display:none;">
+                  <video class="bts-slot-preview-img" id="bts-preview-video-1" style="display:none;" muted></video>
+                </div>
+                <button class="btn btn-secondary btn-sm" type="button" id="bts-remove-1" style="display:none;margin-top:6px;">Entfernen</button>
+                <input type="file" id="bts-file-1" accept="image/*,video/*,.avif,.heic,.heif,.webp,.tiff,.tif,.raw,.cr2,.nef,.arw,.dng" style="display:none;">
+              </div>
+
+              <div class="bts-slot">
+                <p class="bts-slot-label">2 · Mitte, Hochformat 9:16</p>
+                <div class="bts-slot-zone bts-slot-zone--portrait" id="bts-zone-2">
+                  <div class="upload-hint" id="bts-hint-2">
+                    <div style="font-size:1.4rem;margin-bottom:4px;">🖼🎬</div>
+                    Bild oder Video hierher ziehen oder klicken
+                  </div>
+                  <img class="bts-slot-preview-img" id="bts-preview-img-2" style="display:none;">
+                  <video class="bts-slot-preview-img" id="bts-preview-video-2" style="display:none;" muted></video>
+                </div>
+                <button class="btn btn-secondary btn-sm" type="button" id="bts-remove-2" style="display:none;margin-top:6px;">Entfernen</button>
+                <input type="file" id="bts-file-2" accept="image/*,video/*,.avif,.heic,.heif,.webp,.tiff,.tif,.raw,.cr2,.nef,.arw,.dng" style="display:none;">
+              </div>
+
+              <div class="bts-slot">
+                <p class="bts-slot-label">3 · Oben rechts</p>
+                <div class="bts-slot-zone" id="bts-zone-3">
+                  <div class="upload-hint" id="bts-hint-3">
+                    <div style="font-size:1.4rem;margin-bottom:4px;">🖼🎬</div>
+                    Bild oder Video hierher ziehen oder klicken
+                  </div>
+                  <img class="bts-slot-preview-img" id="bts-preview-img-3" style="display:none;">
+                  <video class="bts-slot-preview-img" id="bts-preview-video-3" style="display:none;" muted></video>
+                </div>
+                <button class="btn btn-secondary btn-sm" type="button" id="bts-remove-3" style="display:none;margin-top:6px;">Entfernen</button>
+                <input type="file" id="bts-file-3" accept="image/*,video/*,.avif,.heic,.heif,.webp,.tiff,.tif,.raw,.cr2,.nef,.arw,.dng" style="display:none;">
+              </div>
             </div>
-            <input type="file" id="bts-image-file" accept="image/*,.avif,.heic,.heif,.webp,.tiff,.tif,.raw,.cr2,.nef,.arw,.dng" multiple style="display:none;">
-            <input type="file" id="bts-video-file" accept="video/mp4,video/*" multiple style="display:none;">
+
+            <div class="form-group" style="margin-top:14px;">
+              <label for="ed-bts-text">Text (unter Bild 3)</label>
+              <textarea id="ed-bts-text" rows="3" placeholder="Kurzer Text zum Behind-the-Scenes-Bereich…"></textarea>
+            </div>
           </div>
         </div>
 

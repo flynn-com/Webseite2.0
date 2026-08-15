@@ -42,17 +42,12 @@ const projectFields = z.object({
   tags: z.array(z.string()).default([]),
   // featured: Projekt erscheint auf der Startseite (default true = alle neuen Projekte werden angezeigt)
   featured: z.boolean().default(true),
-  // Behind the Scenes: optionaler Glas-Container mit gemischter Bild/Video/Text-Reihe
+  // Behind the Scenes: optionaler Container mit festem 3-Bild/Video-Layout + Text
   bts_enabled: z.boolean().default(false),
-  bts_items: z.preprocess(
-    (val) => (val ?? []),
-    z.array(z.object({
-      kind: z.enum(['image', 'video', 'text']),
-      image: z.string().optional(),
-      video: z.string().optional(),
-      text: z.string().optional(),
-    }))
-  ).default([]),
+  bts_media_1: z.string().optional(), // groß, links
+  bts_media_2: z.string().optional(), // Mitte, Hochformat 9:16
+  bts_media_3: z.string().optional(), // oben rechts
+  bts_text: z.string().optional(),    // unter Bild 3
 });
 
 const projectsDe = defineCollection({

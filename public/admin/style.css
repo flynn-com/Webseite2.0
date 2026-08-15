@@ -793,58 +793,48 @@ body {
 
 /* ── Behind the Scenes ──────────────────────────────────────────────────── */
 
-.bts-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 4px;
+.bts-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
 }
-.bts-item {
+.bts-slot-label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--text2);
+  margin: 0 0 6px;
+}
+.bts-slot-zone {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--surface2);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-}
-.bts-item-kind {
-  flex-shrink: 0;
-  font-size: 1rem;
-  width: 20px;
-  text-align: center;
-}
-.bts-item-thumb {
-  width: 48px; height: 48px;
-  object-fit: cover;
-  border-radius: 3px;
-  background: var(--surface3);
-  flex-shrink: 0;
-}
-.bts-item-text {
-  flex: 1;
-  background: var(--surface1);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  color: var(--text);
-  font-family: var(--font);
-  font-size: .82rem;
-  padding: 6px 8px;
-  resize: vertical;
-  min-height: 36px;
-}
-.bts-item-name {
-  flex: 1;
-  font-size: .82rem;
-  color: var(--text2);
-  white-space: nowrap;
+  justify-content: center;
+  cursor: pointer;
   overflow: hidden;
-  text-overflow: ellipsis;
+  transition: border-color var(--transition);
 }
-.bts-item-actions {
-  display: flex;
-  gap: 2px;
-  flex-shrink: 0;
+.bts-slot-zone--portrait { aspect-ratio: 9/16; }
+.bts-slot-zone:hover { border-color: var(--border2); }
+.bts-slot-zone.has-media { border-style: solid; border-color: var(--border); }
+.bts-slot-zone.drag-active { border-color: var(--accent); color: var(--text); }
+.bts-slot-preview-img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bts-slot-zone .upload-hint {
+  color: var(--text3);
+  text-align: center;
+  font-size: .78rem;
+  pointer-events: none;
+  padding: 8px;
 }
 
 /* ── Settings Tabs ──────────────────────────────────────────────────────── */

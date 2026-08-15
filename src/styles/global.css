@@ -1221,99 +1221,123 @@ a:hover { text-decoration-thickness: 2px; }
 .pd2-prose p { margin: 0; }
 .pd2-prose p + p { margin-top: 0.6rem; }
 
-/* ── Behind the Scenes: Wrapper mit Logo im Hintergrund ── */
+/* ── Behind the Scenes: Wrapper ── */
 .pd2-bts-wrap {
   position: relative;
-  margin: clamp(48px, 6vw, 96px) 0;
+  margin: clamp(64px, 8vw, 120px) 0 clamp(48px, 6vw, 96px);
 }
-.pd2-bts-wrap__logo {
+/* Hugt exakt die Größe des Containers (.pd2-bts), damit Kamera/Titel/Label
+   unabhängig von der Viewport-Breite immer relativ zum Container sitzen. */
+.pd2-bts-inner {
+  position: relative;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+/* Großer "BTS"-Schriftzug, wird vom Container überlappt */
+.pd2-bts-wrap__title {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 130%;
+  left: clamp(-90px, -8vw, -40px);
+  bottom: 100%;
+  margin: 0 0 -0.32em;
+  font-size: clamp(3.5rem, 8vw, 8rem);
+  font-weight: 900;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.03em;
+  color: #000;
+  line-height: 0.85;
+  white-space: nowrap;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Klein, rotiert, außerhalb des Containers links davon — auf Höhe des
+   Innenbereichs (Container-Padding), nicht am äußeren Rand */
+.pd2-bts-wrap__label {
+  position: absolute;
+  top: clamp(20px, 2.2vw, 32px);
+  right: 100%;
+  margin-right: clamp(10px, 1.4vw, 22px);
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  font-size: clamp(0.65rem, 0.85vw, 0.8rem);
+  font-weight: 700;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #000;
+  margin: 0;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.pd2-bts-wrap__camera {
+  position: absolute;
+  bottom: 8%;
+  right: -46%;
+  width: 95%;
+  min-width: 420px;
+  max-width: 1050px;
   height: auto;
-  transform: translate(-50%, -50%) rotate(-14deg);
   z-index: 0;
   pointer-events: none;
   user-select: none;
 }
 
-/* ── Behind the Scenes: Glas-Container ── */
+/* ── Behind the Scenes: Container ──
+   80% der Viewport-Breite (10% Platz links/rechts) bei "normalem" Desktop,
+   wächst aber auf sehr breiten Bildschirmen nicht mehr weiter mit. */
 .pd2-bts {
   position: relative;
   z-index: 1;
-  /* Schrumpft auf die tatsächliche Inhaltsbreite (wenig Elemente = schmaler
-     Container), wird aber bei viel Inhalt auf 90% gedeckelt (dann scrollbar). */
   width: fit-content;
-  max-width: 90%;
-  margin: 0 auto;
+  max-width: min(80vw, 1150px);
   border-radius: 20px;
-  background: rgba(90, 90, 90, 0.35);
-  -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.05);
-  backdrop-filter: blur(18px) saturate(200%) brightness(1.05);
+  background: rgba(240, 240, 240, 0.88);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
   box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.45),
-    inset -1px -1px 0 rgba(0, 0, 0, 0.05),
-    0 20px 50px -20px rgba(0, 0, 0, 0.35);
-  padding: clamp(24px, 3vw, 40px) clamp(20px, 2.5vw, 36px) clamp(28px, 3vw, 44px);
+    inset 1px 1px 0 rgba(255, 255, 255, 0.6),
+    0 20px 50px -20px rgba(0, 0, 0, 0.25);
+  padding: clamp(20px, 2.2vw, 32px);
   overflow: hidden;
 }
-.pd2-bts__heading {
-  font-size: clamp(2rem, 4.5vw, 4rem);
-  font-weight: 700;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-  text-align: center;
-  color: #000;
-  margin: 0 0 clamp(16px, 2vw, 28px);
-  line-height: 1;
-}
-.pd2-bts__scroll-wrap { position: relative; }
-.pd2-bts__track {
-  display: flex;
-  align-items: stretch;
-  gap: clamp(10px, 1.2vw, 18px);
-  overflow-x: auto;
-  overflow-y: hidden;
-  cursor: grab;
-  scroll-behavior: smooth;
-  height: clamp(220px, 32vw, 460px);
-  padding-bottom: 14px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.35) transparent;
-}
-.pd2-bts__track.is-dragging { cursor: grabbing; scroll-behavior: auto; user-select: none; }
-.pd2-bts__track::-webkit-scrollbar { height: 5px; }
-.pd2-bts__track::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.08); border-radius: 99px; }
-.pd2-bts__track::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.35); border-radius: 99px; }
 
-.pd2-bts__item { flex: 0 0 auto; height: 100%; }
-.pd2-bts__item--media {
-  height: 100%;
+/* Festes 3-Slot-Raster: groß | 9:16 | oben rechts + Text darunter */
+.pd2-bts__grid {
+  display: grid;
+  /* Mitte: "auto" + aspect-ratio auf dem Slot selbst = exakt 9:16 bei jeder Höhe */
+  grid-template-columns: 1.5fr auto 1fr;
+  grid-template-rows: 1.3fr 1fr;
+  gap: clamp(8px, 1vw, 14px);
+  height: clamp(240px, 26vw, 460px);
+  width: clamp(360px, 46vw, 760px);
+}
+.pd2-bts__slot {
   border-radius: 12px;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.08);
 }
-.pd2-bts__item--media img,
-.pd2-bts__item--media video {
+.pd2-bts__slot img,
+.pd2-bts__slot video {
+  width: 100%;
   height: 100%;
-  width: auto;
-  max-width: none;
-  display: block;
   object-fit: cover;
-  pointer-events: none;
+  display: block;
 }
-.pd2-bts__item--text {
-  width: clamp(220px, 22vw, 320px);
-  height: 100%;
+.pd2-bts__slot--1 { grid-column: 1; grid-row: 1 / 3; }
+.pd2-bts__slot--2 { grid-column: 2; grid-row: 1 / 3; aspect-ratio: 9 / 16; }
+.pd2-bts__slot--3 { grid-column: 3; grid-row: 1; }
+.pd2-bts__text {
+  grid-column: 3;
+  grid-row: 2;
   display: flex;
   align-items: flex-end;
-  padding: 4px;
+  padding: 2px;
 }
-.pd2-bts__item--text p {
+.pd2-bts__text p {
   margin: 0;
-  font-size: clamp(0.8rem, 1vw, 1rem);
+  font-size: clamp(0.7rem, 0.85vw, 0.85rem);
   font-weight: 700;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -0.01em;
@@ -1322,42 +1346,22 @@ a:hover { text-decoration-thickness: 2px; }
   text-transform: uppercase;
 }
 
-.pd2-bts__next {
-  position: absolute;
-  top: 50%;
-  right: 4px;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.25);
-  color: #000;
-  font-size: 22px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s;
-  z-index: 3;
-}
-.pd2-bts__next:hover { background: rgba(255, 255, 255, 0.92); }
-
 @media (max-width: 767px) {
-  .pd2-bts-wrap { margin: 32px 0; }
-  .pd2-bts-wrap__logo { width: 170%; }
+  .pd2-bts-wrap { margin: 56px 0 32px; }
+  .pd2-bts-wrap__title { font-size: 2.4rem; margin-bottom: -10px; }
+  .pd2-bts-wrap__label { font-size: 0.6rem; margin-right: 8px; }
+  .pd2-bts-wrap__camera { width: 105%; min-width: 0; max-width: none; right: -48%; bottom: 10%; }
   .pd2-bts {
     border-radius: 16px;
-    padding: 20px 16px 24px;
+    padding: 16px;
   }
-  .pd2-bts__heading { font-size: clamp(1.6rem, 7vw, 2.4rem); margin-bottom: 14px; }
-  .pd2-bts__track { height: clamp(160px, 55vw, 260px); gap: 8px; }
-  .pd2-bts__item--text { width: clamp(160px, 60vw, 220px); }
-  .pd2-bts__next { display: none; }
+  .pd2-bts__grid {
+    width: 100%;
+    height: clamp(180px, 60vw, 300px);
+    grid-template-columns: 1.4fr auto 1fr;
+    gap: 6px;
+  }
+  .pd2-bts__text p { font-size: 0.6rem; line-height: 1.35; }
 }
 
 /* ── Weitere Projekte ── */
