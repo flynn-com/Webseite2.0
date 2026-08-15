@@ -42,6 +42,12 @@ bts_items:
   -
     kind: image
     image: /uploads/projekte/dein-nahstudium/img_8975.avif
+  -
+    kind: video
+    video: /uploads/projekte/dein-nahstudium/img_8976.mp4
+  -
+    kind: text
+    text: "Dieser Dreh hat großen Spaß gemacht, da wir vielfältige Locations, wie beispielsweise den Friseur, nutzen konnten. Die größte Herausforderung bei dieser Produktion bestand darin, die passenden Drehorte in kürzester Zeit zu finden und die gewünschten Szenen in kürzester Zeit umzusetzen."
 ---
 
 
