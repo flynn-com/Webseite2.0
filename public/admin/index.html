@@ -6,6 +6,10 @@
   <title>Flynn Admin</title>
   <link rel="stylesheet" href="style.css">
   <meta name="robots" content="noindex,nofollow">
+  <!-- Verteidigung gegen XSS: verhindert, dass injizierte <script>-Tags oder
+       Event-Handler laufen bzw. Daten an fremde Server exfiltriert werden
+       (selbst falls irgendwo eine Escaping-Lücke übersehen wurde). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://admin-api.flynn-fdc.workers.dev; form-action 'self'; object-src 'none'; base-uri 'self';">
 </head>
 <body>
 

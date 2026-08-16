@@ -6,6 +6,26 @@
 const REPO   = 'flynn-com/Webseite2.0';
 const BRANCH = 'main';
 
+// Das Admin-Panel darf NUR diese Pfade lesen/schreiben/löschen - alles andere
+// (z.B. .github/workflows/, workers/, package.json) bleibt tabu, selbst mit
+// gültigem Admin-Token. Verhindert, dass eine kompromittierte Session (z.B.
+// via gestohlenes Token) das komplette Repo statt nur den Content übernimmt.
+const ALLOWED_PATH_PREFIXES = [
+  'src/content/projects/',
+  'src/content/about/',
+  'src/content/contact/',
+  'src/content/imprint/',
+  'src/content/privacy/',
+  'public/uploads/',
+];
+const ALLOWED_EXACT_PATHS = ['src/data/seo.json'];
+
+function isAllowedPath(path) {
+  if (typeof path !== 'string' || !path || path.includes('..')) return false;
+  if (ALLOWED_EXACT_PATHS.includes(path)) return true;
+  return ALLOWED_PATH_PREFIXES.some(prefix => path.startsWith(prefix));
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
@@ -118,6 +138,14 @@ async function handleSetup(request, env) {
   const existing = await env.ADMIN_KV.get('credentials');
   if (existing) return json({ error: 'Admin bereits eingerichtet' }, 409);
 
+  // Falls konfiguriert (empfohlen, via `wrangler secret put SETUP_SECRET`):
+  // ohne das korrekte Secret kann niemand die Erstanmeldung an sich reißen,
+  // z.B. falls der KV-Namespace jemals versehentlich geleert wird.
+  if (env.SETUP_SECRET) {
+    const provided = request.headers.get('X-Setup-Secret') || '';
+    if (provided !== env.SETUP_SECRET) return json({ error: 'Ungültiges Setup-Secret' }, 403);
+  }
+
   const { username, password } = await request.json();
   if (!username || !password)    return json({ error: 'username und password erforderlich' }, 400);
   if (password.length < 8)       return json({ error: 'Passwort muss mindestens 8 Zeichen haben' }, 400);
@@ -137,7 +165,10 @@ const LOGIN_WINDOW_MS         = 30 * 60 * 1000; // Zähler verfällt nach 30 min
 async function handleLogin(request, env) {
   const { username, password } = await request.json();
 
-  const attKey   = 'failed_attempts';
+  // Pro IP gesperrt statt global - sonst kann jeder Anonyme mit 5 Fehlversuchen
+  // den echten Admin 15 Minuten lang aus dem eigenen Panel aussperren.
+  const ip     = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const attKey = `failed_attempts:${ip}`;
   const attRaw   = await env.ADMIN_KV.get(attKey);
   const att      = attRaw ? JSON.parse(attRaw) : { count: 0, lastAttempt: 0 };
   const sinceLast = Date.now() - att.lastAttempt;
@@ -273,6 +304,7 @@ async function ghGetFile(request, env) {
   const url  = new URL(request.url);
   const path = url.searchParams.get('path');
   if (!path) return json({ error: 'path erforderlich' }, 400);
+  if (!isAllowedPath(path)) return json({ error: 'Pfad nicht erlaubt' }, 403);
 
   const res = await fetch(
     `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}?ref=${BRANCH}&t=${Date.now()}`,
@@ -294,6 +326,7 @@ async function ghGetFile(request, env) {
 async function ghPutFile(request, env) {
   const { path, content, message, sha: providedSha } = await request.json();
   if (!path || content === undefined) return json({ error: 'path und content erforderlich' }, 400);
+  if (!isAllowedPath(path)) return json({ error: 'Pfad nicht erlaubt' }, 403);
 
   let sha = providedSha || await ghGetCurrentSha(path, env);
 
@@ -325,6 +358,7 @@ async function ghPutFile(request, env) {
 async function ghDeleteFile(request, env) {
   const { path, message } = await request.json();
   if (!path) return json({ error: 'path erforderlich' }, 400);
+  if (!isAllowedPath(path)) return json({ error: 'Pfad nicht erlaubt' }, 403);
 
   const sha = await ghGetCurrentSha(path, env);
   if (!sha) return json({ ok: true }); // File doesn't exist
@@ -346,6 +380,7 @@ async function ghGetTree(request, env) {
   const url  = new URL(request.url);
   const path = url.searchParams.get('path');
   if (!path) return json({ error: 'path erforderlich' }, 400);
+  if (!isAllowedPath(path)) return json({ error: 'Pfad nicht erlaubt' }, 403);
 
   const res = await fetch(
     `https://api.github.com/repos/${REPO}/contents/${ghPath(path)}?ref=${BRANCH}&t=${Date.now()}`,
@@ -366,6 +401,7 @@ async function ghGetTree(request, env) {
 async function ghUpload(request, env) {
   const { path, base64, message } = await request.json();
   if (!path || !base64) return json({ error: 'path und base64 erforderlich' }, 400);
+  if (!isAllowedPath(path)) return json({ error: 'Pfad nicht erlaubt' }, 403);
 
   let sha  = await ghGetCurrentSha(path, env);
   const body = { message: message || `upload: ${path.split('/').pop()}`, content: base64, branch: BRANCH };

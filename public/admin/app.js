@@ -5,6 +5,14 @@
 
 const API = 'https://admin-api.flynn-fdc.workers.dev';
 
+// Escaped vor jeder Interpolation in innerHTML-Templates - verhindert, dass
+// gespeicherter Content (Titel, Tags, URLs...) als HTML/Script interpretiert wird.
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
 // ── State ────────────────────────────────────────────────────────────────────
 
 let _token = localStorage.getItem('admin_token') || null;
@@ -462,13 +470,13 @@ function renderProjectGrid() {
     card.innerHTML = `
       <div class="project-card-cover">
         ${p.cover
-          ? `<img src="${resolveImg(p.cover)}" alt="" loading="lazy">`
+          ? `<img src="${escapeHtml(resolveImg(p.cover))}" alt="" loading="lazy">`
           : `<div class="no-cover">🖼</div>`}
       </div>
       <div class="project-card-body">
-        <div class="project-card-title">${p.title || '(ohne Titel)'}</div>
+        <div class="project-card-title">${escapeHtml(p.title || '(ohne Titel)')}</div>
         <div class="project-card-meta">
-          <span class="badge badge-category">${p.category || ''}</span>
+          <span class="badge badge-category">${escapeHtml(p.category || '')}</span>
           ${p.featured !== false
             ? `<span class="badge badge-visible">Startseite</span>`
             : `<span class="badge badge-hidden">nur Portfolio</span>`}
@@ -489,7 +497,7 @@ function renderProjectGrid() {
     card.innerHTML = `
       <div class="project-card-cover"><div class="no-cover">✏️</div></div>
       <div class="project-card-body">
-        <div class="project-card-title">${draft.title || slug}</div>
+        <div class="project-card-title">${escapeHtml(draft.title || slug)}</div>
         <div class="project-card-meta">
           <span class="badge badge-draft">lokal</span>
         </div>
@@ -778,7 +786,7 @@ function renderVideoList(listId, items) {
     div.className = 'video-item';
     const name = src.split('/').pop();
     div.innerHTML = `
-      <div class="video-name" title="${src}">${name}</div>
+      <div class="video-name" title="${escapeHtml(src)}">${escapeHtml(name)}</div>
       <button class="btn-icon" data-action="remove" data-idx="${idx}" data-list="${listId}" title="Entfernen">✕</button>`;
     div.querySelector('[data-action="remove"]').addEventListener('click', () => {
       const key = listId.includes('portrait') ? 'videos_portrait' : 'videos';
@@ -797,7 +805,7 @@ function renderYoutubeList(items) {
     const div = document.createElement('div');
     div.className = 'video-item';
     div.innerHTML = `
-      <div class="video-name" title="${url}">${url}</div>
+      <div class="video-name" title="${escapeHtml(url)}">${escapeHtml(url)}</div>
       <button class="btn-icon" data-action="remove" title="Entfernen">✕</button>`;
     div.querySelector('[data-action="remove"]').addEventListener('click', () => {
       _editorState.youtube.splice(idx, 1);
@@ -818,7 +826,7 @@ function renderTags(tags) {
   tags.forEach((tag, idx) => {
     const span = document.createElement('span');
     span.className = 'tag';
-    span.innerHTML = `${tag} <button title="Entfernen" data-idx="${idx}">×</button>`;
+    span.innerHTML = `${escapeHtml(tag)} <button title="Entfernen" data-idx="${idx}">×</button>`;
     span.querySelector('button').addEventListener('click', () => {
       _editorState.tags.splice(idx, 1);
       renderTags(_editorState.tags);
@@ -1723,10 +1731,10 @@ function renderContactLinks(links) {
     const row = document.createElement('div');
     row.style.cssText = 'display:flex;gap:8px;align-items:center;';
     row.innerHTML = `
-      <input type="text" value="${link.label || ''}" data-idx="${idx}" data-field="label"
+      <input type="text" value="${escapeHtml(link.label || '')}" data-idx="${idx}" data-field="label"
         placeholder="Label (z.B. Instagram)"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:7px 10px;font-size:.875rem;">
-      <input type="text" value="${link.url || ''}" data-idx="${idx}" data-field="url"
+      <input type="text" value="${escapeHtml(link.url || '')}" data-idx="${idx}" data-field="url"
         placeholder="https://…"
         style="flex:2;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:7px 10px;font-size:.875rem;">
       <button class="btn-icon" data-remove="${idx}" title="Entfernen">✕</button>`;

@@ -10,6 +10,9 @@ dist/
 .env.local
 .env.*.local
 
+# Wrangler lokaler Dev-State (Cloudflare Worker)
+.wrangler/
+
 # Logs
 *.log
 npm-debug.log*
