@@ -1237,7 +1237,11 @@ a:hover { text-decoration-thickness: 2px; }
 /* Großer "BTS"-Schriftzug, wird vom Container überlappt */
 .pd2-bts-wrap__title {
   position: absolute;
-  left: clamp(-30px, -2vw, -8px);
+  /* -0.07em gleicht die optische Schriftlaufweite (linker "B"-Vorschub) aus:
+     bei dieser riesigen Schriftgröße hat "B" mehrere Pixel unsichtbaren Raum
+     vor der eigentlichen Tinte, beim winzigen Label kaum. Ohne Korrektur
+     stimmen die Box-Kanten exakt überein, aber die sichtbaren Buchstaben nicht. */
+  left: calc(clamp(-30px, -2vw, -8px) - 0.07em);
   bottom: 100%;
   margin: 0 0 -0.32em;
   font-size: clamp(5.16rem, 11.76vw, 11.76rem);
@@ -1305,11 +1309,12 @@ a:hover { text-decoration-thickness: 2px; }
    damit die Spalten-/Zeilenproportionen auf jeder Breite gleich bleiben. */
 .pd2-bts__grid {
   display: grid;
-  /* Mitte: "auto" + aspect-ratio auf dem Slot selbst = exakt 9:16 bei jeder Höhe.
-     Höhe bewusst fest (nicht über aspect-ratio am Grid selbst) - sonst kann der
-     Browser bei Videos mit eigenem Seitenverhältnis die 9:16-Spalte falsch
-     berechnen (Video wird dann oben/unten beschnitten statt exakt 9:16). */
-  grid-template-columns: 1.5fr auto 1fr;
+  /* Mittlere Spalte als feste Formel (Grid-Höhe * 9/16) statt "auto" +
+     aspect-ratio auf dem Slot: "auto"-Spalten mit aspect-ratio auf einem
+     zeilenübergreifenden Element werden von Browsern je nach Video-
+     Seitenverhältnis unterschiedlich berechnet (Video wurde dann oben/unten
+     beschnitten). Die Formel ist immer exakt 9:16, unabhängig vom Inhalt. */
+  grid-template-columns: 1.5fr clamp(135px, 24.75vw, 495px) 1fr;
   grid-template-rows: 1.3fr 1fr;
   gap: clamp(8px, 1vw, 14px);
   width: 100%;
@@ -1328,7 +1333,7 @@ a:hover { text-decoration-thickness: 2px; }
   display: block;
 }
 .pd2-bts__slot--1 { grid-column: 1; grid-row: 1 / 3; }
-.pd2-bts__slot--2 { grid-column: 2; grid-row: 1 / 3; aspect-ratio: 9 / 16; }
+.pd2-bts__slot--2 { grid-column: 2; grid-row: 1 / 3; }
 .pd2-bts__slot--3 { grid-column: 3; grid-row: 1; }
 .pd2-bts__text {
   grid-column: 3;
