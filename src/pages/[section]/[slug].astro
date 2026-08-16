@@ -106,6 +106,39 @@ while (imgCursor < galleryImages.length || rowIndex <= maxVideoRow) {
 
 const otherProjects = allProjects.filter(p => p.data.slug !== entry.data.slug);
 
+// "Weitere Projekte": max. 4 Vorschläge, davon 1 aus derselben Kategorie wie
+// das aktuelle Projekt, der Rest möglichst breit über die übrigen Kategorien
+// gestreut (nicht 3x dieselbe). Der Startpunkt je Pool rotiert anhand der
+// eigenen "order" - so zeigt nicht jede Fotografie-Seite exakt dieselben 4
+// Vorschläge, sondern je nach Ausgangsprojekt eine andere Mischung.
+const MORE_PROJECTS_LIMIT = 4;
+const rotate = <T,>(arr: T[], seed: number): T[] => {
+  if (!arr.length) return arr;
+  const offset = seed % arr.length;
+  return [...arr.slice(offset), ...arr.slice(0, offset)];
+};
+
+const sameCategory = rotate(otherProjects.filter(p => p.data.category === entry.data.category), entry.data.order);
+const otherCategories = rotate(otherProjects.filter(p => p.data.category !== entry.data.category), entry.data.order);
+
+const byCategory = new Map<string, typeof otherProjects>();
+for (const p of otherCategories) {
+  byCategory.set(p.data.category, [...(byCategory.get(p.data.category) ?? []), p]);
+}
+const categoryKeys = rotate([...byCategory.keys()], entry.data.order);
+const diversifiedOthers: typeof otherProjects = [];
+for (let round = 0; diversifiedOthers.length < otherCategories.length; round++) {
+  const before = diversifiedOthers.length;
+  for (const key of categoryKeys) {
+    const p = byCategory.get(key)?.[round];
+    if (p) diversifiedOthers.push(p);
+  }
+  if (diversifiedOthers.length === before) break;
+}
+
+const moreProjects = [...sameCategory.slice(0, 1), ...diversifiedOthers, ...sameCategory.slice(1)]
+  .slice(0, MORE_PROJECTS_LIMIT);
+
 const isVideoFile = (path?: string) => !!path && /\.(mp4|mov|webm|m4v)$/i.test(path);
 const btsHasContent = !!(entry.data.bts_media_1 || entry.data.bts_media_2 || entry.data.bts_media_3 || entry.data.bts_text);
 
@@ -246,12 +279,12 @@ let bodyPlaced = false;
     </section>
   )}
 
-  {otherProjects.length > 0 && (
+  {moreProjects.length > 0 && (
     <section class="pd2-more">
       <h2 class="pd2-more__heading">Weitere Projekte</h2>
       <div class="pd2-more__scroll-wrap">
       <div class="pd2-more__grid" id="pd2MoreGrid">
-        {otherProjects.map((p) => (
+        {moreProjects.map((p, i) => (
           <a class="pd2-more__card" href={projectDetailPath(lang, p.data.slug)}>
             <div class="pd2-more__img">
               {p.data.cover_video ? (
@@ -266,7 +299,7 @@ let bodyPlaced = false;
                   style={`object-position: ${p.data.cover_focal ?? '50% 50%'}`} />
               )}
               <div class="pd2-more__overlay">
-                <span class="pd2-more__num">{String(p.data.order).padStart(2, '0')}/{String(totalProjects).padStart(2, '0')}</span>
+                <span class="pd2-more__num">{String(i + 1).padStart(2, '0')}/{String(moreProjects.length).padStart(2, '0')}</span>
                 <span class="pd2-more__title">{p.data.title}</span>
               </div>
             </div>
