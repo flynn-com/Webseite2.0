@@ -1299,7 +1299,7 @@ a:hover { text-decoration-thickness: 2px; }
   backdrop-filter: blur(18px) saturate(160%);
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.6),
-    0 26px 65px -26px rgba(0, 0, 0, 0.325);
+    0 32px 42px -20px rgba(0, 0, 0, 0.48);
   padding: clamp(20px, 2.2vw, 32px);
   overflow: hidden;
 }
