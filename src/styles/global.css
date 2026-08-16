@@ -1224,7 +1224,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* ── Behind the Scenes: Wrapper ── */
 .pd2-bts-wrap {
   position: relative;
-  margin: clamp(64px, 8vw, 120px) 0 clamp(48px, 6vw, 96px);
+  margin: clamp(110px, 13vw, 200px) 0 clamp(48px, 6vw, 96px);
 }
 /* Hugt exakt die Größe des Containers (.pd2-bts), damit Kamera/Titel/Label
    unabhängig von der Viewport-Breite immer relativ zum Container sitzen. */
@@ -1237,13 +1237,13 @@ a:hover { text-decoration-thickness: 2px; }
 /* Großer "BTS"-Schriftzug, wird vom Container überlappt */
 .pd2-bts-wrap__title {
   position: absolute;
-  left: clamp(-90px, -8vw, -40px);
+  left: clamp(-30px, -2vw, -8px);
   bottom: 100%;
   margin: 0 0 -0.32em;
-  font-size: clamp(3.5rem, 8vw, 8rem);
-  font-weight: 900;
+  font-size: clamp(5.16rem, 11.76vw, 11.76rem);
+  font-weight: 700;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.09em;
   color: #000;
   line-height: 0.85;
   white-space: nowrap;
@@ -1251,13 +1251,11 @@ a:hover { text-decoration-thickness: 2px; }
   pointer-events: none;
 }
 
-/* Klein, rotiert, außerhalb des Containers links davon — auf Höhe des
-   Innenbereichs (Container-Padding), nicht am äußeren Rand */
+/* Klein, rotiert — linksbündig mit "BTS", mit Abstand nach unten */
 .pd2-bts-wrap__label {
   position: absolute;
-  top: clamp(20px, 2.2vw, 32px);
-  right: 100%;
-  margin-right: clamp(10px, 1.4vw, 22px);
+  top: clamp(48px, 4.5vw, 76px);
+  left: clamp(-30px, -2vw, -8px);
   writing-mode: vertical-rl;
   rotate: 180deg;
   font-size: clamp(0.65rem, 0.85vw, 0.8rem);
@@ -1273,11 +1271,11 @@ a:hover { text-decoration-thickness: 2px; }
 
 .pd2-bts-wrap__camera {
   position: absolute;
-  bottom: 8%;
-  right: -46%;
-  width: 95%;
-  min-width: 420px;
-  max-width: 1050px;
+  bottom: 4%;
+  right: -50%;
+  width: 104%;
+  min-width: 400px;
+  max-width: 1160px;
   height: auto;
   z-index: 0;
   pointer-events: none;
@@ -1292,7 +1290,7 @@ a:hover { text-decoration-thickness: 2px; }
   z-index: 1;
   width: min(80vw, 1600px);
   border-radius: 20px;
-  background: rgba(240, 240, 240, 0.88);
+  background: rgba(240, 240, 240, 0.16);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
   backdrop-filter: blur(18px) saturate(160%);
   box-shadow:
@@ -1307,12 +1305,15 @@ a:hover { text-decoration-thickness: 2px; }
    damit die Spalten-/Zeilenproportionen auf jeder Breite gleich bleiben. */
 .pd2-bts__grid {
   display: grid;
-  /* Mitte: "auto" + aspect-ratio auf dem Slot selbst = exakt 9:16 bei jeder Höhe */
+  /* Mitte: "auto" + aspect-ratio auf dem Slot selbst = exakt 9:16 bei jeder Höhe.
+     Höhe bewusst fest (nicht über aspect-ratio am Grid selbst) - sonst kann der
+     Browser bei Videos mit eigenem Seitenverhältnis die 9:16-Spalte falsch
+     berechnen (Video wird dann oben/unten beschnitten statt exakt 9:16). */
   grid-template-columns: 1.5fr auto 1fr;
   grid-template-rows: 1.3fr 1fr;
   gap: clamp(8px, 1vw, 14px);
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: clamp(240px, 44vw, 880px);
 }
 .pd2-bts__slot {
   border-radius: 12px;
@@ -1347,20 +1348,9 @@ a:hover { text-decoration-thickness: 2px; }
   text-transform: uppercase;
 }
 
+/* Behind the Scenes nur ab Tablet (iPad) aufwärts - auf dem Handy komplett ausgeblendet */
 @media (max-width: 767px) {
-  .pd2-bts-wrap { margin: 56px 0 32px; }
-  .pd2-bts-wrap__title { font-size: 2.4rem; margin-bottom: -10px; }
-  .pd2-bts-wrap__label { font-size: 0.6rem; margin-right: 8px; }
-  .pd2-bts-wrap__camera { width: 105%; min-width: 0; max-width: none; right: -48%; bottom: 10%; }
-  .pd2-bts {
-    border-radius: 16px;
-    padding: 16px;
-  }
-  .pd2-bts__grid {
-    grid-template-columns: 1.4fr auto 1fr;
-    gap: 6px;
-  }
-  .pd2-bts__text p { font-size: 0.6rem; line-height: 1.35; }
+  .pd2-bts-wrap { display: none; }
 }
 
 /* ── Weitere Projekte ── */
