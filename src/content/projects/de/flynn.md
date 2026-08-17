@@ -1,7 +1,7 @@
 ---
 title: .FLYNN
 slug: flynn
-category: fotografie
+category: webdesign
 order: 3
 featured: true
 cover: /uploads/projekte/flynn/cover.png
@@ -36,6 +36,7 @@ tags:
   - UX
 bts_enabled: false
 ---
+
 
 Wie macht man ein Protfolio interesant? 
 
