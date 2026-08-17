@@ -10,6 +10,9 @@ description: Portfolio Webseite
 location: Stuttgart
 gallery:
   -
+    image: /uploads/projekte/flynn/macbook_pro_14__-_1.png
+    focal: "50% 50%"
+  -
     image: /uploads/projekte/flynn/macbook_pro_14__-_4.png
     focal: "50% 50%"
   -
