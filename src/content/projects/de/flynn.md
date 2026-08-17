@@ -40,7 +40,4 @@ tags:
 bts_enabled: false
 ---
 
-
-Wie macht man ein Protfolio interesant? 
-
-Eine Portfolio welches Design und nutzen Kombiniert. 
+Eine Portfolio welches Design und nutzen Kombiniert. das design insperiert sich an an Durchsichtigen Karten. 
