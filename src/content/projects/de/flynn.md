@@ -40,4 +40,3 @@ tags:
 bts_enabled: false
 ---
 
-Eine Portfolio welches Design und nutzen Kombiniert. das design insperiert sich an an Durchsichtigen Karten. 
