@@ -1,3 +1,6 @@
+---
+---
+
 ## 1. Verantwortlicher
 
 Flynn Bertsch\
@@ -33,3 +36,5 @@ Du hast das Recht, dich bei einer Datenschutz-Aufsichtsbehörde über die Verarb
 ## 8. Aktualität dieser Erklärung
 
 Durch die Weiterentwicklung dieser Website oder aufgrund geänderter gesetzlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung anzupassen. Die jeweils aktuelle Version ist jederzeit hier abrufbar.
+‍
+Wenn du Fragen zum Datenschutz hast, schreib mir bitte eine E-Mail oder ruf mich an.
