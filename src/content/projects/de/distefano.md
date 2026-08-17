@@ -2,8 +2,8 @@
 title: Di stefano
 slug: distefano
 category: fotografie
-order: 3
-featured: true
+order: 5
+featured: false
 cover: /uploads/projekte/distefano/cover.avif
 cover_focal: "49% 39%"
 location: Italien
@@ -30,7 +30,9 @@ youtube: []
 videos: []
 videos_portrait: []
 tags: []
+bts_enabled: false
 ---
+
 
 
 
