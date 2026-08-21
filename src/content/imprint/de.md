@@ -7,6 +7,7 @@
 ## Angaben gemäß § 5 TMG
 
 Flynn Bertsch\
+Jahnstraße 19\
 71229, Leonberg Deutschland
 
 ## Kontakt
