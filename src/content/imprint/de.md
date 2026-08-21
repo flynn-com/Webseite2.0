@@ -1,6 +1,9 @@
 ---
 ---
 
+---
+---
+
 ## Angaben gemäß § 5 TMG
 
 Flynn Bertsch\
@@ -9,6 +12,7 @@ Flynn Bertsch\
 ## Kontakt
 
 E-Mail: [info@flynnbertsch.com](mailto:DEINE@EMAIL.DE)
+Telefon: 01627219889
 
 ## Steuerliche Angaben
 
