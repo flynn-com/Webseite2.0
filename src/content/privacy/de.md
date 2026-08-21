@@ -1,17 +1,15 @@
 ---
 ---
 
----
----
 
 ## 1. Verantwortlicher
 
 Flynn Bertsch\
+Jahnstraße 19\
 71229, Leonberg\
 \
 Deutschland\
-E-Mail: [info@flynnbertsch.com](mailto:DEINE@EMAIL.DE)
-\Telefon: 01627219889
+E-Mail: [info@flynnbertsch.com](mailto:DEINE@EMAIL.DE) \ Telefon: 0162 7219889
 
 ## 2. Hosting — GitHub Pages
 
