@@ -1,6 +1,9 @@
 ---
 ---
 
+---
+---
+
 ## 1. Verantwortlicher
 
 Flynn Bertsch\
@@ -8,6 +11,7 @@ Flynn Bertsch\
 \
 Deutschland\
 E-Mail: [info@flynnbertsch.com](mailto:DEINE@EMAIL.DE)
+Telefon: 01627219889
 
 ## 2. Hosting — GitHub Pages
 
