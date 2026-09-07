@@ -10,8 +10,6 @@ skills:
   - UI/UX
 ---
 
-
-
-Hi, ich bin Flynn. Als Fotograf, Videograf und Designer aus Stuttgart verwandle ich Ideen in visuelle Geschichten, von editorischen Shootings über Kampagnen bis hin zu Webprojekten. Mein Blick für Licht, Komposition und Details fließt in jede Arbeit ein.
-
-Ob Portrait, Fashion oder bewegtes Bild,  ich arbeite eng mit meinen Kunden zusammen, um Projekte zu schaffen, die genau auf den Punkt treffen.
+Meine Leidenschaft für Fotografie begann in jungen Jahren und entwickelte sich früh zu einer intensiven Auseinandersetzung mit Kameratechnik, Licht, Komposition und visueller Gestaltung. Heute verbinde ich technisches Verständnis mit einem ausgeprägten Gespür für Bildsprache, Perspektive und Inszenierung.
+Nach dem Abitur gründete ich gemeinsam mit zwei Freunden eine Medienagentur. Als Geschäftsführer und Director of Photography verantwortete ich sechs Jahre lang sowohl die strategische und organisatorische Entwicklung des Unternehmens als auch die Konzeption und visuelle Umsetzung unserer Projekte.
+Meine Begeisterung für Design und Engineering vertiefe ich durch mein Studium im Maschinenbau und Technischen Design. Die Verbindung aus Technik, Konstruktion und Gestaltung prägt dabei meinen Blick für Form, Proportion und funktionale Ästhetik.
