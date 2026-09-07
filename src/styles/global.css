@@ -307,6 +307,7 @@ a:hover { text-decoration-thickness: 2px; }
   min-height: clamp(560px, 44vw, 900px);
   border-radius: 20px;
   overflow: hidden;
+  cursor: pointer;
 }
 
 /* ── Linke Spalte: iOS 26 Liquid Glass ── */
@@ -369,7 +370,7 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .proj-card__title {
   color: #fff;
-  font-size: 40px;
+  font-size: 48px;
   font-weight: 700;
   margin: 0 0 14px;
   text-transform: uppercase;
@@ -381,7 +382,7 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .proj-card__desc {
   color: rgba(255,255,255,0.55);
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   line-height: 1.75;
@@ -481,7 +482,7 @@ a:hover { text-decoration-thickness: 2px; }
     min-height: 480px;
   }
   .proj-card__number { font-size: 24px; }
-  .proj-card__title  { font-size: 22px; }
+  .proj-card__title  { font-size: 26px; }
 }
 
 /* Mobile — gestapelt, Pfeile ausgeblendet, Swipe aktiv */
@@ -1206,7 +1207,7 @@ a:hover { text-decoration-thickness: 2px; }
   align-items: center;       /* vertikal zentriert zwischen oberer und unterer Reihe */
   aspect-ratio: 2 / 3;       /* gleiche Höhe wie die Hochformat-Bilder daneben */
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 400;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #000;
   letter-spacing: -0.02em;
@@ -1215,12 +1216,12 @@ a:hover { text-decoration-thickness: 2px; }
 .pd2-text-slot p { margin: 0; }
 .pd2-text-slot p + p { margin-top: 0.6rem; }
 
-/* ── Fließtext / Beschreibung (über dem Hero) ── */
+/* ── Fließtext (Markdown-Body, Fallback über dem Hero wenn kein Galerie-Slot) ── */
 .pd2-prose {
   max-width: 44%;
   margin-top: clamp(20px, 2.5vw, 36px);
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 400;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #000;
   letter-spacing: -0.02em;
@@ -1228,6 +1229,20 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .pd2-prose p { margin: 0; }
 .pd2-prose p + p { margin-top: 0.6rem; }
+
+/* ── Kurzbeschreibung (über dem Hero) ── */
+.pd2-desc {
+  max-width: 44%;
+  margin-top: clamp(20px, 2.5vw, 36px);
+  font-size: 25px;
+  font-weight: 700;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #000;
+  letter-spacing: -0.02em;
+  line-height: 1.6;
+}
+.pd2-desc p { margin: 0; }
+.pd2-desc p + p { margin-top: 0.6rem; }
 
 /* ── Behind the Scenes: Wrapper ── */
 .pd2-bts-wrap {
@@ -1461,7 +1476,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* ── Responsive ── */
 @media (max-width: 767px) {
   .pd2-title, .pd2-counter { font-size: clamp(3rem, 15vw, 5rem); }
-  .pd2-prose { max-width: 100%; text-align: justify; }
+  .pd2-prose, .pd2-desc { max-width: 100%; text-align: justify; }
   .pd2-text-slot { text-align: justify; }
   /* Weitere Projekte: horizontal scrollbar, kein Stacking */
   .pd2-more__grid {
@@ -1630,12 +1645,15 @@ a:hover { text-decoration-thickness: 2px; }
 /* ── Fließtext ── */
 .am-body {
   margin-top: clamp(18px, 2.2vw, 32px);
-  font-size: 0.875rem;
+  font-size: clamp(1rem, 1.1vw, 1.15rem);
   font-weight: 400;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -0.02em;
   line-height: 1.7;
   color: #000;
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
 }
 .am-body p { margin: 0; }
 .am-body p + p { margin-top: 0.75rem; }
@@ -1739,9 +1757,9 @@ a:hover { text-decoration-thickness: 2px; }
     letter-spacing: -0.06em;
   }
 
-  /* Body: 12px, zentrierter Text, 85% Breite */
+  /* Body: 14px, zentrierter Text, 85% Breite */
   .am-body {
-    font-size: 12px;
+    font-size: 14px;
     text-align: center;
     width: 85%;
     margin-inline: auto;

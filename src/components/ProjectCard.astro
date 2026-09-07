@@ -40,7 +40,7 @@ const numTotal   = String(total).padStart(2, '0');
 const detailHref = projectDetailPath(lang, slug);
 ---
 
-<article class="proj-card">
+<article class="proj-card" data-href={detailHref}>
 
   <!-- ── Linke Glas-Spalte ── -->
   <div class="proj-card__glass-col">
@@ -107,6 +107,32 @@ const detailHref = projectDetailPath(lang, slug);
 </article>
 
 <script>
+  // Ganze Karte klickbar machen (führt zum Projekt), ohne Karussell-Pfeile,
+  // Dots oder den bestehenden CTA-Link zu beeinträchtigen. Touch-Swipe (siehe
+  // unten) bleibt unverändert, da ein Swipe vom Browser nicht als Klick gewertet wird.
+  document.querySelectorAll<HTMLElement>('.proj-card[data-href]').forEach(card => {
+    const href = card.dataset.href!;
+
+    const isInteractiveTarget = (target: EventTarget | null) =>
+      target instanceof HTMLElement &&
+      !!target.closest('.proj-card__cta, .proj-card__nav, .proj-card__dot');
+
+    card.addEventListener('click', (e: MouseEvent) => {
+      if (isInteractiveTarget(e.target)) return;
+      if (e.ctrlKey || e.metaKey) {
+        window.open(href, '_blank');
+      } else {
+        window.location.href = href;
+      }
+    });
+
+    // Mittlere Maustaste öffnet in neuem Tab (löst 'click' nicht aus)
+    card.addEventListener('auxclick', (e: MouseEvent) => {
+      if (e.button !== 1 || isInteractiveTarget(e.target)) return;
+      window.open(href, '_blank');
+    });
+  });
+
   document.querySelectorAll<HTMLElement>('[data-carousel]').forEach(carousel => {
     const slides = carousel.querySelectorAll<HTMLElement>('.proj-card__slide');
     const dots   = carousel.querySelectorAll<HTMLElement>('.proj-card__dot');
