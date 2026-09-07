@@ -52,11 +52,7 @@ youtube: []
 videos: []
 videos_portrait: []
 tags: []
+bts_enabled: false
 ---
 
-
-
-
-
-
-Die neu gestaltete Immobilie, welche von dem Architekturbüros Arée eingerichtet wurde, wurde in einer Fotoreihe abgebildet. Dabei lag der Fokus darauf, das Raumkonzept und die Einrichtung durch gezielte Perspektiven in Szene zu setzen.
+Für das Münchner Architektur- und Innenarchitekturbüro ARÉE habe ich Raumkonzept und Interior aus ungesehenen Perspektiven fotografisch in Szene gesetzt.
