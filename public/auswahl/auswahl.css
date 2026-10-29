@@ -20,16 +20,27 @@
   --font:        "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; overflow-x: hidden; overscroll-behavior-x: none; }
 body {
   font-family: var(--font);
   background: var(--bg);
   color: var(--text);
   line-height: 1.3;
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
-body.no-scroll { overflow: hidden; }
+/* Während die Großansicht offen ist: body fixieren statt nur overflow:hidden -
+   auf dem Handy reicht overflow:hidden allein nicht, die Seite lässt sich
+   sonst trotzdem verschieben bzw. die Tastatur gibt den Blick auf das Raster
+   darunter frei. Scroll-Position wird in auswahl.js gemerkt und wiederhergestellt. */
+body.no-scroll {
+  position: fixed;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
 [hidden] { display: none !important; }
 button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
 button:disabled { cursor: default; }
@@ -201,18 +212,35 @@ main { max-width: 1400px; margin: 0 auto; padding: 0 var(--side) 80px; }
   gap: var(--gap);
 }
 .tile { background: var(--bg); }
-.tile-img { display: block; width: 100%; }
-/* Ganzes Foto zeigen (nie beschneiden): Querformate sitzen unten auf der
-   schwarzen Leiste. Grau nur als Platzhalter, bis das Bild geladen ist. */
+.tile-img { display: block; position: relative; width: 100%; }
+/* Einheitliches Raster: alle Kacheln (Hoch- und Querformat) bekommen dasselbe
+   Seitenverhältnis und werden gefüllt (object-fit: cover). Das volle,
+   unbeschnittene Foto gibt es weiterhin in der Großansicht - im Raster würde
+   ein Mix aus Hoch- und Querformat mit Leerraum sonst unruhig wirken.
+   Querformat-Kacheln bekommen stattdessen unten links ein kleines Symbol. */
 .tile-img img {
   display: block;
   width: 100%;
   aspect-ratio: var(--tile-ar, 314 / 500);   /* setzt updateTileAspect() in auswahl.js */
-  object-fit: contain;
-  object-position: center bottom;
+  object-fit: cover;
+  object-position: center;
   background: var(--placeholder);
 }
 .tile-img img.is-loaded { background: var(--bg); }
+
+.tile-orient {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0,0,0,.45);
+  color: #fff;
+  pointer-events: none;
+}
 
 /* Schwarze Leiste unter jedem Bild (auch in der Großansicht) */
 .bar {
@@ -407,6 +435,7 @@ main { max-width: 1400px; margin: 0 auto; padding: 0 var(--side) 80px; }
 .v-note-del:hover { color: var(--text); }
 .v-note p { white-space: pre-wrap; word-break: break-word; line-height: 1.4; }
 
+.v-note-form { display: flex; align-items: flex-end; gap: 8px; }
 .v-note-form textarea {
   display: block;
   width: 100%;
@@ -422,6 +451,23 @@ main { max-width: 1400px; margin: 0 auto; padding: 0 var(--side) 80px; }
 }
 .v-note-form textarea::placeholder { color: var(--text); }
 .v-note-form textarea:focus::placeholder { color: var(--muted); }
+
+/* Sichtbarer Senden-Button - auf dem Handy ist Enter zum Absenden nicht
+   zuverlässig (manche Tastaturen melden das nicht korrekt an den Browser) */
+.v-note-send {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--text);
+  color: #fff;
+  transition: opacity .15s;
+}
+.v-note-send svg { width: 18px; height: 18px; fill: currentColor; }
+.v-note-send:hover { opacity: .8; }
+.v-note-send:active { opacity: .6; }
 
 /* Hochformat: Bild und Herz mittig, Dateiname rechts neben dem Bild, Notizen am rechten Rand */
 .viewer[data-orient="portrait"] .v-photo { margin: 0 auto; }
@@ -495,19 +541,38 @@ main { max-width: 1400px; margin: 0 auto; padding: 0 var(--side) 80px; }
   .grid .bar-name { display: none; }
   .toolbar { flex-wrap: wrap; gap: 8px; }
 
-  /* Handy: Bild oben in voller Breite, Notizen darunter */
+  /* Handy: Bild mittig (nicht oben "angeklatscht"), Notizen darunter.
+     Ist der Inhalt höher als der Bildschirm (Hochformat + viele Notizen),
+     scrollt .viewer ganz normal - die Zentrierung clippt dabei nichts ab. */
   .viewer { overflow-y: auto; }
-  .v-pos { left: 16px; top: 16px; }
+  .v-pos { left: 16px; top: 16px; letter-spacing: .04em; }
+  /* Pfeil-Hinweis links/rechts der Zähler-Anzeige: zeigt an, dass es weitere
+     Bilder gibt, auch wenn die eigentlichen Pfeil-Buttons hier ausgeblendet
+     bleiben (Wischen ist auf dem Handy der Haupt-Bedienweg). */
+  .v-pos::before { content: '‹ '; opacity: .6; }
+  .v-pos::after  { content: ' ›'; opacity: .6; }
   .v-nav { display: none; }
   .v-layout,
   .viewer[data-orient] .v-layout {
     position: static;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100%;
     padding: 52px 16px calc(24px + env(safe-area-inset-bottom));
   }
   .v-photo,
-  .viewer[data-orient] .v-photo { width: 100%; height: auto; margin: 0; }
+  .viewer[data-orient] .v-photo { width: 100%; height: auto; margin: 0; flex-shrink: 0; }
   .v-photo img { height: auto; }
+
+  /* Einmaliger, dezenter Wisch-Hinweis beim ersten Öffnen der Großansicht
+     auf dem Handy (steuert maybeShowSwipeHint() in auswahl.js) */
+  @keyframes swipe-hint {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-18px); }
+    60% { transform: translateX(8px); }
+  }
+  .v-photo.swipe-hint img { animation: swipe-hint 900ms ease-in-out; }
   .v-like { width: 60px; height: 60px; bottom: 16px; }
   .viewer[data-orient] .v-like { left: auto; right: 16px; margin: 0; }
   .viewer[data-orient] .v-side { position: static; width: auto; height: auto; pointer-events: auto; }

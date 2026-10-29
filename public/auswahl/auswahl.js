@@ -15,6 +15,9 @@ const FILTERS = [
 ];
 
 const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.2 4.4 2.5h1.6c.8-1.3 2.3-2.5 4.4-2.5 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+// Kleines Hinweis-Icon unten links auf Querformat-Kacheln im Raster (dort
+// werden alle Bilder einheitlich beschnitten, damit das Raster ruhig wirkt)
+const LANDSCAPE_ICON = '<svg viewBox="0 0 18 14" aria-hidden="true"><rect x="1" y="1" width="16" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
 
 // ── State ────────────────────────────────────────────────────────────────────
 
@@ -240,6 +243,11 @@ function updateTileAspect() {
   }, 100);
 }
 
+function updateOrientBadge(tile, img) {
+  const badge = tile.querySelector('.tile-orient');
+  if (badge) badge.hidden = !(img.width && img.height && img.width >= img.height);
+}
+
 function buildGrid() {
   const grid = $('grid');
   const keep = {};
@@ -253,6 +261,7 @@ function buildGrid() {
       tile.innerHTML = `
         <button class="tile-img" aria-label="Großansicht öffnen">
           <img src="${imgUrl(img.id, 'thumb')}" loading="lazy" decoding="async" alt="">
+          <span class="tile-orient" hidden title="Querformat">${LANDSCAPE_ICON}</span>
         </button>
         <div class="bar">
           <button class="heart" aria-label="Liken">${HEART}</button>
@@ -261,12 +270,14 @@ function buildGrid() {
           <span class="bar-name">${escapeHtml(img.filename)}</span>
         </div>`;
       const thumb = tile.querySelector('.tile-img img');
+      updateOrientBadge(tile, img);
       thumb.addEventListener('load', () => {
         thumb.classList.add('is-loaded');
         // Ältere Uploads ohne gespeicherte Maße: am Vorschaubild messen
         if (!img.width && thumb.naturalWidth) {
           img.width = thumb.naturalWidth; img.height = thumb.naturalHeight;
           updateTileAspect();
+          updateOrientBadge(tile, img);
         }
       }, { once: true });
       tile.querySelector('.tile-img').addEventListener('click', () => openViewer(img.id));
@@ -347,12 +358,42 @@ function renderGrid() {
 // Großansicht
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Normales `overflow:hidden` auf dem body reicht auf dem Handy nicht aus -
+// iOS Safari lässt die Seite trotzdem wegrutschen (z.B. wenn die Tastatur
+// aufklappt). Stattdessen den body fixieren und die Scroll-Position merken.
+let _scrollY = 0;
+function lockScroll() {
+  _scrollY = window.scrollY;
+  document.body.style.top = `-${_scrollY}px`;
+  document.body.classList.add('no-scroll');
+}
+function unlockScroll() {
+  document.body.classList.remove('no-scroll');
+  document.body.style.top = '';
+  window.scrollTo(0, _scrollY);
+}
+
+// Zeigt einmalig (pro Browser) einen kurzen Wisch-Hinweis in der Großansicht
+// auf dem Handy, damit klar ist, dass man nach links/rechts wischen kann.
+const SWIPE_HINT_KEY = 'auswahl_swipe_hint_seen';
+function maybeShowSwipeHint() {
+  if (window.innerWidth > 860) return;
+  if (store(() => localStorage.getItem(SWIPE_HINT_KEY))) return;
+  store(() => localStorage.setItem(SWIPE_HINT_KEY, '1'));
+  setTimeout(() => {
+    const stage = $('v-stage');
+    stage?.classList.add('swipe-hint');
+    setTimeout(() => stage?.classList.remove('swipe-hint'), 1000);
+  }, 400);
+}
+
 function openViewer(imageId) {
   const list = S.images.filter(i => matchesFilter(i.id, S.filter)).map(i => i.id);
   if (!list.length) return;
   S.view = { list, pos: Math.max(0, list.indexOf(imageId)) };
   $('viewer').hidden = false;
-  document.body.classList.add('no-scroll');
+  lockScroll();
+  maybeShowSwipeHint();
   renderViewer(true);
 }
 
@@ -362,7 +403,7 @@ function closeViewer() {
   S.view = null;
   resetZoom();
   $('viewer').hidden = true;
-  document.body.classList.remove('no-scroll');
+  unlockScroll();
   S.tiles[id]?.scrollIntoView({ block: 'nearest' });
 }
 
@@ -532,8 +573,10 @@ $('v-note-form').addEventListener('submit', (e) => {
   if (text && !isLocked()) addNote(S.view.list[S.view.pos], text);
 });
 $('v-note').addEventListener('keydown', (e) => {
-  // Enter sendet, Shift+Enter macht eine neue Zeile
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('v-note-form').requestSubmit(); }
+  // Enter sendet, Shift+Enter macht eine neue Zeile. isComposing ausschließen,
+  // damit eine Tastatur-Vervollständigung (v.a. Android) das nicht versehentlich
+  // auslöst - der sichtbare Senden-Button ist ohnehin der zuverlässigere Weg.
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('v-note-form').requestSubmit(); }
   if (e.key === 'Escape') { e.stopPropagation(); $('v-note').blur(); }
 });
 
