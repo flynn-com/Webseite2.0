@@ -1038,6 +1038,10 @@ a:hover { color: var(--text); }
 .ga-person-progress > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ga-pct { text-align: right; color: var(--text3); font-variant-numeric: tabular-nums; }
 
+/* "Ich bin durch"-Status - grün, damit er auf einen Blick auffällt */
+.ga-done-badge { color: #1f9d55; font-weight: 600; }
+.ga-done-badge-list { background: rgba(31,157,85,.12); color: #1f9d55; }
+
 .ga-stats {
   display: flex;
   flex-wrap: wrap;

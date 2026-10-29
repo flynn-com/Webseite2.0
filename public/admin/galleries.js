@@ -84,10 +84,11 @@ function renderGalleryList() {
   empty.style.display = 'none';
   grid.style.display = '';
   grid.innerHTML = _gaList.map(g => {
-    const locked = g.status === 'freigegeben';
+    const locked   = g.status === 'freigegeben';
+    const nDone    = g.people.filter(p => p.done_at).length;
     const people = g.people.map(p => `
       <div class="ga-person-progress">
-        <span>${escapeHtml(p.name)}</span>
+        <span>${escapeHtml(p.name)}${p.done_at ? ' <span class="ga-done-badge" title="Fertig">✓ Fertig</span>' : ''}</span>
         <span class="ga-pct">♥ ${p.likes}</span>
       </div>`).join('');
     return `<div class="project-card ga-list-card" data-id="${escapeHtml(g.id)}">
@@ -97,6 +98,7 @@ function renderGalleryList() {
           <span class="badge ${locked ? 'badge-hidden' : 'badge-visible'}">${locked ? 'Gesperrt' : 'Offen'}</span>
           <span class="badge badge-category">${g.image_count} Bilder</span>
           <span class="badge badge-category">${g.liked_count} gelikt</span>
+          ${nDone ? `<span class="badge ga-done-badge-list">✓ ${nDone}/${g.people.length} fertig</span>` : ''}
         </div>
         ${people || '<div class="hint">Noch keine Personen</div>'}
       </div>
@@ -315,7 +317,7 @@ function renderGalleryStats() {
   const liked  = images.filter(img => likes[img.id]?.size).length;
   const perPerson = people.map(p => {
     const n = images.filter(img => likes[img.id]?.has(p.id)).length;
-    return `<div class="ga-stat"><b>♥ ${n}</b><span>${escapeHtml(p.name)}</span></div>`;
+    return `<div class="ga-stat"><b>♥ ${n}</b><span>${escapeHtml(p.name)}${p.done_at ? ' <span class="ga-done-badge" title="Fertig seit ' + escapeHtml(new Date(p.done_at).toLocaleString('de-DE')) + '">✓</span>' : ''}</span></div>`;
   }).join('');
 
   document.getElementById('gd-stats').innerHTML = `

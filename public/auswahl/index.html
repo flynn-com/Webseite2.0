@@ -54,7 +54,12 @@
 
   <div class="toolbar">
     <nav class="filters" id="filters"></nav>
-    <button class="me-chip" id="btn-me" title="Person wechseln">Du bist: <span id="me-name"></span></button>
+    <div class="toolbar-right">
+      <button class="done-chip" id="btn-done-top">
+        <span id="done-top-label">Ich bin durch</span>
+      </button>
+      <button class="me-chip" id="btn-me" title="Person wechseln">Du bist: <span id="me-name"></span></button>
+    </div>
   </div>
 
   <div id="locked-banner" class="banner" hidden></div>
@@ -63,6 +68,16 @@
     <div id="grid" class="grid"></div>
     <p id="grid-empty" class="empty" hidden>Keine Bilder in dieser Kategorie.</p>
   </main>
+
+  <!-- Großer Abschluss-Button am Ende der Seite: meldet dem Flynn im Admin,
+       dass diese Person mit dem Durchschauen fertig ist. -->
+  <footer class="done-footer">
+    <button class="done-btn" id="btn-done-bottom">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6"/></svg>
+      <span id="done-bottom-label">Ich bin durch – hab mir alles angeschaut</span>
+    </button>
+    <p class="done-footer-hint" id="done-bottom-hint" hidden>Flynn sieht im Admin-Bereich, dass du fertig bist.</p>
+  </footer>
 </div>
 
 <!-- Großansicht: Layout nach Figma, eigenes Layout für Hoch- und Querformat (data-orient) -->

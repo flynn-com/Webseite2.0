@@ -67,6 +67,7 @@ export async function handleGallery(request, env, path, checkAuth) {
     if (action === ''        && m === 'GET')  return clientState(env, gallery, request);
     if (action === '/people' && m === 'POST') return clientAddPerson(env, gallery, request);
     if (action === '/like'    && m === 'PUT')    return clientLike(env, gallery, request);
+    if (action === '/done'    && m === 'PUT')    return clientDone(env, gallery, request);
     if (action === '/comment' && m === 'POST')   return clientComment(env, gallery, request);
     if (action === '/comment' && m === 'DELETE') return clientDeleteComment(env, gallery, request);
     return json({ error: 'Not found' }, 404);
@@ -107,7 +108,7 @@ export async function handleGallery(request, env, path, checkAuth) {
 async function loadAll(env, galleryId, since = 0) {
   const db = env.GALLERY_DB;
   const [people, images, likes, comments] = await db.batch([
-    db.prepare('SELECT id, name, added_by, sort FROM people WHERE gallery_id = ? ORDER BY sort, created_at').bind(galleryId),
+    db.prepare('SELECT id, name, added_by, sort, done_at FROM people WHERE gallery_id = ? ORDER BY sort, created_at').bind(galleryId),
     db.prepare('SELECT id, filename, width, height FROM images WHERE gallery_id = ? AND created_at > ? ORDER BY sort').bind(galleryId, since),
     db.prepare("SELECT image_id, person_id, value = 'like' AS liked FROM votes WHERE gallery_id = ? AND updated_at > ?").bind(galleryId, since),
     db.prepare('SELECT id, image_id, person_id, text, deleted, created_at FROM comments WHERE gallery_id = ? AND updated_at > ? ORDER BY created_at').bind(galleryId, since),
@@ -212,6 +213,20 @@ async function clientLike(env, gallery, request) {
   return json({ ok: true });
 }
 
+// "Ich bin durch"-Status einer Person umschalten. Nicht an den Sperr-Status
+// gekoppelt - lässt sich auch nach dem Sperren noch setzen/zurücknehmen.
+async function clientDone(env, gallery, request) {
+  const { person_id, done } = await readJson(request);
+  if (typeof done !== 'boolean') return json({ error: 'done muss true oder false sein' }, 400);
+  if (!await personOf(env, gallery, person_id)) return json({ error: 'Person unbekannt' }, 400);
+
+  const now = Date.now();
+  await env.GALLERY_DB.prepare('UPDATE people SET done_at = ? WHERE id = ?')
+    .bind(done ? now : null, person_id).run();
+  await touch(env, gallery.id, now);
+  return json({ ok: true, done_at: done ? now : null });
+}
+
 async function clientComment(env, gallery, request) {
   const locked = lockedResponse(gallery); if (locked) return locked;
   const { person_id, image_id, text } = await readJson(request);
@@ -270,7 +285,7 @@ async function adminList(env) {
   const [galleries, imageCounts, people, voteCounts, likedCounts] = await db.batch([
     db.prepare('SELECT * FROM galleries ORDER BY created_at DESC'),
     db.prepare('SELECT gallery_id, COUNT(*) AS n FROM images GROUP BY gallery_id'),
-    db.prepare('SELECT id, gallery_id, name, added_by FROM people ORDER BY sort, created_at'),
+    db.prepare('SELECT id, gallery_id, name, added_by, done_at FROM people ORDER BY sort, created_at'),
     db.prepare("SELECT person_id, COUNT(*) AS n FROM votes WHERE value = 'like' GROUP BY person_id"),
     db.prepare("SELECT gallery_id, COUNT(DISTINCT image_id) AS n FROM votes WHERE value = 'like' GROUP BY gallery_id"),
   ]);
@@ -285,7 +300,7 @@ async function adminList(env) {
       liked_count: likedN[g.id] || 0,
       people: people.results
         .filter(p => p.gallery_id === g.id)
-        .map(p => ({ id: p.id, name: p.name, added_by: p.added_by, likes: voteN[p.id] || 0 })),
+        .map(p => ({ id: p.id, name: p.name, added_by: p.added_by, done_at: p.done_at, likes: voteN[p.id] || 0 })),
     })),
   });
 }

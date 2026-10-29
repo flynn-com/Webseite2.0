@@ -74,6 +74,8 @@ function likersOf(imageId) {
 
 function likedByMe(imageId) { return !!S.likes[imageId]?.has(S.me); }
 
+function myDoneAt() { return S.people.find(p => p.id === S.me)?.done_at || null; }
+
 function notesOf(imageId) {
   return Object.values(S.notes)
     .filter(n => n.image_id === imageId && !n.deleted)
@@ -306,7 +308,39 @@ function renderHeader() {
   const banner = $('locked-banner');
   banner.hidden = !isLocked();
   if (isLocked()) banner.textContent = 'Die Auswahl ist abgeschlossen. Vielen Dank!';
+
+  renderDoneButtons();
 }
+
+// "Ich bin durch" - oben in der Werkzeugleiste (neben "Du bist") und unten
+// als großer Button am Ende der Seite. Beide spiegeln denselben Status.
+function renderDoneButtons() {
+  const done = !!myDoneAt();
+  for (const btn of [$('btn-done-top'), $('btn-done-bottom')]) {
+    if (!btn) continue;
+    btn.classList.toggle('is-done', done);
+    btn.setAttribute('aria-pressed', done);
+  }
+  $('done-top-label').textContent    = done ? 'Fertig ✓' : 'Ich bin durch';
+  $('done-bottom-label').textContent = done
+    ? 'Danke! Du hast dir alles angeschaut.'
+    : 'Ich bin durch – hab mir alles angeschaut';
+  $('done-bottom-hint').hidden = !done;
+}
+
+async function toggleDone() {
+  const next = !myDoneAt();
+  try {
+    const { done_at } = await api('/done', 'PUT', { person_id: S.me, done: next });
+    const me = S.people.find(p => p.id === S.me);
+    if (me) me.done_at = done_at;
+    renderDoneButtons();
+    toast(next ? 'Danke, wir haben Bescheid bekommen!' : 'Status zurückgesetzt');
+  } catch (err) { toast(err.message); }
+}
+
+$('btn-done-top').addEventListener('click', toggleDone);
+$('btn-done-bottom').addEventListener('click', toggleDone);
 
 function renderFilters() {
   const counts = Object.fromEntries(FILTERS.map(f => [f.id, 0]));

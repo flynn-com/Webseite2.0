@@ -23,7 +23,9 @@ CREATE TABLE IF NOT EXISTS people (
   name        TEXT NOT NULL,
   added_by    TEXT NOT NULL DEFAULT 'admin',   -- 'admin' | 'kunde'
   sort        INTEGER NOT NULL DEFAULT 0,
-  created_at  INTEGER NOT NULL
+  created_at  INTEGER NOT NULL,
+  done_at     INTEGER                          -- gesetzt, wenn die Person auf
+                                                 -- "Ich bin durch" getippt hat
 );
 CREATE INDEX IF NOT EXISTS idx_people_gallery ON people(gallery_id);
 
@@ -64,3 +66,13 @@ CREATE TABLE IF NOT EXISTS comments (
   updated_at  INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_comments_gallery ON comments(gallery_id, updated_at);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Migration: "Ich bin durch"-Status pro Person (nachträglich hinzugekommen)
+-- Bei einer bereits laufenden Datenbank (wie der von flynnbertsch.com) einmalig
+-- nachziehen:
+--   npx wrangler d1 execute auswahl --remote --command "ALTER TABLE people ADD COLUMN done_at INTEGER;"
+-- Bei einer neuen Datenbank ist die Spalte durch CREATE TABLE oben bereits da -
+-- dieser Befehl würde dann mit "duplicate column name" fehlschlagen, das ist
+-- in dem Fall einfach zu ignorieren.
+-- ─────────────────────────────────────────────────────────────────────────────

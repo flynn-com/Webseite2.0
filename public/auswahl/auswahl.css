@@ -185,6 +185,8 @@ input, textarea { font: inherit; color: inherit; }
 .filter.active { color: var(--text); border-bottom-color: var(--text); }
 .filter .count { margin-left: 2px; }
 
+.toolbar-right { display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
+
 .me-chip {
   flex-shrink: 0;
   font-size: 13px;
@@ -193,6 +195,49 @@ input, textarea { font: inherit; color: inherit; }
 }
 .me-chip span { color: var(--text); }
 .me-chip:hover span { text-decoration: underline; }
+
+/* Kleine Variante oben in der Werkzeugleiste, direkt neben "Du bist" */
+.done-chip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--text);
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.done-chip:hover { background: var(--text); color: #fff; }
+.done-chip.is-done { background: var(--text); color: #fff; }
+
+/* Großer Abschluss-Button ganz unten auf der Seite */
+.done-footer {
+  max-width: 1400px;
+  margin: 24px auto clamp(56px, 8vw, 96px);
+  padding: 0 var(--side);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.done-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 32px;
+  background: var(--bar);
+  color: #fff;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: -.01em;
+  border-radius: 999px;
+  transition: opacity .15s, background .15s;
+}
+.done-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.done-btn:hover { opacity: .85; }
+.done-btn.is-done { background: var(--heart); }
+.done-footer-hint { margin-top: 14px; font-size: 12px; text-transform: uppercase; color: var(--muted); }
 
 .banner {
   max-width: 1400px;
