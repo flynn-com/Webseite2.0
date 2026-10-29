@@ -1,0 +1,519 @@
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Kundenauswahl — Kundenseite                                                  */
+/* Design nach Figma: weiß, Helvetica, schwarze Bildleisten mit Stern.          */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #ffffff;
+  --text:        #000000;
+  --muted:       #8c8c8c;
+  --line:        #e5e5e5;
+  --placeholder: #d9d9d9;
+  --bar:         #000000;
+  --bar-text:    #8c8c8c;
+  --heart:       #ff2d4b;
+  --heart-off:   #6b6b6b;
+  --gap:         9px;
+  --side:        clamp(16px, 4vw, 56px);
+  --font:        "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.3;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+body.no-scroll { overflow: hidden; }
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+button:disabled { cursor: default; }
+input, textarea { font: inherit; color: inherit; }
+
+.error { color: #d0021b; margin-top: 12px; font-size: .9rem; }
+.empty { text-align: center; padding: 48px 16px; color: var(--muted); text-transform: uppercase; font-size: 13px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  background: var(--bar);
+  color: #fff;
+  font-size: 13px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: opacity .15s;
+}
+.btn:hover { opacity: .8; }
+
+/* ── Logos ──────────────────────────────────────────────────────────────── */
+
+.logos { display: flex; flex-direction: column; align-items: center; }
+
+.logo-flynn {
+  display: flex;
+  align-items: flex-start;
+  font-size: clamp(52px, 7.4vw, 104px);
+  font-weight: 700;
+  letter-spacing: -.045em;
+  line-height: .78;
+}
+.logo-flynn-sq {
+  width: .15em;
+  height: .115em;
+  margin: .015em .07em 0 0;
+  background: currentColor;
+}
+
+.logo-x {
+  display: block;
+  width: clamp(28px, 3vw, 44px);
+  height: auto;
+  margin: clamp(16px, 2vw, 26px) 0;
+}
+
+.logo-client { width: clamp(170px, 20vw, 285px); height: auto; display: block; }
+
+.project-label {
+  margin-top: clamp(56px, 8vw, 118px);
+  font-size: clamp(18px, 1.8vw, 26px);
+  text-transform: uppercase;
+  letter-spacing: -.02em;
+  text-align: center;
+}
+.project-title {
+  margin-top: 4px;
+  font-size: clamp(30px, 3.3vw, 46px);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* ── Screens (Laden, Du bist) ───────────────────────────────────────────── */
+
+.screen {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: clamp(64px, 10vw, 136px) 16px 64px;
+}
+.screen-box { width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center; }
+.screen-text { margin-top: 48px; font-size: 13px; text-transform: uppercase; color: var(--muted); text-align: center; }
+
+.who-question {
+  margin: 48px 0 16px;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.who-list { width: 100%; display: grid; gap: var(--gap); margin-bottom: 24px; }
+.who-btn {
+  width: 100%;
+  padding: 18px 20px;
+  background: var(--bar);
+  color: #fff;
+  font-size: 15px;
+  text-transform: uppercase;
+  text-align: left;
+  transition: opacity .15s;
+}
+.who-btn:hover { opacity: .85; }
+.who-btn.is-me { outline: 2px solid var(--muted); outline-offset: 2px; }
+.who-add { width: 100%; display: flex; gap: var(--gap); }
+.who-add input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--text);
+  background: var(--bg);
+  font-size: 14px;
+}
+
+/* ── Kopf + Werkzeugleiste ──────────────────────────────────────────────── */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(64px, 10vw, 136px) var(--side) 0;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1400px;
+  margin: clamp(24px, 2.6vw, 36px) auto 0;
+  padding: 10px var(--side);
+  background: var(--bg);
+}
+.filters { display: flex; gap: 20px; overflow-x: auto; scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+.filter {
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.filter:hover { color: var(--text); }
+.filter.active { color: var(--text); border-bottom-color: var(--text); }
+.filter .count { margin-left: 2px; }
+
+.me-chip {
+  flex-shrink: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.me-chip span { color: var(--text); }
+.me-chip:hover span { text-decoration: underline; }
+
+.banner {
+  max-width: 1400px;
+  margin: 0 auto 12px;
+  padding: 0 var(--side);
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── Raster ─────────────────────────────────────────────────────────────── */
+
+main { max-width: 1400px; margin: 0 auto; padding: 0 var(--side) 80px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap);
+}
+.tile { background: var(--bg); }
+.tile-img { display: block; width: 100%; }
+/* Ganzes Foto zeigen (nie beschneiden): Querformate sitzen unten auf der
+   schwarzen Leiste. Grau nur als Platzhalter, bis das Bild geladen ist. */
+.tile-img img {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--tile-ar, 314 / 500);   /* setzt updateTileAspect() in auswahl.js */
+  object-fit: contain;
+  object-position: center bottom;
+  background: var(--placeholder);
+}
+.tile-img img.is-loaded { background: var(--bg); }
+
+/* Schwarze Leiste unter jedem Bild (auch in der Großansicht) */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 58px;
+  padding: 0 22px 0 14px;
+  background: var(--bar);
+  color: var(--bar-text);
+  font-size: 13px;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+}
+.likers {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bar-notes { flex-shrink: 0; }
+.bar-notes:empty { display: none; }
+.bar-name { flex-shrink: 0; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.heart {
+  display: grid;
+  place-items: center;
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  transition: transform .12s;
+}
+.heart svg {
+  width: 30px; height: 30px;
+  fill: none;
+  stroke: var(--heart-off);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transition: fill .15s, stroke .15s;
+}
+.heart:hover:not(:disabled):not(.active) svg { stroke: #fff; }
+.heart:active:not(:disabled) { transform: scale(.88); }
+.heart.active svg { fill: var(--heart); stroke: var(--heart); }
+.heart:disabled svg { opacity: .6; }
+
+/* ── Großansicht ────────────────────────────────────────────────────────── */
+/* Maße aus Figma (1440 × 1024): 70 px Rand links/rechts, Bild von y=50 bis 973. */
+/* --pw / --ph (Bildgröße) setzt layoutViewer() in auswahl.js.               */
+
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--bg);
+  --pw: 600px;
+  --ph: 900px;
+}
+
+.v-pos {
+  position: absolute;
+  top: 20px;
+  left: 70px;
+  font-size: 13px;
+}
+
+.v-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  width: 32px; height: 32px;
+  display: grid;
+  place-items: center;
+}
+.v-close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.v-close:hover { opacity: .5; }
+
+.v-nav {
+  position: absolute;
+  top: 50%;
+  width: 70px; height: 96px;
+  margin-top: -48px;
+  font-size: 40px;
+  font-weight: 200;
+  line-height: 1;
+  color: var(--muted);
+}
+.v-nav:hover:not(:disabled) { color: var(--text); }
+.v-nav:disabled { opacity: 0; pointer-events: none; }
+.v-prev { left: 0; }
+.v-next { right: 0; }
+
+.v-layout {
+  position: absolute;
+  top: 50px;
+  right: 70px;
+  bottom: 51px;
+  left: 70px;
+}
+
+.v-photo {
+  position: relative;
+  width: var(--pw);
+  height: var(--ph);
+  background: var(--placeholder);
+  overflow: hidden;
+  cursor: zoom-in;
+  touch-action: pan-y;   /* vertikal scrollen ok, Pinch und Wischen übernimmt JS */
+}
+.v-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: 0 0;
+  will-change: transform;
+  transition: filter .2s;
+}
+.v-photo img.is-loading { filter: blur(6px); }
+.viewer.is-zoomed .v-photo { cursor: grab; touch-action: none; }
+.viewer.is-zoomed .v-photo:active { cursor: grabbing; }
+.v-loading {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 22px; height: 22px;
+  margin: -11px 0 0 -11px;
+  border: 2px solid rgba(0,0,0,.15);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Weißer Kreis mit Herz */
+.v-like {
+  position: absolute;
+  bottom: 28px;
+  width: 73px; height: 73px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .12s;
+}
+.v-like svg {
+  width: 30px; height: 30px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transition: fill .15s, stroke .15s;
+}
+.v-like:hover:not(:disabled):not(.active) svg { stroke: var(--text); }
+.v-like:active:not(:disabled) { transform: scale(.92); }
+.v-like.active svg { fill: var(--heart); stroke: var(--heart); }
+.v-like:disabled { cursor: default; }
+
+.v-meta { font-size: 13px; display: flex; flex-direction: column; gap: 6px; }
+.v-likers { color: var(--muted); text-transform: uppercase; font-size: 12px; }
+.v-likers:empty { display: none; }
+
+/* Notizen: Sprechblasen + Eingabefeld, unten rechts */
+.v-notes {
+  position: absolute;
+  right: var(--nr, 49px);
+  bottom: 47px;
+  width: var(--nw, 332px);
+  max-width: calc(100% - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.v-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-height: calc(var(--ph) - 260px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.v-notes-list::-webkit-scrollbar { display: none; }
+.v-notes-list:empty { display: none; }
+.v-note {
+  padding: 24px 23px 22px;
+  border-radius: 30px;
+  background: var(--placeholder);
+  font-size: 13px;
+}
+.v-note-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+.v-note-del { color: var(--muted); font-size: 12px; line-height: 1; }
+.v-note-del:hover { color: var(--text); }
+.v-note p { white-space: pre-wrap; word-break: break-word; line-height: 1.4; }
+
+.v-note-form textarea {
+  display: block;
+  width: 100%;
+  height: 48px;
+  padding: 15px 23px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--placeholder);
+  font-size: 13px;
+  line-height: 18px;
+  resize: none;
+  outline: none;
+}
+.v-note-form textarea::placeholder { color: var(--text); }
+.v-note-form textarea:focus::placeholder { color: var(--muted); }
+
+/* Hochformat: Bild und Herz mittig, Dateiname rechts neben dem Bild, Notizen am rechten Rand */
+.viewer[data-orient="portrait"] .v-photo { margin: 0 auto; }
+.viewer[data-orient="portrait"] .v-like { left: 50%; margin-left: -36.5px; }
+.viewer[data-orient="portrait"] .v-side {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--ph);
+  pointer-events: none;
+}
+.viewer[data-orient="portrait"] .v-side > * { pointer-events: auto; }
+.viewer[data-orient="portrait"] .v-meta {
+  position: absolute;
+  top: 3px;
+  left: calc(50% + var(--pw) / 2 + 19px);
+  right: 0;
+}
+
+/* Querformat: Bild über die volle Breite, Dateiname oben rechts, Notizen auf dem Bild */
+.viewer[data-orient="landscape"] .v-photo { margin: 0 auto; }
+.viewer[data-orient="landscape"] .v-like { left: 50%; margin-left: -36.5px; }
+.viewer[data-orient="landscape"] .v-side {
+  position: absolute;
+  top: 0;
+  left: calc((100% - var(--pw)) / 2);
+  width: var(--pw);
+  height: var(--ph);
+  pointer-events: none;
+}
+.viewer[data-orient="landscape"] .v-side > * { pointer-events: auto; }
+.viewer[data-orient="landscape"] .v-meta {
+  position: absolute;
+  right: 22px;
+  bottom: calc(100% + 16px);
+  flex-direction: row-reverse;
+  align-items: baseline;
+  gap: 16px;
+  white-space: nowrap;
+}
+.viewer[data-orient="landscape"] .v-note,
+.viewer[data-orient="landscape"] .v-note-form textarea { background: #fff; }
+
+.link { color: var(--muted); text-decoration: underline; font-size: 12px; text-transform: uppercase; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 90;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  background: var(--bar);
+  color: #fff;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+/* ── Responsiv ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 860px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bar { height: 48px; gap: 8px; padding: 0 12px 0 8px; font-size: 11px; }
+  .heart { width: 30px; height: 30px; }
+  .heart svg { width: 24px; height: 24px; }
+  .grid .bar-name { display: none; }
+  .toolbar { flex-wrap: wrap; gap: 8px; }
+
+  /* Handy: Bild oben in voller Breite, Notizen darunter */
+  .viewer { overflow-y: auto; }
+  .v-pos { left: 16px; top: 16px; }
+  .v-nav { display: none; }
+  .v-layout,
+  .viewer[data-orient] .v-layout {
+    position: static;
+    display: block;
+    padding: 52px 16px calc(24px + env(safe-area-inset-bottom));
+  }
+  .v-photo,
+  .viewer[data-orient] .v-photo { width: 100%; height: auto; margin: 0; }
+  .v-photo img { height: auto; }
+  .v-like { width: 60px; height: 60px; bottom: 16px; }
+  .viewer[data-orient] .v-like { left: auto; right: 16px; margin: 0; }
+  .viewer[data-orient] .v-side { position: static; width: auto; height: auto; pointer-events: auto; }
+  .viewer[data-orient] .v-meta { position: static; flex-direction: column; padding: 12px 0 0; white-space: normal; gap: 6px; }
+  .v-notes { position: static; width: 100%; max-width: none; margin-top: 20px; gap: 12px; }
+  .v-notes-list { max-height: none; gap: 12px; }
+  .viewer[data-orient] .v-note,
+  .viewer[data-orient] .v-note-form textarea { background: var(--placeholder); }
+}

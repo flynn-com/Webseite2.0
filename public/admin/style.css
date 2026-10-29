@@ -1023,3 +1023,234 @@ a:hover { color: var(--text); }
   font-size: .75rem;
 }
 .tag button:hover { color: var(--danger); }
+
+/* ── Kundenauswahl ──────────────────────────────────────────────────────── */
+
+.ga-person-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: .8rem;
+  color: var(--text2);
+  margin-top: 4px;
+}
+.ga-person-progress > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ga-pct { text-align: right; color: var(--text3); font-variant-numeric: tabular-nums; }
+
+.ga-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.ga-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  min-width: 96px;
+  display: flex;
+  flex-direction: column;
+  font-size: .75rem;
+  color: var(--text2);
+}
+.ga-stat b { font-size: 1.15rem; color: var(--text); font-variant-numeric: tabular-nums; }
+.ga-stat.ga-final { border-color: var(--border2); }
+
+.ga-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.ga-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.ga-card h3 { font-size: .95rem; font-weight: 600; margin-bottom: 14px; }
+.ga-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.ga-card-head h3 { margin-bottom: 0; }
+.ga-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ga-inline select,
+.ga-export {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: .8rem;
+  padding: 6px 10px;
+}
+.ga-export {
+  width: 100%;
+  min-height: 110px;
+  margin-top: 8px;
+  font-family: var(--mono);
+  resize: vertical;
+}
+.ga-card .hint,
+.ga-list-card .hint { font-size: .75rem; color: var(--text3); margin-top: 4px; }
+
+.ga-people-edit { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.ga-person-row { display: flex; gap: 6px; align-items: center; }
+.ga-person-row input { flex: 1; }
+
+.ga-drop { padding: 36px 24px; }
+.ga-drop p + p { margin-top: 6px; }
+.ga-progress { margin-top: 14px; }
+.ga-progress-bar { height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+.ga-progress-bar > span { display: block; height: 100%; width: 0; background: var(--success); transition: width .2s ease; }
+
+.ga-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.ga-thumb {
+  position: relative;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.ga-thumb.is-final { border-color: var(--success); }
+.ga-thumb img { display: block; width: 100%; aspect-ratio: 3/2; object-fit: contain; background: var(--surface3); }
+.ga-thumb figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  font-size: .72rem;
+  color: var(--text2);
+}
+.ga-fn { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ga-thumb-del {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 24px; height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0,0,0,.65);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.ga-thumb:hover .ga-thumb-del { opacity: 1; }
+
+@media (max-width: 900px) {
+  .ga-columns { grid-template-columns: 1fr; }
+}
+.ga-likes { flex-shrink: 0; color: #ff4d6a; font-weight: 600; }
+.ga-notes { display: flex; flex-direction: column; gap: 8px; }
+.ga-note-item {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  font-size: .85rem;
+}
+.ga-note-item .ga-fn { font-family: var(--mono); color: var(--text2); }
+.ga-note-item p { white-space: pre-wrap; word-break: break-word; }
+.ga-note-item b { color: var(--text2); font-weight: 600; margin-right: 6px; }
+.ga-note-count { margin-left: 6px; color: var(--text3); }
+.ga-logo { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.ga-logo-preview {
+  width: 160px; height: 64px;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  background: #fff;
+  border-radius: var(--radius-sm);
+  color: #999;
+  font-size: .75rem;
+}
+.ga-logo-preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+/* ── Kundenauswahl: helles Design wie die Kundenseite ───────────────────── */
+/* body.ga-light wird in galleries.js gesetzt, solange eine Kundenauswahl-    */
+/* Ansicht offen ist. Die Variablen färben Sidebar, Karten und Modals mit um. */
+
+body.ga-light {
+  --bg:        #ffffff;
+  --surface:   #ffffff;
+  --surface2:  #f5f5f5;
+  --surface3:  #e9e9e9;
+  --border:    #e2e2e2;
+  --border2:   #000000;
+  --text:      #000000;
+  --text2:     #555555;
+  --text3:     #8c8c8c;
+  --accent:    #000000;
+  --accent-bg: rgba(0,0,0,.05);
+  --danger:    #d0021b;
+  --success:   #1f9d55;
+  --warn:      #b7791f;
+  --radius:    0;
+  --radius-sm: 0;
+  --shadow:    0 10px 40px rgba(0,0,0,.12);
+  --font:      "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+body.ga-light,
+body.ga-light .main { background: var(--bg); }
+body.ga-light .sidebar-logo { color: var(--text); }
+
+body.ga-light .btn-primary { color: #fff; }
+body.ga-light .btn,
+body.ga-light .badge,
+body.ga-light .form-group label,
+body.ga-light .view-title,
+body.ga-light .ga-card h3,
+body.ga-light .modal h2 { text-transform: uppercase; letter-spacing: -.01em; }
+body.ga-light .view-title { font-size: 1.6rem; font-weight: 400; letter-spacing: -.03em; }
+body.ga-light .editor-title-text { font-size: 1.6rem; font-weight: 400; letter-spacing: -.03em; text-transform: uppercase; }
+body.ga-light .ga-card h3,
+body.ga-light .modal h2 { font-size: .85rem; font-weight: 400; color: var(--text3); }
+body.ga-light .form-group label { font-weight: 400; color: var(--text3); }
+body.ga-light .badge { border-radius: 0; font-weight: 400; }
+
+body.ga-light .form-group input,
+body.ga-light .form-group textarea,
+body.ga-light .ga-inline select,
+body.ga-light .ga-export { background: #fff; border-color: var(--border); }
+body.ga-light .form-group input:focus,
+body.ga-light .form-group textarea:focus { border-color: #000; }
+
+body.ga-light .ga-stat { border-color: var(--border); }
+body.ga-light .ga-stat span { text-transform: uppercase; font-size: .7rem; color: var(--text3); }
+body.ga-light .ga-stat b { font-weight: 400; font-size: 1.5rem; }
+body.ga-light .project-card:hover { border-color: #000; transform: none; }
+
+/* Bilderliste wie auf der Kundenseite: schwarze Leiste unter dem Bild */
+body.ga-light .ga-thumb { border: 0; background: #d9d9d9; }
+body.ga-light .ga-thumb img { aspect-ratio: 314 / 500; object-position: center bottom; background: #fff; }
+body.ga-light .ga-thumb figcaption {
+  background: #000;
+  color: #8c8c8c;
+  text-transform: uppercase;
+  padding: 8px 10px;
+}
+body.ga-light .ga-thumb.is-final { outline: 2px solid #ff2d4b; outline-offset: -2px; }
+body.ga-light .ga-likes { color: #ff2d4b; }
+
+body.ga-light .ga-drop { border: 1px dashed #000; color: var(--text2); }
+body.ga-light .ga-drop:hover,
+body.ga-light .ga-drop.drag-active { background: var(--surface2); color: #000; }
+body.ga-light .ga-progress-bar > span { background: #000; }
+body.ga-light .ga-logo-preview { border: 1px solid var(--border); }
+body.ga-light .ga-note-item { background: #fff; border: 1px solid var(--border); }
+body.ga-light .modal-overlay { background: rgba(255,255,255,.75); }

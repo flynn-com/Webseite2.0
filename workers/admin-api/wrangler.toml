@@ -17,3 +17,17 @@ id      = "83cdf3882590411b87bb3529e89858b4"
 # RESEND_API_KEY   — Resend API Key
 # ADMIN_EMAIL      — E-Mail-Adresse für Passwort-Reset-Mails
 # ALLOWED_ORIGIN   — https://flynnbertsch.com
+
+# ── Kundenauswahl ─────────────────────────────────────────────────────────────
+# Einmalig anlegen (siehe README "Kundenauswahl"):
+#   npx wrangler d1 create auswahl          → database_id hier eintragen
+#   npx wrangler r2 bucket create auswahl-images
+#   npx wrangler d1 execute auswahl --remote --file=schema.sql
+[[d1_databases]]
+binding       = "GALLERY_DB"
+database_name = "auswahl"
+database_id   = "a2946988-644e-4a61-af41-5725b1c83aa1"
+
+[[r2_buckets]]
+binding     = "GALLERY_R2"
+bucket_name = "auswahl-images"

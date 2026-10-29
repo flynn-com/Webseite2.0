@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bildauswahl · Flynn Bertsch</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://admin-api.flynn-fdc.workers.dev; connect-src https://admin-api.flynn-fdc.workers.dev; object-src 'none'; base-uri 'self'; form-action 'none';">
+  <link rel="stylesheet" href="auswahl.css">
+</head>
+<body>
+
+<!-- Logos (Flynn × Kunde) – wird von JS in die Screens kopiert -->
+<template id="tpl-logos">
+  <div class="logos">
+    <div class="logo-flynn" aria-label="Flynn"><span class="logo-flynn-sq"></span>FLYNN</div>
+    <img class="logo-x" src="kreuz.png" alt="" hidden>
+    <img class="logo-client" alt="" hidden>
+  </div>
+</template>
+
+<!-- Fehler / Laden -->
+<div id="screen-message" class="screen">
+  <div class="screen-box">
+    <div class="logo-slot"></div>
+    <p id="screen-message-text" class="screen-text">Lade Galerie…</p>
+  </div>
+</div>
+
+<!-- Du bist: -->
+<div id="screen-who" class="screen" hidden>
+  <div class="screen-box">
+    <div class="logo-slot"></div>
+    <p class="project-label">Projekt:</p>
+    <h1 class="project-title" id="who-title"></h1>
+    <p class="who-question">Wer bist du?</p>
+    <div id="who-list" class="who-list"></div>
+    <form id="who-add" class="who-add">
+      <input type="text" id="who-add-name" maxlength="60" placeholder="Name" autocomplete="name">
+      <button type="submit" class="btn">Hinzufügen</button>
+    </form>
+    <p id="who-error" class="error" hidden></p>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" hidden>
+  <header class="hero">
+    <div class="logo-slot"></div>
+    <p class="project-label">Projekt:</p>
+    <h1 class="project-title" id="g-title"></h1>
+  </header>
+
+  <div class="toolbar">
+    <nav class="filters" id="filters"></nav>
+    <button class="me-chip" id="btn-me" title="Person wechseln">Du bist: <span id="me-name"></span></button>
+  </div>
+
+  <div id="locked-banner" class="banner" hidden></div>
+
+  <main>
+    <div id="grid" class="grid"></div>
+    <p id="grid-empty" class="empty" hidden>Keine Bilder in dieser Kategorie.</p>
+  </main>
+</div>
+
+<!-- Großansicht: Layout nach Figma, eigenes Layout für Hoch- und Querformat (data-orient) -->
+<div id="viewer" class="viewer" data-orient="portrait" hidden>
+  <span id="v-pos" class="v-pos"></span>
+  <button class="v-close" id="v-close" title="Schließen (Esc)" aria-label="Schließen">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 8 32 32M32 8 8 32"/></svg>
+  </button>
+  <button class="v-nav v-prev" id="v-prev" title="Vorheriges (←)" aria-label="Vorheriges">‹</button>
+  <button class="v-nav v-next" id="v-next" title="Nächstes (→)" aria-label="Nächstes">›</button>
+
+  <div class="v-layout">
+    <div class="v-photo" id="v-stage">
+      <img id="v-img" alt="">
+      <div id="v-loading" class="v-loading"></div>
+      <button class="v-like" id="v-like" title="Liken (Leertaste)" aria-label="Liken"></button>
+    </div>
+    <div class="v-side">
+      <div class="v-meta">
+        <span id="v-name" class="v-name"></span>
+        <span id="v-likers" class="v-likers"></span>
+      </div>
+      <div class="v-notes">
+        <div id="v-notes" class="v-notes-list"></div>
+        <form id="v-note-form" class="v-note-form">
+          <textarea id="v-note" rows="1" maxlength="2000" placeholder="Kommentare"></textarea>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="auswahl.js"></script>
+</body>
+</html>
