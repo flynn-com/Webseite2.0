@@ -1216,8 +1216,9 @@ body.ga-light .form-group label,
 body.ga-light .view-title,
 body.ga-light .ga-card h3,
 body.ga-light .modal h2 { text-transform: uppercase; letter-spacing: -.01em; }
-body.ga-light .view-title { font-size: 1.6rem; font-weight: 400; letter-spacing: -.03em; }
-body.ga-light .editor-title-text { font-size: 1.6rem; font-weight: 400; letter-spacing: -.03em; text-transform: uppercase; }
+body.ga-light .btn { font-weight: 400; }
+body.ga-light .view-title { font-size: clamp(1.75rem, 2.6vw, 2.5rem); font-weight: 400; letter-spacing: -.03em; }
+body.ga-light .editor-title-text { font-size: clamp(1.4rem, 2vw, 1.9rem); font-weight: 400; letter-spacing: -.03em; text-transform: uppercase; }
 body.ga-light .ga-card h3,
 body.ga-light .modal h2 { font-size: .85rem; font-weight: 400; color: var(--text3); }
 body.ga-light .form-group label { font-weight: 400; color: var(--text3); }
