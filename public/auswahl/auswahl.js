@@ -321,10 +321,10 @@ function renderDoneButtons() {
     btn.classList.toggle('is-done', done);
     btn.setAttribute('aria-pressed', done);
   }
-  $('done-top-label').textContent    = done ? 'Fertig ✓' : 'Ich bin durch';
+  $('done-top-label').textContent    = done ? 'Fertig ✓' : 'Abschließen';
   $('done-bottom-label').textContent = done
     ? 'Danke! Du hast dir alles angeschaut.'
-    : 'Ich bin durch – hab mir alles angeschaut';
+    : 'Abschließen – ich hab mir alles angeschaut';
   $('done-bottom-hint').hidden = !done;
 }
 
