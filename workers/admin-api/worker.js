@@ -3,6 +3,8 @@
 // Cloudflare Worker: Auth + GitHub-Proxy
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { handleGallery } from './gallery.js';
+
 const REPO   = 'flynn-com/Webseite2.0';
 const BRANCH = 'main';
 
@@ -59,6 +61,9 @@ export default {
       else if (path === '/auth/reset-request'  && request.method === 'POST') res = await handleResetRequest(request, env);
       else if (path === '/auth/reset-confirm'  && request.method === 'POST') res = await handleResetConfirm(request, env);
       else if (path === '/setup'          && request.method === 'POST') res = await handleSetup(request, env);
+
+      // ── Kundenauswahl (Admin-Routen prüfen die Session selbst) ────────────
+      else if (path.startsWith('/gallery/')) res = await handleGallery(request, env, path, checkAuth);
 
       // ── Protected GitHub endpoints ────────────────────────────────────────
       else if (path.startsWith('/github/')) {

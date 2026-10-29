@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /auswahl/
 
 Sitemap: https://flynnbertsch.com/sitemap-index.xml

@@ -9,7 +9,7 @@
   <!-- Verteidigung gegen XSS: verhindert, dass injizierte <script>-Tags oder
        Event-Handler laufen bzw. Daten an fremde Server exfiltriert werden
        (selbst falls irgendwo eine Escaping-Lücke übersehen wurde). -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://admin-api.flynn-fdc.workers.dev; form-action 'self'; object-src 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://admin-api.flynn-fdc.workers.dev; connect-src 'self' https://admin-api.flynn-fdc.workers.dev; form-action 'self'; object-src 'none'; base-uri 'self';">
 </head>
 <body>
 
@@ -84,6 +84,9 @@
     <div class="sidebar-nav">
       <a href="#" data-view="projects" class="active">
         <span class="icon">◻</span> Projekte
+      </a>
+      <a href="#" data-view="galleries">
+        <span class="icon">◫</span> Kundenauswahl
       </a>
       <a href="#" data-view="settings">
         <span class="icon">⚙</span> Einstellungen
@@ -533,6 +536,121 @@
 
     </div><!-- end settings view -->
 
+    <!-- ─── Kundenauswahl: Übersicht ───────────────────────────────── -->
+    <div id="view-galleries" class="view">
+      <div class="view-header">
+        <h2 class="view-title">Kundenauswahl</h2>
+        <button class="btn btn-primary" id="btn-new-gallery">+ Neue Galerie</button>
+      </div>
+      <div id="galleries-loading" style="color:var(--text3);font-size:.9rem;">Lade Galerien…</div>
+      <div id="galleries-error" class="msg msg-error"></div>
+      <div id="gallery-list" class="project-grid" style="display:none;"></div>
+      <div id="galleries-empty" class="empty-state" style="display:none;">
+        <div class="icon">◫</div>
+        <p>Noch keine Kundengalerie angelegt.</p>
+        <button class="btn btn-primary" id="btn-new-gallery-2">Erste Galerie anlegen</button>
+      </div>
+    </div>
+
+    <!-- ─── Kundenauswahl: Galerie ─────────────────────────────────── -->
+    <div id="view-gallery-detail" class="view">
+      <div class="editor-topbar">
+        <button class="btn-back" id="btn-gallery-back" title="Zurück zur Übersicht">◀</button>
+        <span class="editor-title-text" id="gd-title">Galerie</span>
+        <span class="badge" id="gd-status"></span>
+        <div class="editor-actions">
+          <button class="btn btn-secondary btn-sm" id="gd-copy-link">Kundenlink kopieren</button>
+          <a class="btn btn-secondary btn-sm" id="gd-open-link" target="_blank" rel="noopener">Öffnen ↗</a>
+          <button class="btn btn-secondary btn-sm" id="gd-toggle-lock"></button>
+          <button class="btn btn-danger btn-sm" id="gd-delete">Löschen</button>
+        </div>
+      </div>
+
+      <div class="ga-stats" id="gd-stats"></div>
+
+      <div class="ga-columns">
+        <section class="ga-card">
+          <h3>Einstellungen</h3>
+          <div class="form-group">
+            <label for="gd-input-title">Titel</label>
+            <input type="text" id="gd-input-title" maxlength="120">
+          </div>
+          <div class="form-group">
+            <label for="gd-input-ext">RAW-Endung für den Export</label>
+            <input type="text" id="gd-input-ext" maxlength="8" placeholder="z. B. .ARW, .CR3, .NEF (leer = ohne)">
+          </div>
+          <div class="form-group">
+            <label>Kundenlogo</label>
+            <div class="ga-logo">
+              <div class="ga-logo-preview" id="gd-logo-preview"></div>
+              <div class="ga-inline">
+                <button class="btn btn-secondary btn-sm" id="gd-logo-upload">Logo hochladen</button>
+                <button class="btn btn-ghost btn-sm" id="gd-logo-remove">Entfernen</button>
+              </div>
+              <input type="file" id="gd-logo-file" accept=".svg,.png,.webp,.jpg,.jpeg,image/svg+xml,image/png,image/webp,image/jpeg" style="display:none;">
+            </div>
+            <div class="hint">Erscheint auf der Kundenseite unter „FLYNN ×“. Am besten SVG oder PNG mit transparentem Hintergrund. Ohne Logo steht dort nur FLYNN.</div>
+          </div>
+          <div class="form-group">
+            <label>Personen</label>
+            <div id="gd-people" class="ga-people-edit"></div>
+            <button class="btn btn-ghost btn-sm" id="gd-add-person">+ Person</button>
+            <div class="hint">Entfernt man eine Person, werden auch ihre Likes und Notizen gelöscht.</div>
+          </div>
+          <button class="btn btn-primary" id="gd-save">Speichern</button>
+        </section>
+
+        <section class="ga-card">
+          <h3>Bilder hochladen</h3>
+          <div class="gallery-drop-zone ga-drop" id="gd-drop">
+            <p><strong>AVIF-Dateien hierher ziehen</strong> oder klicken</p>
+            <p class="hint">Dateiname = RAW-Name (z. B. DSC01234.avif). Gleiche Namen werden übersprungen.</p>
+            <input type="file" id="gd-file" accept=".avif,image/avif,image/jpeg,image/webp" multiple hidden>
+          </div>
+          <div id="gd-upload-progress" class="ga-progress" style="display:none;">
+            <div class="ga-progress-bar"><span id="gd-upload-bar"></span></div>
+            <div class="hint" id="gd-upload-text"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="ga-card">
+        <div class="ga-card-head">
+          <h3>Gelikte Bilder &amp; Export</h3>
+          <div class="ga-inline">
+            <select id="gd-export-format">
+              <option value="lines">Ein Name pro Zeile</option>
+              <option value="comma">Kommagetrennt</option>
+              <option value="space">Leerzeichen-getrennt</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" id="gd-copy-export">Kopieren</button>
+            <button class="btn btn-secondary btn-sm" id="gd-csv">CSV mit Likes &amp; Notizen</button>
+          </div>
+        </div>
+        <p class="hint" id="gd-export-hint"></p>
+        <textarea id="gd-export" class="ga-export" readonly></textarea>
+      </section>
+
+      <section class="ga-card">
+        <h3>Notizen vom Kunden</h3>
+        <div id="gd-notes" class="ga-notes"></div>
+      </section>
+
+      <section class="ga-card">
+        <div class="ga-card-head">
+          <h3>Bilder</h3>
+          <div class="ga-inline">
+            <select id="gd-filter">
+              <option value="all">Alle</option>
+              <option value="liked">Gelikt</option>
+              <option value="unliked">Nicht gelikt</option>
+            </select>
+          </div>
+        </div>
+        <div id="gd-images" class="ga-image-grid"></div>
+      </section>
+    </div>
+
   </div><!-- end main -->
 </div><!-- end app-shell -->
 
@@ -579,6 +697,32 @@
   </div>
 </div>
 
+<!-- New Gallery Modal -->
+<div id="new-gallery-modal" class="modal-overlay">
+  <div class="modal">
+    <h2>Neue Kundengalerie</h2>
+    <p class="modal-subtitle">Danach lädst du die AVIFs hoch und schickst dem Kunden den Link.</p>
+    <div id="new-gallery-error" class="msg msg-error"></div>
+    <div class="form-group">
+      <label for="ng-title">Titel</label>
+      <input type="text" id="ng-title" maxlength="120" placeholder="z. B. Arée Kampagne Herbst">
+    </div>
+    <div class="form-group">
+      <label for="ng-people">Personen (eine pro Zeile)</label>
+      <textarea id="ng-people" rows="4" placeholder="Anna&#10;Ben&#10;Clara"></textarea>
+      <div class="hint">Der Kunde wählt beim Öffnen „Du bist: …“ und kann selbst weitere Personen hinzufügen.</div>
+    </div>
+    <div class="form-group">
+      <label for="ng-ext">RAW-Endung (optional)</label>
+      <input type="text" id="ng-ext" maxlength="8" placeholder=".ARW">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btn-ng-cancel">Abbrechen</button>
+      <button class="btn btn-primary" id="btn-ng-create">Galerie anlegen</button>
+    </div>
+  </div>
+</div>
+
 <!-- Delete Confirm Modal -->
 <div id="delete-modal" class="modal-overlay">
   <div class="modal">
@@ -613,5 +757,6 @@
 </div>
 
 <script src="app.js"></script>
+<script src="galleries.js"></script>
 </body>
 </html>

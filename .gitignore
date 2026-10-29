@@ -36,3 +36,6 @@ Thumbs.db
 *.psb
 *.ai
 *.xcf
+
+# Tool-Übergabeordner (Kundenauswahl-Zulieferung, nicht Teil des Repos)
+/Aree-Tool/
