@@ -26,7 +26,7 @@ id      = "83cdf3882590411b87bb3529e89858b4"
 [[d1_databases]]
 binding       = "GALLERY_DB"
 database_name = "auswahl"
-database_id   = "HIER_DATABASE_ID_EINTRAGEN"
+database_id   = "a2946988-644e-4a61-af41-5725b1c83aa1"
 
 [[r2_buckets]]
 binding     = "GALLERY_R2"
