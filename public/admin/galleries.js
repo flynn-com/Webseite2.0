@@ -395,14 +395,15 @@ const PDF_STROKE_REF_W  = 900;   // Bezug für die Strichstärke, siehe GA_THUMB
 
 // Lädt ein Bild und brennt die Zeichnungen hinein, liefert ein JPEG-Data-URL +
 // Seitenverhältnis zurück. Läuft über fetch()+createImageBitmap() statt über
-// ein <img>+drawImage() - letzteres lieferte für die AVIF-Fotos hier auf dem
-// Canvas nur schwarze Flächen (bekannter Decoder-Bug), createImageBitmap()
-// (schon in makeThumb() beim Upload im Einsatz) funktioniert zuverlässig.
+// ein <img>+drawImage(). colorSpaceConversion:'none' überspringt die
+// Farbraum-Umrechnung beim Dekodieren - in Firefox führte die sonst bei
+// Fotos mit breitem Farbprofil (z.B. Adobe RGB) auf dem Canvas zu rein
+// schwarzen Flächen, obwohl das Bild als <img> ganz normal angezeigt wird.
 async function gaLoadPdfImage(url, drawings, targetW) {
   const res = await fetch(url);
   if (!res.ok) throw new Error('Bild konnte nicht geladen werden');
   const blob   = await res.blob();
-  const bitmap = await createImageBitmap(blob);
+  const bitmap = await createImageBitmap(blob, { colorSpaceConversion: 'none' });
   try {
     const aspect = bitmap.width / bitmap.height || 1;
     const canvas = document.createElement('canvas');
