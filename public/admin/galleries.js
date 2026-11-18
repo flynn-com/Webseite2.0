@@ -393,37 +393,56 @@ const PDF_ROWS         = 3;
 const PDF_LOAD_PARALLEL = 4;
 const PDF_STROKE_REF_W  = 900;   // Bezug für die Strichstärke, siehe GA_THUMB_SIZE
 
-// Lädt ein Bild (CORS, damit der Canvas nicht "tainted" ist), brennt die
-// Zeichnungen hinein und liefert ein JPEG-Data-URL + Seitenverhältnis zurück.
-function gaLoadPdfImage(url, drawings, targetW) {
-  return new Promise((resolve, reject) => {
-    const el = new Image();
-    el.crossOrigin = 'anonymous';
-    el.onload = () => {
-      const aspect = el.naturalWidth / el.naturalHeight || 1;
-      const canvas = document.createElement('canvas');
-      canvas.width  = targetW;
-      canvas.height = Math.round(targetW / aspect);
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(el, 0, 0, canvas.width, canvas.height);
-      ctx.lineCap  = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = Math.max(1.5, canvas.width * 4 / PDF_STROKE_REF_W);
-      for (const d of drawings) {
-        if (!d.points || d.points.length < 2) continue;
-        ctx.strokeStyle = d.color;
-        ctx.beginPath();
-        d.points.forEach((p, i) => {
-          const x = p[0] * canvas.width, y = p[1] * canvas.height;
-          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-      }
-      resolve({ dataUrl: canvas.toDataURL('image/jpeg', 0.85), aspect });
-    };
-    el.onerror = () => reject(new Error('Bild konnte nicht geladen werden'));
-    el.src = url;
-  });
+// Lädt ein Bild und brennt die Zeichnungen hinein, liefert ein JPEG-Data-URL +
+// Seitenverhältnis zurück. Läuft über fetch()+createImageBitmap() statt über
+// ein <img>+drawImage() - letzteres lieferte für die AVIF-Fotos hier auf dem
+// Canvas nur schwarze Flächen (bekannter Decoder-Bug), createImageBitmap()
+// (schon in makeThumb() beim Upload im Einsatz) funktioniert zuverlässig.
+async function gaLoadPdfImage(url, drawings, targetW) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Bild konnte nicht geladen werden');
+  const blob   = await res.blob();
+  const bitmap = await createImageBitmap(blob);
+  try {
+    const aspect = bitmap.width / bitmap.height || 1;
+    const canvas = document.createElement('canvas');
+    canvas.width  = targetW;
+    canvas.height = Math.round(targetW / aspect);
+    const ctx = canvas.getContext('2d');
+    // JPEG kennt keine Transparenz - unbemalte Canvas-Bereiche sollen weiß
+    // bleiben statt (je nach Browser) schwarz zu werden.
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    ctx.lineCap  = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = Math.max(1.5, canvas.width * 4 / PDF_STROKE_REF_W);
+    for (const d of drawings) {
+      if (!d.points || d.points.length < 2) continue;
+      ctx.strokeStyle = d.color;
+      ctx.beginPath();
+      d.points.forEach((p, i) => {
+        const x = p[0] * canvas.width, y = p[1] * canvas.height;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+    return { dataUrl: canvas.toDataURL('image/jpeg', 0.85), aspect };
+  } finally {
+    bitmap.close?.();
+  }
+}
+
+// jsPDFs Standardschrift kennt nur Latin-1 (WinAnsi) - "schlaue" Anführungs-
+// zeichen/Gedankenstriche (z.B. von macOS automatisch gesetzt) und andere
+// Unicode-Zeichen außerhalb davon würden als kaputte Glyphen erscheinen.
+function pdfSafeText(s) {
+  return String(s ?? '')
+    .replace(/[‘’‚′]/g, "'")
+    .replace(/[“”„″]/g, '"')
+    .replace(/[–—]/g, '-')
+    .replace(/…/g, '...')
+    .replace(/[^\u0000-ÿ]/g, '?');
 }
 
 // Kürzt Text auf eine Zeile, die in maxWidth passt (mit "…" am Ende)
@@ -503,7 +522,7 @@ async function exportPdf() {
 
       let ty = cellY + imgMaxH + 4;
       doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
-      doc.text(gaFitLine(doc, item.img.filename, colW), cellX, ty);
+      doc.text(gaFitLine(doc, pdfSafeText(item.img.filename), colW), cellX, ty);
       ty += 4.2;
 
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
@@ -513,12 +532,12 @@ async function exportPdf() {
       if (item.likeCount) badges.push(`${item.likeCount} Like${item.likeCount === 1 ? '' : 's'}${item.likers.length ? ' (' + item.likers.join(', ') + ')' : ''}`);
       if (item.drawings.length) badges.push('bemalt');
       if (item.comments.length) badges.push(`${item.comments.length} Kommentar${item.comments.length === 1 ? '' : 'e'}`);
-      if (badges.length) { doc.text(gaFitLine(doc, badges.join('   '), colW), cellX, ty); ty += 4; }
+      if (badges.length) { doc.text(gaFitLine(doc, pdfSafeText(badges.join('   ')), colW), cellX, ty); ty += 4; }
 
       const lineH = 3.2;
       const maxLines = Math.max(0, Math.floor(((cellY + rowH) - ty) / lineH));
       const commentLines = item.comments.flatMap(c =>
-        doc.splitTextToSize(`${name[c.person_id] || '?'}: ${c.text}`, colW));
+        doc.splitTextToSize(pdfSafeText(`${name[c.person_id] || '?'}: ${c.text}`), colW));
       let shown = commentLines.slice(0, maxLines);
       if (commentLines.length > maxLines && maxLines > 0) {
         shown = commentLines.slice(0, maxLines - 1);
