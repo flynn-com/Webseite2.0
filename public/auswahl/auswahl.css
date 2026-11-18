@@ -108,6 +108,15 @@ input, textarea { font: inherit; color: inherit; }
   text-align: center;
   overflow-wrap: anywhere;
 }
+.project-phase {
+  margin-top: 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  color: var(--muted);
+  text-align: center;
+}
+.project-phase:empty { display: none; }
 
 /* ── Screens (Laden, Du bist) ───────────────────────────────────────────── */
 

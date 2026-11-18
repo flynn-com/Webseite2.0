@@ -188,6 +188,7 @@ function renderGalleryDetail() {
 
   document.getElementById('gd-input-title').value = gallery.title;
   document.getElementById('gd-input-ext').value   = gallery.raw_ext || '';
+  document.getElementById('gd-input-phase').value = gallery.phase || 'Bilder Auswahl';
   renderPeopleEditor(_gaCurrent.people);
   renderLogo();
 
@@ -280,6 +281,7 @@ async function saveGallerySettings() {
     body: JSON.stringify({
       title:   document.getElementById('gd-input-title').value,
       raw_ext: document.getElementById('gd-input-ext').value,
+      phase:   document.getElementById('gd-input-phase').value,
       people,
     }),
   });
@@ -379,6 +381,160 @@ function downloadCsv() {
   a.download = `${slugify(gallery.title) || 'auswahl'}-auswahl.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ── PDF-Export ──────────────────────────────────────────────────────────────
+// Kontaktbogen: nur Bilder mit mindestens einem Like, Kommentar oder einer
+// Zeichnung, die meist-gelikten oben. Feste Anzahl pro Seite (PDF_COLS x
+// PDF_ROWS), damit auch bei 200 Bildern nur wenige Seiten entstehen.
+
+const PDF_COLS         = 2;
+const PDF_ROWS         = 3;
+const PDF_LOAD_PARALLEL = 4;
+const PDF_STROKE_REF_W  = 900;   // Bezug für die Strichstärke, siehe GA_THUMB_SIZE
+
+// Lädt ein Bild (CORS, damit der Canvas nicht "tainted" ist), brennt die
+// Zeichnungen hinein und liefert ein JPEG-Data-URL + Seitenverhältnis zurück.
+function gaLoadPdfImage(url, drawings, targetW) {
+  return new Promise((resolve, reject) => {
+    const el = new Image();
+    el.crossOrigin = 'anonymous';
+    el.onload = () => {
+      const aspect = el.naturalWidth / el.naturalHeight || 1;
+      const canvas = document.createElement('canvas');
+      canvas.width  = targetW;
+      canvas.height = Math.round(targetW / aspect);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(el, 0, 0, canvas.width, canvas.height);
+      ctx.lineCap  = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = Math.max(1.5, canvas.width * 4 / PDF_STROKE_REF_W);
+      for (const d of drawings) {
+        if (!d.points || d.points.length < 2) continue;
+        ctx.strokeStyle = d.color;
+        ctx.beginPath();
+        d.points.forEach((p, i) => {
+          const x = p[0] * canvas.width, y = p[1] * canvas.height;
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+      resolve({ dataUrl: canvas.toDataURL('image/jpeg', 0.85), aspect });
+    };
+    el.onerror = () => reject(new Error('Bild konnte nicht geladen werden'));
+    el.src = url;
+  });
+}
+
+// Kürzt Text auf eine Zeile, die in maxWidth passt (mit "…" am Ende)
+function gaFitLine(doc, text, maxWidth) {
+  if (doc.getTextWidth(text) <= maxWidth) return text;
+  let t = text;
+  while (t.length > 1 && doc.getTextWidth(t + '…') > maxWidth) t = t.slice(0, -1);
+  return t + '…';
+}
+
+async function exportPdf() {
+  if (!window.jspdf?.jsPDF) { toast('PDF-Bibliothek nicht geladen', 'error'); return; }
+  const { gallery, images, people } = _gaCurrent;
+  const likes    = gaLikes(_gaCurrent);
+  const notes    = gaNotes(_gaCurrent);
+  const drawings = gaDrawings(_gaCurrent);
+  const name     = Object.fromEntries(people.map(p => [p.id, p.name]));
+
+  const list = images
+    .map(img => ({
+      img,
+      likeCount: likes[img.id]?.size || 0,
+      likers:    people.filter(p => likes[img.id]?.has(p.id)).map(p => p.name),
+      comments:  notes[img.id] || [],
+      drawings:  drawings[img.id] || [],
+    }))
+    .filter(x => x.likeCount > 0 || x.comments.length > 0 || x.drawings.length > 0)
+    .sort((a, b) => b.likeCount - a.likeCount);
+
+  if (!list.length) { toast('Keine gelikten, kommentierten oder bemalten Bilder', 'info'); return; }
+
+  showLoading(`Lade Bilder (0/${list.length})…`);
+  const results = new Array(list.length);
+  let loaded = 0, next = 0, failed = 0;
+  const worker = async () => {
+    while (next < list.length) {
+      const i = next++;
+      const item = list[i];
+      try {
+        // ?cors=1: eigener Cache-Eintrag, sonst liefert der Browser die
+        // bereits im Bilderraster (ohne crossorigin) gecachte Antwort zurück
+        // und der Canvas bleibt "tainted" (kein Export möglich).
+        const url = `${gaImgUrl(gallery.token, item.img.id, 'thumb')}?cors=1`;
+        results[i] = await gaLoadPdfImage(url, item.drawings, 900);
+      } catch {
+        failed++;
+        results[i] = null;
+      }
+      loaded++;
+      showLoading(`Lade Bilder (${loaded}/${list.length})…`);
+    }
+  };
+  await Promise.all(Array.from({ length: PDF_LOAD_PARALLEL }, worker));
+
+  showLoading('Erstelle PDF…');
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const PAGE_W = 210, PAGE_H = 297, MARGIN = 10, GAP = 6, TEXT_H = 24;
+    const PER_PAGE = PDF_COLS * PDF_ROWS;
+    const colW = (PAGE_W - 2 * MARGIN - (PDF_COLS - 1) * GAP) / PDF_COLS;
+    const rowH = (PAGE_H - 2 * MARGIN - (PDF_ROWS - 1) * GAP) / PDF_ROWS;
+    const imgMaxW = colW, imgMaxH = rowH - TEXT_H;
+
+    list.forEach((item, i) => {
+      if (!results[i]) return;   // Bild konnte nicht geladen werden - überspringen
+      const posInPage = i % PER_PAGE;
+      if (i > 0 && posInPage === 0) doc.addPage();
+      const col = posInPage % PDF_COLS, row = Math.floor(posInPage / PDF_COLS);
+      const cellX = MARGIN + col * (colW + GAP);
+      const cellY = MARGIN + row * (rowH + GAP);
+
+      const { dataUrl, aspect } = results[i];
+      let w = imgMaxW, h = w / aspect;
+      if (h > imgMaxH) { h = imgMaxH; w = h * aspect; }
+      doc.addImage(dataUrl, 'JPEG', cellX + (colW - w) / 2, cellY, w, h);
+
+      let ty = cellY + imgMaxH + 4;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+      doc.text(gaFitLine(doc, item.img.filename, colW), cellX, ty);
+      ty += 4.2;
+
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+      // Keine Symbole (♥/✏/✎) - die Standard-PDF-Schrift kennt nur Latin-1,
+      // Emoji/Sonderzeichen würden als kaputte Glyphen erscheinen.
+      const badges = [];
+      if (item.likeCount) badges.push(`${item.likeCount} Like${item.likeCount === 1 ? '' : 's'}${item.likers.length ? ' (' + item.likers.join(', ') + ')' : ''}`);
+      if (item.drawings.length) badges.push('bemalt');
+      if (item.comments.length) badges.push(`${item.comments.length} Kommentar${item.comments.length === 1 ? '' : 'e'}`);
+      if (badges.length) { doc.text(gaFitLine(doc, badges.join('   '), colW), cellX, ty); ty += 4; }
+
+      const lineH = 3.2;
+      const maxLines = Math.max(0, Math.floor(((cellY + rowH) - ty) / lineH));
+      const commentLines = item.comments.flatMap(c =>
+        doc.splitTextToSize(`${name[c.person_id] || '?'}: ${c.text}`, colW));
+      let shown = commentLines.slice(0, maxLines);
+      if (commentLines.length > maxLines && maxLines > 0) {
+        shown = commentLines.slice(0, maxLines - 1);
+        shown.push(`… (+${commentLines.length - shown.length} weitere Zeilen)`);
+      }
+      shown.forEach(line => { doc.text(line, cellX, ty); ty += lineH; });
+    });
+
+    doc.save(`${slugify(gallery.title) || 'auswahl'}-favoriten.pdf`);
+    if (failed) toast(`${failed} Bild(er) konnten nicht geladen werden und fehlen im PDF`, 'error');
+  } catch (err) {
+    console.error(err);
+    toast('PDF konnte nicht erstellt werden', 'error');
+  } finally {
+    hideLoading();
+  }
 }
 
 // ── Bilderliste ─────────────────────────────────────────────────────────────
@@ -597,6 +753,7 @@ document.getElementById('gd-copy-export').addEventListener('click', () => {
   if (val) gaCopy(val, 'Dateinamen kopiert');
 });
 document.getElementById('gd-csv').addEventListener('click', downloadCsv);
+document.getElementById('gd-pdf').addEventListener('click', exportPdf);
 document.getElementById('gd-filter').addEventListener('change', renderAdminImages);
 
 const _gaDrop  = document.getElementById('gd-drop');

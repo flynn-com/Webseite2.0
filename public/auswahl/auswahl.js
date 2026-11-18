@@ -196,6 +196,7 @@ function showWho() {
   $('app').hidden = true;
   $('screen-who').hidden = false;
   $('who-title').textContent = S.gallery.title;
+  $('who-phase').textContent = S.gallery.phase || '';
 
   // Nur neu zeichnen, wenn sich die Personen geändert haben – sonst geht ein
   // Klick verloren, der genau während eines Polls passiert
@@ -318,6 +319,7 @@ function renderAll() {
 
 function renderHeader() {
   $('g-title').textContent = S.gallery.title;
+  $('g-phase').textContent = S.gallery.phase || '';
   $('me-name').textContent = personName(S.me);
   document.title = `${S.gallery.title} · Bildauswahl`;
 
@@ -783,8 +785,14 @@ let _gesture = null;           // { startX, startY, moved, pinchDist, pinchScale
 
 $('v-stage').addEventListener('pointerdown', (e) => {
   if (e.target.closest('button')) return;
+  if (PEN.active) {
+    // Nur linke Maustaste zeichnet (Maus); Touch/Stift haben kein Tasten-Konzept.
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    $('v-stage').setPointerCapture(e.pointerId);
+    startStroke(e);
+    return;
+  }
   $('v-stage').setPointerCapture(e.pointerId);
-  if (PEN.active) { startStroke(e); return; }
   _pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (_pointers.size === 1) {
     _gesture = { startX: e.clientX, startY: e.clientY, moved: false };
@@ -840,6 +848,10 @@ $('v-stage').addEventListener('wheel', (e) => {
   zoomAt(Z.s * Math.exp(-e.deltaY * 0.002), e.clientX, e.clientY);
 }, { passive: false });
 
+// Rechtsklick soll beim Zeichnen kein Browser-Kontextmenü öffnen (Zeichnen ist
+// auf die linke Maustaste gelegt).
+$('v-stage').addEventListener('contextmenu', (e) => { if (PEN.active) e.preventDefault(); });
+
 window.addEventListener('resize', resetZoom);
 
 document.addEventListener('keydown', (e) => {
@@ -848,8 +860,8 @@ document.addEventListener('keydown', (e) => {
     case 'ArrowRight': e.preventDefault(); step(1); break;
     case 'ArrowLeft':  e.preventDefault(); step(-1); break;
     case 'Escape':     Z.s > 1 ? resetZoom() : closeViewer(); break;
-    case '+': case '=': e.preventDefault(); { const r = $('v-stage').getBoundingClientRect(); zoomAt(Z.s * 1.5, r.left + r.width / 2, r.top + r.height / 2); } break;
-    case '-':           e.preventDefault(); { const r = $('v-stage').getBoundingClientRect(); zoomAt(Z.s / 1.5, r.left + r.width / 2, r.top + r.height / 2); } break;
+    case '+': case '=': if (!PEN.active) { e.preventDefault(); const r = $('v-stage').getBoundingClientRect(); zoomAt(Z.s * 1.5, r.left + r.width / 2, r.top + r.height / 2); } break;
+    case '-':           if (!PEN.active) { e.preventDefault(); const r = $('v-stage').getBoundingClientRect(); zoomAt(Z.s / 1.5, r.left + r.width / 2, r.top + r.height / 2); } break;
     case ' ': case 'l': case 'L':
       e.preventDefault();
       toggleLike(S.view.list[S.view.pos]);

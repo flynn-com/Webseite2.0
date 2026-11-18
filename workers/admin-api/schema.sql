@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS galleries (
   title         TEXT NOT NULL,
   token         TEXT NOT NULL UNIQUE,          -- geheimer Kunden-Link
   status        TEXT NOT NULL DEFAULT 'offen', -- 'offen' | 'freigegeben' (gesperrt)
+  phase         TEXT NOT NULL DEFAULT 'Bilder Auswahl', -- Arbeitsschritt, siehe GALLERY_PHASES in gallery.js
   raw_ext       TEXT NOT NULL DEFAULT '',      -- z.B. '.ARW' für den Export
   logo_key      TEXT,                          -- R2-Key des Kundenlogos (optional)
   created_at    INTEGER NOT NULL,
@@ -99,4 +100,10 @@ CREATE INDEX IF NOT EXISTS idx_drawings_gallery ON drawings(gallery_id, updated_
 -- (CREATE TABLE IF NOT EXISTS ist hier gefahrlos erneut ausführbar, anders als
 -- die ALTER-TABLE-Migration oben - legt die neue Tabelle nur an, falls sie
 -- noch fehlt, und lässt alle bestehenden Tabellen/Daten unangetastet.)
+--
+-- Migration: Projektstatus (nachträglich hinzugekommen)
+-- Bei einer bereits laufenden Datenbank einmalig nachziehen:
+--   npx wrangler d1 execute auswahl --remote --command "ALTER TABLE galleries ADD COLUMN phase TEXT NOT NULL DEFAULT 'Bilder Auswahl';"
+-- Bei einer neuen Datenbank ist die Spalte durch CREATE TABLE oben bereits da -
+-- "duplicate column name" ist in dem Fall einfach zu ignorieren.
 -- ─────────────────────────────────────────────────────────────────────────────

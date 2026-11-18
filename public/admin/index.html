@@ -580,6 +580,16 @@
             <input type="text" id="gd-input-ext" maxlength="8" placeholder="z. B. .ARW, .CR3, .NEF (leer = ohne)">
           </div>
           <div class="form-group">
+            <label for="gd-input-phase">Projektstatus</label>
+            <select id="gd-input-phase">
+              <option>Bilder Auswahl</option>
+              <option>Erste Revisionsschleife</option>
+              <option>Zweite Revisionsschleife</option>
+              <option>Finale Revisionsschleife</option>
+            </select>
+            <div class="hint">Erscheint klein unter dem Projektnamen auf der Kundenseite.</div>
+          </div>
+          <div class="form-group">
             <label>Kundenlogo</label>
             <div class="ga-logo">
               <div class="ga-logo-preview" id="gd-logo-preview"></div>
@@ -625,6 +635,7 @@
             </select>
             <button class="btn btn-secondary btn-sm" id="gd-copy-export">Kopieren</button>
             <button class="btn btn-secondary btn-sm" id="gd-csv">CSV mit Likes &amp; Notizen</button>
+            <button class="btn btn-secondary btn-sm" id="gd-pdf">PDF mit Bildern</button>
           </div>
         </div>
         <p class="hint" id="gd-export-hint"></p>
@@ -747,6 +758,16 @@
   </div>
 </div>
 
+<!-- Kundenauswahl: Bild-Großansicht mit Stift-Zeichnungen der Kunden -->
+<div id="ga-lightbox" class="ga-lightbox" hidden>
+  <button class="ga-lightbox-close" id="ga-lightbox-close" aria-label="Schließen">✕</button>
+  <div class="ga-lightbox-stage">
+    <img id="ga-lightbox-img" alt="">
+    <svg id="ga-lightbox-draw" class="ga-lightbox-draw" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true"></svg>
+  </div>
+  <p class="ga-lightbox-hint" id="ga-lightbox-hint">Keine Zeichnungen auf diesem Bild.</p>
+</div>
+
 <!-- Toast Container -->
 <div id="toast-container"></div>
 
@@ -756,6 +777,7 @@
   <span id="loading-text">Lade…</span>
 </div>
 
+<script src="vendor/jspdf.umd.min.js"></script>
 <script src="app.js"></script>
 <script src="galleries.js"></script>
 </body>

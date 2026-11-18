@@ -20,6 +20,10 @@ const MAX_UPLOAD_MB = 40;
 const DRAWING_COLORS   = ['#ff2d4b', '#2563eb', '#22c55e'];
 const MAX_DRAWING_PTS  = 1500;
 
+// Arbeitsschritt des Projekts, vom Admin gesetzt, klein mittig unter dem
+// Projektnamen auf der Kundenseite sichtbar.
+const GALLERY_PHASES = ['Bilder Auswahl', 'Erste Revisionsschleife', 'Zweite Revisionsschleife', 'Finale Revisionsschleife'];
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -135,6 +139,7 @@ async function loadAll(env, galleryId, since = 0) {
 function publicGallery(g) {
   return {
     title:        g.title,
+    phase:        g.phase,
     status:       g.status,
     finalized_at: g.finalized_at,
     finalized_by: g.finalized_by,
@@ -412,6 +417,7 @@ async function adminUpdate(env, galleryId, request) {
 
   const title  = body.title   !== undefined ? cleanText(body.title, MAX_TITLE) || gallery.title : gallery.title;
   const rawExt = body.raw_ext !== undefined ? cleanRawExt(body.raw_ext) : gallery.raw_ext;
+  const phase  = GALLERY_PHASES.includes(body.phase) ? body.phase : gallery.phase;
   let status = gallery.status, finalizedAt = gallery.finalized_at, finalizedBy = gallery.finalized_by;
   if (body.status === 'offen' || body.status === 'freigegeben') {
     status = body.status;
@@ -419,8 +425,8 @@ async function adminUpdate(env, galleryId, request) {
     else if (!finalizedAt)        { finalizedAt = now;  finalizedBy = 'Admin'; }
   }
   stmts.push(db.prepare(
-    'UPDATE galleries SET title = ?, raw_ext = ?, status = ?, finalized_at = ?, finalized_by = ?, updated_at = ? WHERE id = ?'
-  ).bind(title, rawExt, status, finalizedAt, finalizedBy, now, galleryId));
+    'UPDATE galleries SET title = ?, raw_ext = ?, phase = ?, status = ?, finalized_at = ?, finalized_by = ?, updated_at = ? WHERE id = ?'
+  ).bind(title, rawExt, phase, status, finalizedAt, finalizedBy, now, galleryId));
 
   if (Array.isArray(body.people)) {
     const current = (await db.prepare('SELECT id FROM people WHERE gallery_id = ?').bind(galleryId).all()).results;
