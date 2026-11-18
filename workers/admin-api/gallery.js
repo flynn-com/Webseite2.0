@@ -13,6 +13,13 @@ const MAX_TITLE     = 120;
 const MAX_COMMENT   = 2000;
 const MAX_UPLOAD_MB = 40;
 
+// Stift-Werkzeug: feste Farbauswahl, Striche auf eine vernünftige Punktzahl
+// begrenzt (ein hastig gekritzelter Strich hat selten mehr als ein paar
+// hundert Punkte - 1500 lässt viel Spielraum, ohne dass jemand beliebig
+// große Payloads einschicken kann).
+const DRAWING_COLORS   = ['#ff2d4b', '#2563eb', '#22c55e'];
+const MAX_DRAWING_PTS  = 1500;
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -70,6 +77,8 @@ export async function handleGallery(request, env, path, checkAuth) {
     if (action === '/done'    && m === 'PUT')    return clientDone(env, gallery, request);
     if (action === '/comment' && m === 'POST')   return clientComment(env, gallery, request);
     if (action === '/comment' && m === 'DELETE') return clientDeleteComment(env, gallery, request);
+    if (action === '/drawing' && m === 'POST')   return clientAddDrawing(env, gallery, request);
+    if (action === '/drawing' && m === 'DELETE') return clientDeleteDrawing(env, gallery, request);
     return json({ error: 'Not found' }, 404);
   }
 
@@ -107,17 +116,19 @@ export async function handleGallery(request, env, path, checkAuth) {
 
 async function loadAll(env, galleryId, since = 0) {
   const db = env.GALLERY_DB;
-  const [people, images, likes, comments] = await db.batch([
+  const [people, images, likes, comments, drawings] = await db.batch([
     db.prepare('SELECT id, name, added_by, sort, done_at FROM people WHERE gallery_id = ? ORDER BY sort, created_at').bind(galleryId),
     db.prepare('SELECT id, filename, width, height FROM images WHERE gallery_id = ? AND created_at > ? ORDER BY sort').bind(galleryId, since),
     db.prepare("SELECT image_id, person_id, value = 'like' AS liked FROM votes WHERE gallery_id = ? AND updated_at > ?").bind(galleryId, since),
     db.prepare('SELECT id, image_id, person_id, text, deleted, created_at FROM comments WHERE gallery_id = ? AND updated_at > ? ORDER BY created_at').bind(galleryId, since),
+    db.prepare('SELECT id, image_id, person_id, color, points, deleted, created_at FROM drawings WHERE gallery_id = ? AND updated_at > ? ORDER BY created_at').bind(galleryId, since),
   ]);
   return {
     people:   people.results,
     images:   images.results,
     likes:    likes.results,
     comments: comments.results,
+    drawings: drawings.results.map(d => ({ ...d, points: JSON.parse(d.points) })),
   };
 }
 
@@ -254,6 +265,51 @@ async function clientDeleteComment(env, gallery, request) {
   return json({ ok: true });
 }
 
+// ── Stift-Zeichnungen ───────────────────────────────────────────────────────
+
+function cleanPoints(points) {
+  if (!Array.isArray(points) || points.length < 2 || points.length > MAX_DRAWING_PTS) return null;
+  const clean = [];
+  for (const p of points) {
+    if (!Array.isArray(p) || p.length !== 2) return null;
+    const [x, y] = p;
+    if (typeof x !== 'number' || typeof y !== 'number') return null;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    // Leicht außerhalb (z.B. -0.01) kommt beim Zeichnen am Bildrand vor -
+    // einfach auf 0..1 kappen statt den ganzen Strich abzulehnen.
+    clean.push([Math.min(1, Math.max(0, x)), Math.min(1, Math.max(0, y))]);
+  }
+  return clean;
+}
+
+async function clientAddDrawing(env, gallery, request) {
+  const locked = lockedResponse(gallery); if (locked) return locked;
+  const { person_id, image_id, color, points } = await readJson(request);
+  if (!DRAWING_COLORS.includes(color)) return json({ error: 'Ungültige Farbe' }, 400);
+  const clean = cleanPoints(points);
+  if (!clean) return json({ error: 'Ungültige Zeichnung' }, 400);
+  if (!await personOf(env, gallery, person_id)) return json({ error: 'Person unbekannt' }, 400);
+  if (!await imageOf(env, gallery, image_id))   return json({ error: 'Bild unbekannt' }, 400);
+
+  const now     = Date.now();
+  const drawing = { id: id(), image_id, person_id, color, points: clean, deleted: 0, created_at: now };
+  await env.GALLERY_DB.prepare(
+    'INSERT INTO drawings (id, image_id, person_id, gallery_id, color, points, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(drawing.id, image_id, person_id, gallery.id, color, JSON.stringify(clean), now, now).run();
+  return json({ drawing });
+}
+
+async function clientDeleteDrawing(env, gallery, request) {
+  const locked = lockedResponse(gallery); if (locked) return locked;
+  const { person_id, drawing_id } = await readJson(request);
+  // Nur die eigene Zeichnung darf gelöscht werden; Soft-Delete für den Live-Sync
+  const res = await env.GALLERY_DB.prepare(
+    'UPDATE drawings SET deleted = 1, updated_at = ? WHERE id = ? AND person_id = ? AND gallery_id = ? AND deleted = 0'
+  ).bind(Date.now(), String(drawing_id), String(person_id), gallery.id).run();
+  if (!res.meta.changes) return json({ error: 'Zeichnung nicht gefunden' }, 404);
+  return json({ ok: true });
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Bilder aus R2
 // ─────────────────────────────────────────────────────────────────────────────
@@ -384,6 +440,7 @@ async function adminUpdate(env, galleryId, request) {
       if (keepIds.has(c.id)) continue;
       stmts.push(db.prepare('DELETE FROM votes WHERE person_id = ?').bind(c.id));
       stmts.push(db.prepare('DELETE FROM comments WHERE person_id = ?').bind(c.id));
+      stmts.push(db.prepare('DELETE FROM drawings WHERE person_id = ?').bind(c.id));
       stmts.push(db.prepare('DELETE FROM people WHERE id = ?').bind(c.id));
     }
   }
@@ -407,6 +464,7 @@ async function adminDelete(env, galleryId) {
   const db = env.GALLERY_DB;
   await db.batch([
     db.prepare('DELETE FROM comments  WHERE gallery_id = ?').bind(galleryId),
+    db.prepare('DELETE FROM drawings  WHERE gallery_id = ?').bind(galleryId),
     db.prepare('DELETE FROM votes     WHERE gallery_id = ?').bind(galleryId),
     db.prepare('DELETE FROM images    WHERE gallery_id = ?').bind(galleryId),
     db.prepare('DELETE FROM people    WHERE gallery_id = ?').bind(galleryId),
@@ -462,6 +520,7 @@ async function adminDeleteImage(env, galleryId, imageId) {
   const db = env.GALLERY_DB;
   await db.batch([
     db.prepare('DELETE FROM comments  WHERE image_id = ?').bind(imageId),
+    db.prepare('DELETE FROM drawings  WHERE image_id = ?').bind(imageId),
     db.prepare('DELETE FROM votes     WHERE image_id = ?').bind(imageId),
     db.prepare('DELETE FROM images    WHERE id = ?').bind(imageId),
   ]);

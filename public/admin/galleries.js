@@ -28,6 +28,15 @@ function gaNotes(data) {
   return notes;
 }
 
+// imageId → [drawing], ohne gelöschte - die Stift-Markierungen der Kunden
+function gaDrawings(data) {
+  const drawings = {};
+  for (const d of data.drawings || []) {
+    if (!d.deleted) (drawings[d.image_id] ||= []).push(d);
+  }
+  return drawings;
+}
+
 // ── Helfer ──────────────────────────────────────────────────────────────────
 
 function gaClientUrl(token) {
@@ -376,10 +385,11 @@ function downloadCsv() {
 
 function renderAdminImages() {
   const { images, people, gallery } = _gaCurrent;
-  const likes  = gaLikes(_gaCurrent);
-  const notes  = gaNotes(_gaCurrent);
-  const filter = document.getElementById('gd-filter').value;
-  const list   = images.filter(img => {
+  const likes    = gaLikes(_gaCurrent);
+  const notes    = gaNotes(_gaCurrent);
+  const drawings = gaDrawings(_gaCurrent);
+  const filter   = document.getElementById('gd-filter').value;
+  const list     = images.filter(img => {
     const n = likes[img.id]?.size || 0;
     if (filter === 'liked')   return n > 0;
     if (filter === 'unliked') return n === 0;
@@ -394,12 +404,13 @@ function renderAdminImages() {
   grid.innerHTML = list.map(img => {
     const set    = likes[img.id] || new Set();
     const likers = people.filter(p => set.has(p.id)).map(p => p.name);
+    const nDraw  = drawings[img.id]?.length || 0;
     return `<figure class="ga-thumb ${likers.length ? 'is-final' : ''}" data-id="${img.id}">
       <img src="${gaImgUrl(gallery.token, img.id)}" loading="lazy" alt="">
       <button class="ga-thumb-del" title="Bild löschen">✕</button>
       <figcaption>
         <span class="ga-fn">${escapeHtml(img.filename)}</span>
-        <span class="ga-likes" title="${escapeHtml(likers.join(', '))}">${likers.length ? `♥ ${likers.length}` : ''}${notes[img.id] ? `<span class="ga-note-count">✎ ${notes[img.id].length}</span>` : ''}</span>
+        <span class="ga-likes" title="${escapeHtml(likers.join(', '))}">${likers.length ? `♥ ${likers.length}` : ''}${notes[img.id] ? `<span class="ga-note-count">✎ ${notes[img.id].length}</span>` : ''}${nDraw ? `<span class="ga-note-count" title="Zeichnungen">✏ ${nDraw}</span>` : ''}</span>
       </figcaption>
     </figure>`;
   }).join('');
@@ -414,7 +425,42 @@ function renderAdminImages() {
       await reloadGallery();
     });
   });
+  grid.querySelectorAll('.ga-thumb img').forEach(img => {
+    img.addEventListener('click', () => gaOpenLightbox(img.closest('.ga-thumb').dataset.id));
+  });
 }
+
+// ── Großansicht mit Zeichnungen ─────────────────────────────────────────────
+// Eigene, einfache Lightbox statt die kleinen Raster-Kacheln zu überlagern:
+// die Kacheln haben ein festes Seitenverhältnis (object-fit: contain, teils
+// mit Leerraum), da würden die normierten 0..1-Koordinaten der Zeichnung
+// nicht exakt übers Bild passen. Hier hat der Bild-Container kein festes
+// Seitenverhältnis (display:inline-block, schrumpft auf die Bildgröße) -
+// die SVG-Überlagerung sitzt dadurch immer pixelgenau über dem Foto.
+
+function gaOpenLightbox(imageId) {
+  const { gallery, images } = _gaCurrent;
+  const img = images.find(i => i.id === imageId);
+  if (!img) return;
+  const drawings = (gaDrawings(_gaCurrent)[imageId] || []);
+
+  document.getElementById('ga-lightbox-img').src = gaImgUrl(gallery.token, imageId, 'full');
+  document.getElementById('ga-lightbox-draw').innerHTML = drawings.map(d => `
+    <path d="${d.points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0]} ${p[1]}`).join(' ')}"
+      stroke="${escapeHtml(d.color)}"></path>`).join('');
+  document.getElementById('ga-lightbox-hint').hidden = drawings.length > 0;
+  document.getElementById('ga-lightbox').hidden = false;
+}
+
+function gaCloseLightbox() { document.getElementById('ga-lightbox').hidden = true; }
+
+document.getElementById('ga-lightbox-close').addEventListener('click', gaCloseLightbox);
+document.getElementById('ga-lightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'ga-lightbox') gaCloseLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !document.getElementById('ga-lightbox').hidden) gaCloseLightbox();
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Upload

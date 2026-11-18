@@ -1152,6 +1152,55 @@ a:hover { color: var(--text); }
   transition: opacity var(--transition);
 }
 .ga-thumb:hover .ga-thumb-del { opacity: 1; }
+.ga-thumb img { cursor: zoom-in; }
+
+/* ── Großansicht (Lightbox) mit Zeichnungen ───────────────────────────────── */
+.ga-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px;
+  background: rgba(0,0,0,.88);
+}
+.ga-lightbox[hidden] { display: none; }
+.ga-lightbox-stage {
+  position: relative;
+  display: inline-block;
+  max-width: 92vw;
+  max-height: 82vh;
+  line-height: 0;         /* kein Zeilenabstand unter dem img, sonst stimmt die SVG-Höhe nicht exakt */
+}
+.ga-lightbox-stage img { display: block; max-width: 92vw; max-height: 82vh; width: auto; height: auto; }
+.ga-lightbox-draw {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.ga-lightbox-draw path {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.ga-lightbox-close {
+  position: absolute;
+  top: 20px; right: 24px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  font-size: 16px;
+}
+.ga-lightbox-close:hover { background: rgba(255,255,255,.24); }
+.ga-lightbox-hint { color: rgba(255,255,255,.5); font-size: .8rem; }
 
 @media (max-width: 900px) {
   .ga-columns { grid-template-columns: 1fr; }

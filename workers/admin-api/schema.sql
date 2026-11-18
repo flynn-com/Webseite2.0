@@ -67,6 +67,23 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 CREATE INDEX IF NOT EXISTS idx_comments_gallery ON comments(gallery_id, updated_at);
 
+-- Freihand-Markierungen auf dem Bild (Stift-Werkzeug), für alle Personen
+-- sichtbar - ein Strich (ein Fingerzug/Mausklick-Zug) pro Zeile.
+-- points: JSON-Array von [x,y]-Paaren, normiert auf 0..1 relativ zur
+-- Bildbreite/-höhe, damit die Zeichnung bei jeder Anzeigegröße passt.
+CREATE TABLE IF NOT EXISTS drawings (
+  id          TEXT PRIMARY KEY,
+  image_id    TEXT NOT NULL REFERENCES images(id) ON DELETE CASCADE,
+  person_id   TEXT NOT NULL REFERENCES people(id) ON DELETE CASCADE,
+  gallery_id  TEXT NOT NULL,
+  color       TEXT NOT NULL,                    -- Hex-Code, eine von 3 erlaubten Farben
+  points      TEXT NOT NULL,                    -- JSON: [[x,y], [x,y], ...]
+  deleted     INTEGER NOT NULL DEFAULT 0,        -- 1 = gelöscht (Zeile bleibt für Live-Sync)
+  created_at  INTEGER NOT NULL,
+  updated_at  INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_drawings_gallery ON drawings(gallery_id, updated_at);
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Migration: "Ich bin durch"-Status pro Person (nachträglich hinzugekommen)
 -- Bei einer bereits laufenden Datenbank (wie der von flynnbertsch.com) einmalig
@@ -75,4 +92,11 @@ CREATE INDEX IF NOT EXISTS idx_comments_gallery ON comments(gallery_id, updated_
 -- Bei einer neuen Datenbank ist die Spalte durch CREATE TABLE oben bereits da -
 -- dieser Befehl würde dann mit "duplicate column name" fehlschlagen, das ist
 -- in dem Fall einfach zu ignorieren.
+--
+-- Migration: Stift-Zeichnungen (nachträglich hinzugekommen)
+-- Bei einer bereits laufenden Datenbank die Tabelle einmalig nachziehen:
+--   npx wrangler d1 execute auswahl --remote --file=schema.sql
+-- (CREATE TABLE IF NOT EXISTS ist hier gefahrlos erneut ausführbar, anders als
+-- die ALTER-TABLE-Migration oben - legt die neue Tabelle nur an, falls sie
+-- noch fehlt, und lässt alle bestehenden Tabellen/Daten unangetastet.)
 -- ─────────────────────────────────────────────────────────────────────────────

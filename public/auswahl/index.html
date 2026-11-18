@@ -92,8 +92,20 @@
   <div class="v-layout">
     <div class="v-photo" id="v-stage">
       <img id="v-img" alt="">
+      <svg id="v-draw" class="v-draw" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true"></svg>
       <div id="v-loading" class="v-loading"></div>
       <button class="v-like" id="v-like" title="Liken (Leertaste)" aria-label="Liken"></button>
+      <button class="v-pen-toggle" id="v-pen-toggle" title="Stift (P)" aria-label="Stift" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      </button>
+      <div class="v-pen-tools" id="v-pen-tools" hidden>
+        <button class="v-pen-color v-pen-color--red is-active" data-color="#ff2d4b" title="Rot" aria-label="Rot"></button>
+        <button class="v-pen-color v-pen-color--blue" data-color="#2563eb" title="Blau" aria-label="Blau"></button>
+        <button class="v-pen-color v-pen-color--green" data-color="#22c55e" title="Grün" aria-label="Grün"></button>
+        <button class="v-pen-undo" id="v-pen-undo" title="Letzten Strich entfernen" aria-label="Letzten Strich entfernen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10a6 6 0 1 1 0 12h-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
     </div>
     <div class="v-side">
       <div class="v-meta">

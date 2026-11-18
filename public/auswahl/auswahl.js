@@ -22,16 +22,25 @@ const LANDSCAPE_ICON = '<svg viewBox="0 0 18 14" aria-hidden="true"><rect x="1" 
 // ── State ────────────────────────────────────────────────────────────────────
 
 const S = {
-  gallery: null,
-  people:  [],
-  images:  [],         // sortiert wie vom Server
-  likes:   {},         // imageId → Set(personId)
-  notes:   {},         // commentId → { id, image_id, person_id, text, deleted, created_at }
-  since:   0,
-  me:      null,       // personId
-  filter:  'all',
-  view:    null,       // { list: [imageIds], pos } oder null
-  tiles:   {},         // imageId → DOM-Element
+  gallery:  null,
+  people:   [],
+  images:   [],        // sortiert wie vom Server
+  likes:    {},        // imageId → Set(personId)
+  notes:    {},        // commentId → { id, image_id, person_id, text, deleted, created_at }
+  drawings: {},        // drawingId → { id, image_id, person_id, color, points, deleted, created_at }
+  since:    0,
+  me:       null,      // personId
+  filter:   'all',
+  view:     null,      // { list: [imageIds], pos } oder null
+  tiles:    {},        // imageId → DOM-Element
+};
+
+// Stift: eigener kleiner State, unabhängig von S (kein Server-Sync nötig)
+const PEN_COLORS = ['#ff2d4b', '#2563eb', '#22c55e'];
+const PEN = {
+  active: false,
+  color:  PEN_COLORS[0],
+  points: null,         // [[x,y], ...] während ein Strich gerade gezeichnet wird
 };
 
 const $ = (id) => document.getElementById(id);
@@ -82,6 +91,12 @@ function notesOf(imageId) {
     .sort((a, b) => a.created_at - b.created_at);
 }
 
+function drawingsOf(imageId) {
+  return Object.values(S.drawings)
+    .filter(d => d.image_id === imageId && !d.deleted)
+    .sort((a, b) => a.created_at - b.created_at);
+}
+
 function matchesFilter(imageId, filter) {
   if (filter === 'liked')   return likersOf(imageId).length > 0;
   if (filter === 'unliked') return likersOf(imageId).length === 0;
@@ -120,12 +135,13 @@ function merge(data) {
     if (l.liked) set.add(l.person_id); else set.delete(l.person_id);
   }
   for (const n of data.comments) S.notes[n.id] = n;
+  for (const d of data.drawings) S.drawings[d.id] = d;
   S.since = data.now;
 }
 
 async function loadFull() {
   const data = await api('');
-  Object.assign(S, { images: [], likes: {}, notes: {}, since: 0 });
+  Object.assign(S, { images: [], likes: {}, notes: {}, drawings: {}, since: 0 });
   merge(data);
 }
 
@@ -436,6 +452,7 @@ function closeViewer() {
   const id = S.view.list[S.view.pos];
   S.view = null;
   resetZoom();
+  setPenActive(false);
   $('viewer').hidden = true;
   unlockScroll();
   S.tiles[id]?.scrollIntoView({ block: 'nearest' });
@@ -519,6 +536,7 @@ function renderViewer(imageChanged = false) {
     const nextId = list[pos + 1];
     if (nextId) new Image().src = imgUrl(nextId, 'full');
     $('v-note').value = '';
+    PEN.points = null;   // ein angefangener Strich gehört zum alten Bild, verwerfen
   }
 
   $('v-pos').textContent  = `${pos + 1}/${list.length}`;
@@ -556,6 +574,10 @@ function renderViewer(imageChanged = false) {
     listEl.scrollTop = listEl.scrollHeight;
   }
   $('v-note-form').hidden = locked;
+  $('v-pen-toggle').hidden = locked;
+  if (locked) setPenActive(false);
+
+  renderDrawOverlay();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -618,6 +640,106 @@ $('v-close').addEventListener('click', closeViewer);
 $('v-prev').addEventListener('click', () => step(-1));
 $('v-next').addEventListener('click', () => step(1));
 
+// ── Stift ───────────────────────────────────────────────────────────────────
+// Striche werden als Liste von Punkten (0..1, relativ zu Bildbreite/-höhe)
+// gespeichert, damit sie bei jeder Anzeigegröße exakt passen. Während des
+// Zeichnens ist der normale Zoom/Wisch-Gesten-Code (unten) deaktiviert -
+// Pointer-Events gehen stattdessen an startStroke/moveStroke/endStroke.
+
+function pointsToPath(points) {
+  return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0]} ${p[1]}`).join(' ');
+}
+
+function renderDrawOverlay() {
+  const svg = $('v-draw');
+  if (!S.view) { svg.replaceChildren(); return; }
+  const imageId = S.view.list[S.view.pos];
+  const strokes = drawingsOf(imageId);
+  let html = strokes.map(d => `<path d="${pointsToPath(d.points)}" stroke="${escapeHtml(d.color)}"></path>`).join('');
+  if (PEN.points && PEN.points.length > 1) {
+    html += `<path class="v-draw-live" d="${pointsToPath(PEN.points)}" stroke="${escapeHtml(PEN.color)}"></path>`;
+  }
+  svg.innerHTML = html;
+}
+
+function setPenActive(active) {
+  PEN.active = active;
+  PEN.points = null;
+  $('viewer').classList.toggle('is-drawing', active);
+  $('v-pen-toggle').classList.toggle('is-active', active);
+  $('v-pen-toggle').setAttribute('aria-pressed', active);
+  $('v-pen-tools').hidden = !active;
+  if (active) resetZoom();   // Zeichnen + Zoom gleichzeitig würde die Koordinaten verfälschen
+  renderDrawOverlay();
+}
+
+function pointFromEvent(e) {
+  const box = $('v-stage').getBoundingClientRect();
+  const x = (e.clientX - box.left) / box.width;
+  const y = (e.clientY - box.top) / box.height;
+  return [Math.min(1, Math.max(0, x)), Math.min(1, Math.max(0, y))];
+}
+
+function startStroke(e) {
+  PEN.points = [pointFromEvent(e)];
+  renderDrawOverlay();
+}
+
+// Bewegungen kommen sehr dicht aufeinander (pointermove feuert alle paar
+// Millisekunden) - nur Punkte übernehmen, die sich spürbar vom letzten
+// unterscheiden, sonst würde ein langer, langsamer Strich unnötig viele
+// Punkte anhäufen und am Server-Limit scheitern.
+const MIN_POINT_DIST    = 0.004;
+const MAX_POINTS_CLIENT = 1400;   // etwas unter dem Server-Limit (1500)
+
+function moveStroke(e) {
+  if (!PEN.points) return;
+  const p    = pointFromEvent(e);
+  const last = PEN.points[PEN.points.length - 1];
+  if (last && Math.hypot(p[0] - last[0], p[1] - last[1]) < MIN_POINT_DIST) return;
+  PEN.points.push(p);
+  // Sicherheitsnetz für sehr lange Striche: lieber jeden zweiten Punkt
+  // verwerfen (Strich wird minimal kantiger) als dass der ganze Strich am
+  // Limit abgelehnt wird.
+  if (PEN.points.length >= MAX_POINTS_CLIENT) PEN.points = PEN.points.filter((_, i) => i % 2 === 0);
+  renderDrawOverlay();
+}
+
+async function endStroke() {
+  const points = PEN.points;
+  PEN.points = null;
+  if (!points || points.length < 2 || isLocked() || !S.me) { renderDrawOverlay(); return; }
+  const imageId = S.view.list[S.view.pos];
+  try {
+    const { drawing } = await api('/drawing', 'POST', { person_id: S.me, image_id: imageId, color: PEN.color, points });
+    S.drawings[drawing.id] = drawing;
+  } catch (err) { toast(err.message); }
+  renderDrawOverlay();
+}
+
+// Entfernt den eigenen letzten Strich auf dem aktuellen Bild (einfaches Undo,
+// kein Strich-für-Strich-Lösch-UI nötig - wer sich vertut, macht's noch mal)
+async function undoLastStroke() {
+  const imageId = S.view.list[S.view.pos];
+  const mine = drawingsOf(imageId).filter(d => d.person_id === S.me);
+  const last = mine[mine.length - 1];
+  if (!last) return;
+  try {
+    await api('/drawing', 'DELETE', { person_id: S.me, drawing_id: last.id });
+    last.deleted = 1;
+    renderDrawOverlay();
+  } catch (err) { toast(err.message); }
+}
+
+$('v-pen-toggle').addEventListener('click', () => setPenActive(!PEN.active));
+$('v-pen-undo').addEventListener('click', undoLastStroke);
+$('v-pen-tools').querySelectorAll('.v-pen-color').forEach(btn => {
+  btn.addEventListener('click', () => {
+    PEN.color = btn.dataset.color;
+    $('v-pen-tools').querySelectorAll('.v-pen-color').forEach(b => b.classList.toggle('is-active', b === btn));
+  });
+});
+
 // ── Zoom ────────────────────────────────────────────────────────────────────
 // Klick/Tipp aufs Bild: an der Stelle reinzoomen, nochmal: zurück. Mausrad und
 // Zwei-Finger-Geste zoomen stufenlos, gezoomt lässt sich das Bild verschieben.
@@ -633,7 +755,9 @@ function applyZoom() {
   // Bild darf nicht aus der Fläche rutschen
   Z.x = Math.min(0, Math.max(box.width  - box.width  * Z.s, Z.x));
   Z.y = Math.min(0, Math.max(box.height - box.height * Z.s, Z.y));
-  img.style.transform = Z.s === 1 ? '' : `translate(${Z.x}px, ${Z.y}px) scale(${Z.s})`;
+  const t = Z.s === 1 ? '' : `translate(${Z.x}px, ${Z.y}px) scale(${Z.s})`;
+  img.style.transform = t;
+  $('v-draw').style.transform = t;   // Zeichnung zoomt/verschiebt sich mit dem Bild mit
   $('viewer').classList.toggle('is-zoomed', Z.s > 1);
 }
 
@@ -660,6 +784,7 @@ let _gesture = null;           // { startX, startY, moved, pinchDist, pinchScale
 $('v-stage').addEventListener('pointerdown', (e) => {
   if (e.target.closest('button')) return;
   $('v-stage').setPointerCapture(e.pointerId);
+  if (PEN.active) { startStroke(e); return; }
   _pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (_pointers.size === 1) {
     _gesture = { startX: e.clientX, startY: e.clientY, moved: false };
@@ -670,6 +795,7 @@ $('v-stage').addEventListener('pointerdown', (e) => {
 });
 
 $('v-stage').addEventListener('pointermove', (e) => {
+  if (PEN.active) { moveStroke(e); return; }
   const prev = _pointers.get(e.pointerId);
   if (!prev || !_gesture) return;
   _pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -689,6 +815,7 @@ $('v-stage').addEventListener('pointermove', (e) => {
 });
 
 function endPointer(e) {
+  if (PEN.active) { endStroke(); return; }
   if (!_pointers.has(e.pointerId)) return;
   _pointers.delete(e.pointerId);
   if (_pointers.size > 0 || !_gesture) return;
@@ -708,6 +835,7 @@ $('v-stage').addEventListener('pointerup', endPointer);
 $('v-stage').addEventListener('pointercancel', endPointer);
 
 $('v-stage').addEventListener('wheel', (e) => {
+  if (PEN.active) return;
   e.preventDefault();
   zoomAt(Z.s * Math.exp(-e.deltaY * 0.002), e.clientX, e.clientY);
 }, { passive: false });
@@ -728,6 +856,9 @@ document.addEventListener('keydown', (e) => {
       break;
     case 'k': case 'K':
       if (!isLocked()) { e.preventDefault(); $('v-note').focus(); }
+      break;
+    case 'p': case 'P':
+      if (!isLocked()) { e.preventDefault(); setPenActive(!PEN.active); }
       break;
   }
 });
