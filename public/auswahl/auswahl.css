@@ -109,14 +109,23 @@ input, textarea { font: inherit; color: inherit; }
   overflow-wrap: anywhere;
 }
 .project-phase {
-  margin-top: 8px;
-  font-size: 12px;
+  margin-top: 14px;
+  font-size: clamp(15px, 1.6vw, 19px);
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .02em;
-  color: var(--muted);
   text-align: center;
 }
 .project-phase:empty { display: none; }
+.project-phase-desc {
+  margin: 6px auto 0;
+  max-width: 480px;
+  font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.4;
+}
+.project-phase-desc:empty { display: none; }
 
 /* ── Screens (Laden, Du bist) ───────────────────────────────────────────── */
 

@@ -292,6 +292,19 @@ async function saveGallerySettings() {
   toast('Gespeichert', 'success');
 }
 
+async function saveGalleryPhase() {
+  const phase = document.getElementById('gd-input-phase').value;
+  showLoading('Speichere Status…');
+  const { ok, data } = await apiFetch(`/gallery/admin/galleries/${_gaCurrent.gallery.id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ phase }),
+  });
+  hideLoading();
+  if (!ok) { toast(data.error || 'Speichern fehlgeschlagen', 'error'); return; }
+  _gaCurrent = data;
+  toast('Status gespeichert - ist jetzt auf der Kundenseite sichtbar', 'success');
+}
+
 async function toggleGalleryLock() {
   const locked = _gaCurrent.gallery.status === 'freigegeben';
   showLoading();
@@ -759,6 +772,7 @@ document.getElementById('gd-toggle-lock').addEventListener('click', toggleGaller
 document.getElementById('gd-delete').addEventListener('click', deleteGallery);
 document.getElementById('gd-add-person').addEventListener('click', () => addPersonRow({}));
 document.getElementById('gd-save').addEventListener('click', saveGallerySettings);
+document.getElementById('gd-save-phase').addEventListener('click', saveGalleryPhase);
 document.getElementById('gd-logo-upload').addEventListener('click', () => document.getElementById('gd-logo-file').click());
 document.getElementById('gd-logo-file').addEventListener('change', (e) => {
   const file = e.target.files[0];
