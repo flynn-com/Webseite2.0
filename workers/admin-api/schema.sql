@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS galleries (
   title         TEXT NOT NULL,
   token         TEXT NOT NULL UNIQUE,          -- geheimer Kunden-Link
   status        TEXT NOT NULL DEFAULT 'offen', -- 'offen' | 'freigegeben' (gesperrt)
-  phase         TEXT NOT NULL DEFAULT 'Bilder Auswahl', -- Arbeitsschritt, siehe GALLERY_PHASES in gallery.js
+  phase         TEXT NOT NULL DEFAULT 'RAW-Auswahl', -- Arbeitsschritt, siehe GALLERY_PHASES in gallery.js
   raw_ext       TEXT NOT NULL DEFAULT '',      -- z.B. '.ARW' für den Export
   logo_key      TEXT,                          -- R2-Key des Kundenlogos (optional)
   created_at    INTEGER NOT NULL,
@@ -103,7 +103,12 @@ CREATE INDEX IF NOT EXISTS idx_drawings_gallery ON drawings(gallery_id, updated_
 --
 -- Migration: Projektstatus (nachträglich hinzugekommen)
 -- Bei einer bereits laufenden Datenbank einmalig nachziehen:
---   npx wrangler d1 execute auswahl --remote --command "ALTER TABLE galleries ADD COLUMN phase TEXT NOT NULL DEFAULT 'Bilder Auswahl';"
+--   npx wrangler d1 execute auswahl --remote --command "ALTER TABLE galleries ADD COLUMN phase TEXT NOT NULL DEFAULT 'RAW-Auswahl';"
 -- Bei einer neuen Datenbank ist die Spalte durch CREATE TABLE oben bereits da -
 -- "duplicate column name" ist in dem Fall einfach zu ignorieren.
+--
+-- Migration: Projektstatus-Namen umbenannt (nachträglich geändert)
+-- Die ursprünglichen 4 Status-Namen wurden auf 3 neue Namen umgestellt -
+-- bestehende Galerien mit den alten Werten einmalig nachziehen:
+--   npx wrangler d1 execute auswahl --remote --command "UPDATE galleries SET phase = 'RAW-Auswahl' WHERE phase = 'Bilder Auswahl'; UPDATE galleries SET phase = 'Erste Revision' WHERE phase = 'Erste Revisionsschleife'; UPDATE galleries SET phase = 'Zweite Revision' WHERE phase IN ('Zweite Revisionsschleife', 'Finale Revisionsschleife');"
 -- ─────────────────────────────────────────────────────────────────────────────

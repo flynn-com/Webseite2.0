@@ -20,9 +20,10 @@ const MAX_UPLOAD_MB = 40;
 const DRAWING_COLORS   = ['#ff2d4b', '#2563eb', '#22c55e'];
 const MAX_DRAWING_PTS  = 1500;
 
-// Arbeitsschritt des Projekts, vom Admin gesetzt, klein mittig unter dem
-// Projektnamen auf der Kundenseite sichtbar.
-const GALLERY_PHASES = ['Bilder Auswahl', 'Erste Revisionsschleife', 'Zweite Revisionsschleife', 'Finale Revisionsschleife'];
+// Arbeitsschritt des Projekts, vom Admin gesetzt, gut lesbar mittig unter
+// dem Projektnamen auf der Kundenseite sichtbar (siehe PHASE_DESCRIPTIONS
+// in auswahl.js für die Erklärtexte dazu).
+const GALLERY_PHASES = ['RAW-Auswahl', 'Erste Revision', 'Zweite Revision'];
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {

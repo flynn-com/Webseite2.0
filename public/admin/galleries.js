@@ -188,7 +188,7 @@ function renderGalleryDetail() {
 
   document.getElementById('gd-input-title').value = gallery.title;
   document.getElementById('gd-input-ext').value   = gallery.raw_ext || '';
-  document.getElementById('gd-input-phase').value = gallery.phase || 'Bilder Auswahl';
+  document.getElementById('gd-input-phase').value = gallery.phase || 'RAW-Auswahl';
   renderPeopleEditor(_gaCurrent.people);
   renderLogo();
 
