@@ -34,11 +34,6 @@ const MIME_MAP = {
   webm: 'video/webm',
 };
 
-function mimeFor(filename) {
-  const ext = filename.split('.').pop().toLowerCase();
-  return MIME_MAP[ext] || 'application/octet-stream';
-}
-
 // ── Pending-Upload-Tracking ───────────────────────────────────────────────────
 // Tracks which image paths were freshly uploaded but might not be on GitHub yet.
 // Survives page reloads via localStorage so we can warn the user if b64 data
